@@ -1,10 +1,13 @@
-public class MainActivity1 package com.example.gringuard;
+
+package com.example.gringaurd;
 
 import android.graphics.LinearGradient;
 import android.graphics.Shader;
 import android.os.Bundle;
 import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
+
+
 
 public class MainActivity extends AppCompatActivity {
 
