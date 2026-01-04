@@ -1,4 +1,4 @@
-package com.example.gringaurd;
+package com.example.gringuard;
 
 import android.os.Bundle;
 

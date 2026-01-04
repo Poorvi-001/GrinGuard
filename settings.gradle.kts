@@ -19,5 +19,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "GrinGaurd"
+rootProject.name = "Gringuard"
 include(":app")
