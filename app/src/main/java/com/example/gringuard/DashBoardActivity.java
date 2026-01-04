@@ -1,0 +1,49 @@
+package com.example.gringuard;
+
+ // Make sure this matches your project package name
+
+
+
+import android.content.Intent;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.ImageView;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.cardview.widget.CardView;
+
+public class DashBoardActivity extends AppCompatActivity {
+
+    private ImageView imagePreview;
+    private CardView previewCard;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.homepage1);
+
+        // 1. Link Header Profile Icon
+        View profileBtn = findViewById(R.id.profileClickArea);
+        profileBtn.setOnClickListener(v -> {
+            Intent intent = new Intent(DashBoardActivity.this, EditActivity.class);
+            startActivity(intent);
+        });
+
+        // 2. Link Upload Logic
+        CardView heroCard = findViewById(R.id.heroCard);
+        imagePreview = findViewById(R.id.imagePreview);
+        previewCard = findViewById(R.id.previewCard);
+
+        ActivityResultLauncher<String> getContent = registerForActivityResult(
+                new ActivityResultContracts.GetContent(),
+                uri -> {
+                    if (uri != null) {
+                        previewCard.setVisibility(View.VISIBLE);
+                        imagePreview.setImageURI(uri);
+                    }
+                });
+
+        heroCard.setOnClickListener(v -> getContent.launch("image/*"));
+    }
+}
