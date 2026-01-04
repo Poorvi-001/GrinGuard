@@ -32,7 +32,7 @@
         </activity>
 
         <activity
-            android:name=".MainActivity"
+            android:name=".MainActivity_login"
             android:exported="true">
         </activity>
     </application>
