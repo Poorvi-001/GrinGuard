@@ -1,15 +1,15 @@
 {
   "project_info": {
     "project_number": "138787761060",
-    "project_id": "gringaurd",
-    "storage_bucket": "gringaurd.firebasestorage.app"
+    "project_id": "gringuard",
+    "storage_bucket": "gringuard.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
         "mobilesdk_app_id": "1:138787761060:android:e0a8c5a57b925779b6ef31",
         "android_client_info": {
-          "package_name": "com.example.gringaurd"
+          "package_name": "com.example.gringuard"
         }
       },
       "oauth_client": [],

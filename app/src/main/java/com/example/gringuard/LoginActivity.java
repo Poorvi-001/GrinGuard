@@ -1,4 +1,4 @@
-package com.example.gringaurd;
+package com.example.gringuard;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -8,7 +8,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.example.gringaurd.R;
+import com.example.gringuard.R;
 import com.google.firebase.auth.FirebaseAuth;
 
 public class LoginActivity extends AppCompatActivity {
@@ -48,7 +48,9 @@ public class LoginActivity extends AppCompatActivity {
                     .addOnCompleteListener(task -> {
                         if (task.isSuccessful()) {
                             Toast.makeText(LoginActivity.this, "Success! Hello " + username, Toast.LENGTH_SHORT).show();
-                            // If there's no Dashboard, you can just stay on this screen for now
+                            Intent intent = new Intent(LoginActivity.this, ChatActivity.class);
+                            startActivity(intent);
+                            finish();
                         } else {
                             Toast.makeText(LoginActivity.this, "Error: " + task.getException().getMessage(), Toast.LENGTH_LONG).show();
                         }
@@ -74,6 +76,9 @@ public class LoginActivity extends AppCompatActivity {
                         if (task.isSuccessful()) {
                             // If account creation is successful
                             Toast.makeText(LoginActivity.this, "Sign up successful! You can now Log In.", Toast.LENGTH_LONG).show();
+                            Intent intent = new Intent(LoginActivity.this, ChatActivity.class);
+                            startActivity(intent);
+                            finish();
                         } else {
                             // If there's an error (e.g., user already exists, or password too short)
                             Toast.makeText(LoginActivity.this, "Sign up failed: " + task.getException().getMessage(), Toast.LENGTH_LONG).show();

@@ -5,13 +5,13 @@ plugins {
 }
 
 android {
-    namespace = "com.example.gringaurd"
+    namespace = "com.example.gringuard"
     compileSdk {
         version = release(36)
     }
 
     defaultConfig {
-        applicationId = "com.example.gringaurd"
+        applicationId = "com.example.gringuard"
         minSdk = 24
         targetSdk = 36
         versionCode = 1

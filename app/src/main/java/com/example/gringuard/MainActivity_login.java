@@ -1,4 +1,4 @@
-package com.example.gringaurd;
+package com.example.gringuard;
 
 import android.os.Bundle;
 
@@ -8,7 +8,7 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity_login extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

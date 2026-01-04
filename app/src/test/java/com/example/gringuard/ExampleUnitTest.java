@@ -1,4 +1,4 @@
-package com.example.gringaurd;
+package com.example.gringuard;
 
 import org.junit.Test;
 
