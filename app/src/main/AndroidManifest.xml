@@ -19,7 +19,8 @@
 
         <activity android:name=".DashBoardActivity"
             android:exported="true"/>
-
+        <activity android:name=".DentistActivity"
+            android:exported="true"/>
         <activity
             android:name=".ChatActivity"
             android:exported="false"
