@@ -27,8 +27,8 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Edit Profile"
-                    android:textSize="20sp"
+                    android:text="Profile"
+                    android:textSize="22sp"
                     android:textStyle="bold"
                     android:layout_gravity="center"
                     android:textColor="#333333"
@@ -79,10 +79,15 @@
                 <EditText android:id="@+id/lastNameInput" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Enter last name" android:layout_marginBottom="10dp"/>
 
                 <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Email Address" android:textSize="12sp" />
-                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical">
-                    <EditText android:id="@+id/emailInput" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:hint="email@example.com" android:inputType="textEmailAddress"/>
-                    <Button android:id="@+id/verifyBtn" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Verify" android:textSize="10sp" android:backgroundTint="#F0ECFF" android:textColor="#6A5CFF"/>
-                    <TextView android:id="@+id/verifiedBadge" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="✓ Verified" android:textColor="#1B7F4B" android:visibility="gone" android:padding="8dp"/>
+                <EditText android:id="@+id/emailInput" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="email@example.com" android:inputType="textEmailAddress" android:layout_marginBottom="10dp"/>
+
+                <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Age" android:textSize="12sp" />
+                <EditText android:id="@+id/ageInput" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Enter age" android:inputType="number" android:layout_marginBottom="10dp"/>
+
+                <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Gender" android:textSize="12sp" />
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal">
+                    <CheckBox android:id="@+id/genderMale" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Male" android:buttonTint="#F6B1D8"/>
+                    <CheckBox android:id="@+id/genderFemale" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Female" android:layout_marginStart="20dp" android:buttonTint="#F6B1D8"/>
                 </LinearLayout>
 
                 <Button
@@ -90,21 +95,22 @@
                     android:layout_width="match_parent"
                     android:layout_height="55dp"
                     android:layout_marginTop="20dp"
-                    android:text="Save Changes"
+                    android:text="Save"
                     android:textAllCaps="false"
                     android:backgroundTint="#F6B1D8"
                     android:textColor="#FFFFFF"
                     app:cornerRadius="20dp" />
 
                 <TextView
-                    android:id="@+id/forgotPasswordBtn"
+                    android:id="@+id/logoutBtn"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Forgot Password?"
+                    android:text="Logout"
                     android:layout_gravity="center"
                     android:layout_marginTop="15dp"
-                    android:textColor="#7A5CFF"
-                    android:textSize="14sp"
+                    android:textColor="#FF5C5C"
+                    android:textStyle="bold"
+                    android:textSize="16sp"
                     android:padding="10dp"/>
 
             </LinearLayout>
