@@ -168,6 +168,7 @@
         android:layout_height="wrap_content"
         android:layout_margin="25dp"
         android:src="@android:drawable/ic_menu_help"
+        android:contentDescription="Help"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:backgroundTint="#F6B1D8"
