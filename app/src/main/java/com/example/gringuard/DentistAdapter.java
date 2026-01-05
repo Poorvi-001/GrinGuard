@@ -51,10 +51,7 @@ public class DentistAdapter extends RecyclerView.Adapter<DentistAdapter.ViewHold
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             tvName = itemView.findViewById(R.id.tvName);
-            tvQual = itemView.findViewById(R.id.tvQualification);
-            tvReg = itemView.findViewById(R.id.tvRegNo);
             tvPhone = itemView.findViewById(R.id.tvPhone);
-            tvEmail = itemView.findViewById(R.id.tvEmail);
         }
     }
 }

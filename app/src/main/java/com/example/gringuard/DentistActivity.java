@@ -1,60 +1,59 @@
 package com.example.gringuard;
 
 import android.os.Bundle;
-import android.text.Editable;
-import android.text.TextWatcher;
-import android.widget.EditText;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SearchView;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.example.gringuard.Dentist;
+import com.example.gringuard.DentistAdapter;
+import com.example.gringuard.R;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class DentistActivity extends AppCompatActivity {
 
-    private RecyclerView recyclerView;
     private DentistAdapter adapter;
-    private List<Dentist> mainList; // The master list
-    private EditText searchBar;
+    private List<Dentist> dentistList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_dentist_list);
 
-        searchBar = findViewById(R.id.searchState);
-        recyclerView = findViewById(R.id.dentistRecyclerView);
+        initializeData();
 
-        // 1. Fill the Master List
-        mainList = new ArrayList<>();
-        mainList.add(new Dentist("Dr. Neeraj Verma", "MDS", "A-101", "9811022334", "neeraj@dent.in", "Delhi"));
-        mainList.add(new Dentist("Dr. Rajesh Koppikar", "BDS", "B-504", "9869011223", "raj@dent.in", "Maharashtra"));
-        mainList.add(new Dentist("Dr. Uday Mukherjee", "MDS", "C-303", "9433011445", "uday@dent.in", "West Bengal"));
-
-        // 2. Initialize Adapter with a COPY of the master list
-        adapter = new DentistAdapter(new ArrayList<>(mainList));
+        RecyclerView recyclerView = findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
+
+        adapter = new DentistAdapter(dentistList);
         recyclerView.setAdapter(adapter);
 
-        // 3. Search Logic inside the Activity
-        searchBar.addTextChangedListener(new TextWatcher() {
+        SearchView searchView = findViewById(R.id.searchView);
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                filterData(s.toString());
+            public boolean onQueryTextSubmit(String query) { return false; }
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                adapter.filter(newText);
+                return true;
             }
-            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-            @Override public void afterTextChanged(Editable s) {}
         });
     }
 
-    private void filterData(String query) {
-        List<Dentist> filteredList = new ArrayList<>();
-        for (Dentist d : mainList) {
-            if (d.state.toLowerCase().contains(query.toLowerCase())) {
-                filteredList.add(d);
-            }
-        }
-        // Send the new filtered list to the adapter
-        adapter.updateList(filteredList);
+    private void initializeData() {
+        dentistList = new ArrayList<>();
+        // Sample Static Data for Indian States
+        dentistList.add(new Dentist("Dr. Aarav Sharma", "Maharashtra", "+91 98765 43210"));
+        dentistList.add(new Dentist("Dr. Ishita Iyer", "Tamil Nadu", "+91 91234 56789"));
+        dentistList.add(new Dentist("Dr. Kabir Singh", "Punjab", "+91 99887 76655"));
+        dentistList.add(new Dentist("Dr. Meera Reddy", "Andhra Pradesh", "+91 88776 65544"));
+        dentistList.add(new Dentist("Dr. Rohan Gupta", "Delhi", "+91 95554 43322"));
+        dentistList.add(new Dentist("Dr. Ananya Das", "West Bengal", "+91 94443 32211"));
+        dentistList.add(new Dentist("Dr. Vikram Verma", "Karnataka", "+91 96665 54433"));
+        dentistList.add(new Dentist("Dr. Sana Khan", "Uttar Pradesh", "+91 97776 65544"));
+        // You can add more for all 28 states here...
     }
 }
