@@ -48,7 +48,7 @@ public class LoginActivity extends AppCompatActivity {
                     .addOnCompleteListener(task -> {
                         if (task.isSuccessful()) {
                             Toast.makeText(LoginActivity.this, "Success! Hello " + username, Toast.LENGTH_SHORT).show();
-                            Intent intent = new Intent(LoginActivity.this, ChatActivity.class);
+                            Intent intent = new Intent(LoginActivity.this, DashBoardActivity.class);
                             startActivity(intent);
                             finish();
                         } else {
@@ -76,7 +76,7 @@ public class LoginActivity extends AppCompatActivity {
                         if (task.isSuccessful()) {
                             // If account creation is successful
                             Toast.makeText(LoginActivity.this, "Sign up successful! You can now Log In.", Toast.LENGTH_LONG).show();
-                            Intent intent = new Intent(LoginActivity.this, ChatActivity.class);
+                            Intent intent = new Intent(LoginActivity.this, DashBoardActivity.class);
                             startActivity(intent);
                             finish();
                         } else {
