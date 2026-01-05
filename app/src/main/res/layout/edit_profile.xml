@@ -73,16 +73,16 @@
                 </LinearLayout>
 
                 <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="First Name" android:textSize="12sp" android:layout_marginTop="10dp"/>
-                <EditText android:id="@+id/firstNameInput" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Enter first name" android:layout_marginBottom="10dp"/>
+                <EditText android:id="@+id/firstNameInput" android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="48dp" android:hint="Enter first name" android:layout_marginBottom="10dp"/>
 
                 <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Last Name" android:textSize="12sp"/>
-                <EditText android:id="@+id/lastNameInput" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Enter last name" android:layout_marginBottom="10dp"/>
+                <EditText android:id="@+id/lastNameInput" android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="48dp" android:hint="Enter last name" android:layout_marginBottom="10dp"/>
 
                 <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Email Address" android:textSize="12sp" />
-                <EditText android:id="@+id/emailInput" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="email@example.com" android:inputType="textEmailAddress" android:layout_marginBottom="10dp"/>
+                <EditText android:id="@+id/emailInput" android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="48dp" android:hint="email@example.com" android:inputType="textEmailAddress" android:layout_marginBottom="10dp"/>
 
                 <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Age" android:textSize="12sp" />
-                <EditText android:id="@+id/ageInput" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Enter age" android:inputType="number" android:layout_marginBottom="10dp"/>
+                <EditText android:id="@+id/ageInput" android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="48dp" android:hint="Enter age" android:inputType="number" android:layout_marginBottom="10dp"/>
 
                 <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Gender" android:textSize="12sp" />
                 <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal">

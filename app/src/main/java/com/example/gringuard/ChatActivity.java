@@ -12,6 +12,8 @@ import android.widget.EditText;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
+import io.noties.markwon.Markwon;
+
 
 import com.google.ai.client.generativeai.GenerativeModel;
 import com.google.ai.client.generativeai.java.ChatFutures;
@@ -30,7 +32,9 @@ public class ChatActivity extends AppCompatActivity {
     private EditText inputEditText;
     private Button sendButton;
     private ScrollView scrollView;
-    private io.noties.markwon.Markwon markwon;
+    private Markwon markwon;
+
+    //    private io.noties.markwon.Markwon markwon;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
