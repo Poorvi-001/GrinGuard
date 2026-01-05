@@ -103,6 +103,7 @@
                 android:alignmentMode="alignMargins">
 
                 <androidx.cardview.widget.CardView
+                    android:id="@+id/healthTrackerCard"
                     android:layout_width="0dp"
                     android:layout_height="145dp"
                     android:layout_columnWeight="1"
@@ -116,6 +117,7 @@
                 </androidx.cardview.widget.CardView>
 
                 <androidx.cardview.widget.CardView
+                    android:id="@+id/exportReportCard"
                     android:layout_width="0dp"
                     android:layout_height="145dp"
                     android:layout_columnWeight="1"
@@ -129,6 +131,7 @@
                 </androidx.cardview.widget.CardView>
 
                 <androidx.cardview.widget.CardView
+                    android:id="@+id/virtualAssistantCard"
                     android:layout_width="0dp"
                     android:layout_height="145dp"
                     android:layout_columnWeight="1"
@@ -142,6 +145,7 @@
                 </androidx.cardview.widget.CardView>
 
                 <androidx.cardview.widget.CardView
+                    android:id="@+id/dentistCard"
                     android:layout_width="0dp"
                     android:layout_height="145dp"
                     android:layout_columnWeight="1"

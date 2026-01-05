@@ -30,12 +30,12 @@ public class ChatActivity extends AppCompatActivity {
     private EditText inputEditText;
     private Button sendButton;
     private ScrollView scrollView;
-
+    private io.noties.markwon.Markwon markwon;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
-
+        markwon = io.noties.markwon.Markwon.create(this);
         chatResponse = findViewById(R.id.chatResponse);
         inputEditText = findViewById(R.id.inputEditText);
         sendButton = findViewById(R.id.sendButton);
@@ -45,7 +45,7 @@ public class ChatActivity extends AppCompatActivity {
 
         GenerativeModel gm = new GenerativeModel(
                 "gemini-2.5-flash",
-                "AIzaSyAoJ623nUM4cnSZvw58KYdfCSkPGU3i2TE",
+                "AIzaSyBKMXzGx5JP_uJ8I5XWDOVwPeZTIfT2YlM",
                 config
         );
         model = GenerativeModelFutures.from(gm);
@@ -66,30 +66,41 @@ public class ChatActivity extends AppCompatActivity {
     }
 
     private void appendChatLog(String sender, String message) {
-        SpannableStringBuilder builder = new SpannableStringBuilder();
-        int start = builder.length();
+        runOnUiThread(() -> {
+            SpannableStringBuilder builder = new SpannableStringBuilder();
 
-        builder.append(sender + ": ");
+            // 1. If there is already text, add space before the new message block
+            if (chatResponse.getText().length() > 0) {
+                builder.append("\n\n");
+            }
 
-        // 1. Style the Sender (You vs GrinGuard)
-        builder.setSpan(new StyleSpan(Typeface.BOLD), start, builder.length(), 0);
-        int color = sender.equals("You") ? 0xFFFF1493 : 0xFF000000;
-        builder.setSpan(new ForegroundColorSpan(color), start, builder.length(), 0);
+            int start = builder.length();
+            // 2. Add Name + Newline so text starts below the name
+            builder.append(sender).append(":\n");
 
-        // 2. Clean the Message
-        if (sender.equals("GrinGuard")) {
-            // This converts **text** into <b>text</b> so Android displays it as real BOLD
-            String boldedMessage = message.replaceAll("\\*\\*(.*?)\\*\\*", "<b>$1</b>");
-            builder.append(Html.fromHtml(boldedMessage, Html.FROM_HTML_MODE_LEGACY));
-        } else {
-            builder.append(cleanMarkdown(message));
-        }
+            // 3. Style: Always BOLD
+            builder.setSpan(new StyleSpan(Typeface.BOLD), start, builder.length(), 0);
 
-        builder.append("\n\n");
-        chatResponse.append(builder);
+            // 4. Style: Colors (Back to your original settings)
+            // You = Pink, GrinGuard = Black
+            int color = sender.equals("You") ? 0xFFFF1493 : 0xFF000000;
+            builder.setSpan(new ForegroundColorSpan(color), start, builder.length(), 0);
 
-        // Auto-scroll to bottom
-        scrollView.post(() -> scrollView.fullScroll(ScrollView.FOCUS_DOWN));
+            chatResponse.append(builder);
+
+            // 5. Append message content
+            if (sender.equals("GrinGuard")) {
+                // Get all text currently in the box, add the new bot reply, and re-render
+                String combinedText = chatResponse.getText().toString() + message;
+                markwon.setMarkdown(chatResponse, combinedText);
+            } else {
+                // For the user, just simple append
+                chatResponse.append(message);
+            }
+
+            // 6. Scroll to bottom
+            scrollView.post(() -> scrollView.fullScroll(ScrollView.FOCUS_DOWN));
+        });
     }
 
     private void askGemini(String userText) {
@@ -114,11 +125,5 @@ public class ChatActivity extends AppCompatActivity {
                 });
             }
         }, androidx.core.content.ContextCompat.getMainExecutor(this));
-    }
-    private String cleanMarkdown(String text) {
-        // This removes asterisks, underscores, and extra whitespace
-        return text.replaceAll("\\*", "")
-                .replaceAll("_", "")
-                .trim();
     }
 }
