@@ -2,19 +2,19 @@ package com.example.gringuard;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.example.gringuard.R;
 import com.google.firebase.auth.FirebaseAuth;
 
 public class LoginActivity extends AppCompatActivity {
 
     private EditText emailBox, passBox;
     private Button btnLogin, btnSignup;
+    private TextView btnForgotPass;
     private FirebaseAuth mAuth;
 
     @Override
@@ -22,66 +22,73 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        // 1. Initialize Firebase Auth
         mAuth = FirebaseAuth.getInstance();
 
-        // 2. Link Java variables to XML IDs
         emailBox = findViewById(R.id.emailBox);
         passBox = findViewById(R.id.passBox);
         btnLogin = findViewById(R.id.btnLogin);
         btnSignup = findViewById(R.id.btnSignup);
+        btnForgotPass = findViewById(R.id.btnForgotPass);
 
-        // 3. Login Button Logic
+        // --- SIGN IN LOGIC ---
         btnLogin.setOnClickListener(v -> {
-            String username = emailBox.getText().toString().trim(); // This is your username
+            String email = emailBox.getText().toString().trim();
             String password = passBox.getText().toString().trim();
 
-            if (username.isEmpty() || password.isEmpty()) {
-                Toast.makeText(LoginActivity.this, "Please enter both username and password", Toast.LENGTH_SHORT).show();
+            if (email.isEmpty() || password.isEmpty()) {
+                Toast.makeText(this, "Please enter email and password", Toast.LENGTH_SHORT).show();
                 return;
             }
 
-            // Firebase needs an email format, so we turn "Apoorva" into "Apoorva@gringuard.com"
-            String fakeEmail = username + "@gringuard.com";
-
-            mAuth.signInWithEmailAndPassword(fakeEmail, password)
+            mAuth.signInWithEmailAndPassword(email, password)
                     .addOnCompleteListener(task -> {
                         if (task.isSuccessful()) {
-                            Toast.makeText(LoginActivity.this, "Success! Hello " + username, Toast.LENGTH_SHORT).show();
-                            Intent intent = new Intent(LoginActivity.this, DashBoardActivity.class);
-                            startActivity(intent);
+                            Toast.makeText(this, "SignIn Successful!", Toast.LENGTH_SHORT).show();
+                            startActivity(new Intent(this, DashBoardActivity.class));
                             finish();
                         } else {
-                            Toast.makeText(LoginActivity.this, "Error: " + task.getException().getMessage(), Toast.LENGTH_LONG).show();
+                            Toast.makeText(this, "Error: " + task.getException().getMessage(), Toast.LENGTH_LONG).show();
                         }
                     });
         });
 
-        // 4. Signup Button Logic (Redirects to a Signup page or handles it here)
+        // --- SIGN UP LOGIC ---
         btnSignup.setOnClickListener(v -> {
-            String username = emailBox.getText().toString().trim();
+            String email = emailBox.getText().toString().trim();
             String password = passBox.getText().toString().trim();
 
-            if (username.isEmpty() || password.isEmpty()) {
-                Toast.makeText(LoginActivity.this, "Please enter username and password to sign up", Toast.LENGTH_SHORT).show();
+            if (email.isEmpty() || password.length() < 6) {
+                Toast.makeText(this, "Valid email and 6-char password required", Toast.LENGTH_SHORT).show();
                 return;
             }
 
-            // Convert username to the "fake" email format for Firebase
-            String fakeEmail = username + "@gringuard.com";
-
-            // Create the user in Firebase
-            mAuth.createUserWithEmailAndPassword(fakeEmail, password)
+            mAuth.createUserWithEmailAndPassword(email, password)
                     .addOnCompleteListener(task -> {
                         if (task.isSuccessful()) {
-                            // If account creation is successful
-                            Toast.makeText(LoginActivity.this, "Sign up successful! You can now Log In.", Toast.LENGTH_LONG).show();
-                            Intent intent = new Intent(LoginActivity.this, DashBoardActivity.class);
-                            startActivity(intent);
+                            Toast.makeText(this, "SignUp Successful!", Toast.LENGTH_SHORT).show();
+                            startActivity(new Intent(this, DashBoardActivity.class));
                             finish();
                         } else {
-                            // If there's an error (e.g., user already exists, or password too short)
-                            Toast.makeText(LoginActivity.this, "Sign up failed: " + task.getException().getMessage(), Toast.LENGTH_LONG).show();
+                            Toast.makeText(this, "Signup Failed: " + task.getException().getMessage(), Toast.LENGTH_LONG).show();
+                        }
+                    });
+        });
+
+        // --- FORGOT PASSWORD LOGIC ---
+        btnForgotPass.setOnClickListener(v -> {
+            String email = emailBox.getText().toString().trim();
+
+            if (email.isEmpty()) {
+                Toast.makeText(this, "Enter your email to receive a reset link", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            mAuth.sendPasswordResetEmail(email)
+                    .addOnCompleteListener(task -> {
+                        if (task.isSuccessful()) {
+                            Toast.makeText(this, "Reset link sent to " + email, Toast.LENGTH_LONG).show();
+                        } else {
+                            Toast.makeText(this, "Failed: " + task.getException().getMessage(), Toast.LENGTH_LONG).show();
                         }
                     });
         });

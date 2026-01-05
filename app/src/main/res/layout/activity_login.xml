@@ -10,7 +10,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
-        app:cardCornerRadius="15dp"
+        app:cardCornerRadius="20dp"
         app:cardElevation="8dp">
 
         <LinearLayout
@@ -23,16 +23,16 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="30dp"
+                android:layout_marginBottom="25dp"
                 android:text="GRINGUARD"
                 android:textColor="#E91E63"
-                android:textSize="22sp"
+                android:textSize="26sp"
                 android:textStyle="bold" />
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Username"
+                android:text="Email Address"
                 android:textColor="#E91E63"
                 android:textStyle="bold"
                 android:layout_marginBottom="5dp"/>
@@ -41,7 +41,7 @@
                 android:id="@+id/emailBox"
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
-                android:hint="Enter Username"
+                android:hint="example@email.com"
                 android:paddingLeft="15dp"
                 android:background="@android:drawable/editbox_background"
                 android:backgroundTint="#F8BBD0"
@@ -66,20 +66,33 @@
                 android:backgroundTint="#F8BBD0"
                 android:inputType="textPassword"/>
 
+            <TextView
+                android:id="@+id/btnForgotPass"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Forgot Password?"
+                android:textColor="#C2185B"
+                android:layout_gravity="end"
+                android:layout_marginTop="8dp"
+                android:textSize="14sp"
+                android:textStyle="italic" />
+
             <Button
                 android:id="@+id/btnLogin"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="55dp"
                 android:text="SignIn"
+                android:textAllCaps="false"
                 android:textColor="#FFFFFF"
                 android:backgroundTint="#E91E63"
-                android:layout_marginTop="30dp" />
+                android:layout_marginTop="20dp" />
 
             <Button
                 android:id="@+id/btnSignup"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="55dp"
                 android:text="SignUp"
+                android:textAllCaps="false"
                 android:textColor="#FFFFFF"
                 android:backgroundTint="#F06292"
                 android:layout_marginTop="10dp" />
