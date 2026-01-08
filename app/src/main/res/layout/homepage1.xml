@@ -14,13 +14,17 @@
         android:paddingHorizontal="20dp"
         app:layout_constraintTop_toTopOf="parent">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="☰"
-            android:textSize="22sp"
-            android:textColor="#333"
-            android:layout_centerVertical="true"/>
+        <ImageView
+            android:id="@+id/menuAboutUs"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:src="@drawable/about_us"
+            android:contentDescription="About Us"
+            android:clickable="true"
+            android:focusable="true"
+            android:layout_centerVertical="true"
+            android:padding="8dp"
+            android:background="?attr/selectableItemBackgroundBorderless" />
 
         <TextView
             android:layout_width="wrap_content"
