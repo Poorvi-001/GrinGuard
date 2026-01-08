@@ -18,7 +18,6 @@ public class EditActivity extends AppCompatActivity {
     private RadioButton genderMale, genderFemale;
     private Button saveBtn;
 
-    // Launcher to pick image from gallery
     private final ActivityResultLauncher<Intent> galleryLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
             result -> {
@@ -32,7 +31,7 @@ public class EditActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.edit_profile);
+        setContentView(R.layout.homepage1);
 
         initViews();
         setupClickListeners();
@@ -47,27 +46,28 @@ public class EditActivity extends AppCompatActivity {
         lastNameInput = findViewById(R.id.lastNameInput);
         emailInput = findViewById(R.id.emailInput);
         ageInput = findViewById(R.id.ageInput);
+
+        // Linking Gender Group
         genderGroup = findViewById(R.id.genderGroup);
         genderMale = findViewById(R.id.genderMale);
         genderFemale = findViewById(R.id.genderFemale);
+
         saveBtn = findViewById(R.id.saveBtn);
     }
 
     private void setupClickListeners() {
-        // Change Photo logic
         changePhotoBtn.setOnClickListener(v -> {
             Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
             galleryLauncher.launch(intent);
         });
 
-        // Remove Photo logic
         removePhotoBtn.setOnClickListener(v -> {
             profileImg.setImageResource(android.R.drawable.ic_menu_gallery);
-            Toast.makeText(this, "Image Removed", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Photo Removed", Toast.LENGTH_SHORT).show();
         });
 
         saveBtn.setOnClickListener(v -> {
-            Toast.makeText(this, "Profile Saved!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Profile Saved", Toast.LENGTH_SHORT).show();
         });
 
         logoutBtn.setOnClickListener(v -> finish());
