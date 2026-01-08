@@ -50,7 +50,16 @@ public class DashBoardActivity extends AppCompatActivity {
                     }
                 });
 
-        // 3. Virtual Assistant Click → Open Chatbot
+        // 3-line Menu Click → Open About Us
+        ImageView menuAboutUs = findViewById(R.id.menuAboutUs);
+
+        menuAboutUs.setOnClickListener(v -> {
+            Intent intent = new Intent(DashBoardActivity.this, AboutUsActivity.class);
+            startActivity(intent);
+        });
+
+
+        // 4. Virtual Assistant Click → Open Chatbot
         CardView virtualAssistantCard = findViewById(R.id.virtualAssistantCard);
 
         virtualAssistantCard.setOnClickListener(v -> {
