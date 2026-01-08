@@ -1,14 +1,29 @@
-package com.example.gringuard;
+package com.example.gringuard; // Ensure this matches your package name at the top of other files
 
 public class Dentist {
-    public String name, qualification, regNo, phone, email, state;
+    private String name;
+    private String state;
+    private String phone;
 
-    public Dentist(String name, String qualification, String regNo, String phone, String email, String state) {
+    // Constructor to initialize the dentist details
+    public Dentist(String name, String state, String phone) {
         this.name = name;
-        this.qualification = qualification;
-        this.regNo = regNo;
-        this.phone = phone;
-        this.email = email;
         this.state = state;
+        this.phone = phone;
+    }
+
+    // This method allows the filter and adapter to see the Name
+    public String getName() {
+        return name;
+    }
+
+    // This method allows the filter and adapter to see the State
+    public String getState() {
+        return state;
+    }
+
+    // This method allows the adapter to get the Phone number for the call intent
+    public String getPhone() {
+        return phone;
     }
 }
