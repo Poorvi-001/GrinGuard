@@ -5,11 +5,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
-import com.example.gringuard.Dentist;
-import com.example.gringuard.DentistAdapter;
-import com.example.gringuard.R;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,6 +23,7 @@ public class DentistActivity extends AppCompatActivity {
         RecyclerView recyclerView = findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
+        // Initialize adapter WITH the list
         adapter = new DentistAdapter(dentistList);
         recyclerView.setAdapter(adapter);
 
@@ -45,7 +41,6 @@ public class DentistActivity extends AppCompatActivity {
 
     private void initializeData() {
         dentistList = new ArrayList<>();
-        // Sample Static Data for Indian States
         dentistList.add(new Dentist("Dr. Aarav Sharma", "Maharashtra", "+91 98765 43210"));
         dentistList.add(new Dentist("Dr. Ishita Iyer", "Tamil Nadu", "+91 91234 56789"));
         dentistList.add(new Dentist("Dr. Kabir Singh", "Punjab", "+91 99887 76655"));
@@ -54,6 +49,5 @@ public class DentistActivity extends AppCompatActivity {
         dentistList.add(new Dentist("Dr. Ananya Das", "West Bengal", "+91 94443 32211"));
         dentistList.add(new Dentist("Dr. Vikram Verma", "Karnataka", "+91 96665 54433"));
         dentistList.add(new Dentist("Dr. Sana Khan", "Uttar Pradesh", "+91 97776 65544"));
-        // You can add more for all 28 states here...
     }
 }

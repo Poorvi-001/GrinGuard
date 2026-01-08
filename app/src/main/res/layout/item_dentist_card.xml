@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
@@ -22,7 +23,7 @@
                 android:id="@+id/tvName"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="@color/primary_pink"
+                android:textColor="#E91E63"
                 android:textSize="18sp"
                 android:textStyle="bold" />
 
@@ -31,7 +32,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="2dp"
-                android:textColor="color"
+                android:textColor="#555555"
                 android:textSize="14sp" />
 
             <TextView
@@ -40,7 +41,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:textStyle="italic"
-                android:textColor="circle_bg_pink" />
+                android:textColor="#F06292" />
         </LinearLayout>
 
         <ImageView
@@ -51,7 +52,7 @@
             android:background="@drawable/circle_bg_pink"
             android:padding="8dp"
             android:src="@android:drawable/ic_menu_call"
-            app:tint="@color/white" />
+            app:tint="@android:color/white" />
 
     </LinearLayout>
 </androidx.cardview.widget.CardView>
