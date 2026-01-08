@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#FFEBEE">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Cavity Depth Assessment"
+            android:textColor="#AD1457"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:gravity="center"
+            android:layout_marginBottom="20dp"/>
+
+        <androidx.cardview.widget.CardView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="12dp" app:cardCornerRadius="8dp">
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="12dp">
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="1. What do you see?" android:textStyle="bold" android:textColor="#880E4F"/>
+                <RadioGroup android:id="@+id/rgVisual" android:layout_width="match_parent" android:layout_height="wrap_content">
+                    <RadioButton android:id="@+id/q1_low" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Dark grooves or white spots"/>
+                    <RadioButton android:id="@+id/q1_med" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Visible hole (Brown/Black)"/>
+                    <RadioButton android:id="@+id/q1_high" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Large hole or broken tooth"/>
+                </RadioGroup>
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <androidx.cardview.widget.CardView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="12dp" app:cardCornerRadius="8dp">
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="12dp">
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="2. Reaction to Sugar/Sweets?" android:textStyle="bold" android:textColor="#880E4F"/>
+                <RadioGroup android:id="@+id/rgSweets" android:layout_width="match_parent" android:layout_height="wrap_content">
+                    <RadioButton android:id="@+id/q2_low" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="None"/>
+                    <RadioButton android:id="@+id/q2_med" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Brief zing"/>
+                    <RadioButton android:id="@+id/q2_high" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Lingering intense pain"/>
+                </RadioGroup>
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <androidx.cardview.widget.CardView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="12dp" app:cardCornerRadius="8dp">
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="12dp">
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="3. Temperature Sensitivity?" android:textStyle="bold" android:textColor="#880E4F"/>
+                <RadioGroup android:id="@+id/rgTemp" android:layout_width="match_parent" android:layout_height="wrap_content">
+                    <RadioButton android:id="@+id/q3_low" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Cold only (Brief)"/>
+                    <RadioButton android:id="@+id/q3_med" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Cold (Lingering)"/>
+                    <RadioButton android:id="@+id/q3_high" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Pain to HEAT/Hot drinks"/>
+                </RadioGroup>
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <androidx.cardview.widget.CardView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="12dp" app:cardCornerRadius="8dp">
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="12dp">
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="4. Pain at Night?" android:textStyle="bold" android:textColor="#880E4F"/>
+                <RadioGroup android:id="@+id/rgNight" android:layout_width="match_parent" android:layout_height="wrap_content">
+                    <RadioButton android:id="@+id/q4_low" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="None"/>
+                    <RadioButton android:id="@+id/q4_med" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Aches when lying down"/>
+                    <RadioButton android:id="@+id/q4_high" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Wakes you up from sleep"/>
+                </RadioGroup>
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <androidx.cardview.widget.CardView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="12dp" app:cardCornerRadius="8dp">
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="12dp">
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="5. Food Trapping?" android:textStyle="bold" android:textColor="#880E4F"/>
+                <RadioGroup android:id="@+id/rgFood" android:layout_width="match_parent" android:layout_height="wrap_content">
+                    <RadioButton android:id="@+id/q5_low" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Rarely"/>
+                    <RadioButton android:id="@+id/q5_med" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Occasionally"/>
+                    <RadioButton android:id="@+id/q5_high" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Every time I eat"/>
+                </RadioGroup>
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <androidx.cardview.widget.CardView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="24dp" app:cardCornerRadius="8dp">
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="12dp">
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="6. Gum Condition?" android:textStyle="bold" android:textColor="#880E4F"/>
+                <RadioGroup android:id="@+id/rgGums" android:layout_width="match_parent" android:layout_height="wrap_content">
+                    <RadioButton android:id="@+id/q6_low" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Normal"/>
+                    <RadioButton android:id="@+id/q6_med" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Bleeding when brushing"/>
+                    <RadioButton android:id="@+id/q6_high" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Pimple/Swelling on gum"/>
+                </RadioGroup>
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <Button
+            android:id="@+id/btnAnalyze"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:text="Analyze Cavity"
+            android:backgroundTint="#E91E63"
+            android:textColor="#FFFFFF"/>
+
+        <TextView
+            android:id="@+id/tvCavityResult"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:gravity="center"
+            android:padding="15dp"
+            android:background="#FFFFFF"
+            android:textColor="#AD1457"
+            android:text="Complete assessment to see results"/>
+
+    </LinearLayout>
+</ScrollView>
