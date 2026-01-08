@@ -20,7 +20,7 @@ public class EditActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.homepage1);
+        setContentView(R.layout.edit_profile);
 
         // Initialize Views
         profileImg = findViewById(R.id.profileImg);
