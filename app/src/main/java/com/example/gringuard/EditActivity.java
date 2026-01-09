@@ -31,7 +31,7 @@ public class EditActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.homepage1);
+        setContentView(R.layout.edit_profile);
 
         initViews();
         setupClickListeners();
@@ -68,8 +68,17 @@ public class EditActivity extends AppCompatActivity {
 
         saveBtn.setOnClickListener(v -> {
             Toast.makeText(this, "Profile Saved", Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(EditActivity.this, DashBoardActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            startActivity(intent);
+            finish();
         });
 
-        logoutBtn.setOnClickListener(v -> finish());
+        logoutBtn.setOnClickListener(v -> {
+            Intent intent = new Intent(EditActivity.this, LoginActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+            finish();
+        });
     }
 }
