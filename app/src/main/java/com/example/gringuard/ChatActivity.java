@@ -49,7 +49,7 @@ public class ChatActivity extends AppCompatActivity {
 
         GenerativeModel gm = new GenerativeModel(
                 "gemini-2.5-flash",
-                "AIzaSyBKMXzGx5JP_uJ8I5XWDOVwPeZTIfT2YlM",
+                "AIzaSyA_nj6k6sY87HbOkVthO6AJnr_dW6xHAJg",
                 config
         );
         model = GenerativeModelFutures.from(gm);
