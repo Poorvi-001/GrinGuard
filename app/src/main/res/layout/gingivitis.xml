@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#FFEBEE">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Gingivitis Severity Assessment"
+            android:textColor="#AD1457"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:gravity="center"
+            android:layout_marginBottom="20dp"/>
+
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            app:cardCornerRadius="8dp"
+            app:cardBackgroundColor="#FFFFFF">
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="12dp">
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="1. Bleeding Frequency" android:textStyle="bold" android:textColor="#880E4F"/>
+                <RadioGroup android:id="@+id/rgVisual" android:layout_width="match_parent" android:layout_height="wrap_content">
+                    <RadioButton android:id="@+id/q1_low" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Only during hard brushing"/>
+                    <RadioButton android:id="@+id/q1_med" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Every time I brush/floss"/>
+                    <RadioButton android:id="@+id/q1_high" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Spontaneous (bleeding on its own)"/>
+                </RadioGroup>
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <androidx.cardview.widget.CardView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="12dp" app:cardCornerRadius="8dp" app:cardBackgroundColor="#FFFFFF">
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="12dp">
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="2. Gum Color" android:textStyle="bold" android:textColor="#880E4F"/>
+                <RadioGroup android:id="@+id/rgColor" android:layout_width="match_parent" android:layout_height="wrap_content">
+                    <RadioButton android:id="@+id/q2_low" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Mostly pink"/>
+                    <RadioButton android:id="@+id/q2_med" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Bright red in several spots"/>
+                    <RadioButton android:id="@+id/q2_high" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Deep red or purplish"/>
+                </RadioGroup>
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <androidx.cardview.widget.CardView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="12dp" app:cardCornerRadius="8dp" app:cardBackgroundColor="#FFFFFF">
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="12dp">
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="3. Gum Sensitivity" android:textStyle="bold" android:textColor="#880E4F"/>
+                <RadioGroup android:id="@+id/rgSensitivity" android:layout_width="match_parent" android:layout_height="wrap_content">
+                    <RadioButton android:id="@+id/q3_low" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="No pain or sensitivity"/>
+                    <RadioButton android:id="@+id/q3_med" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Tender when touched/flossing"/>
+                    <RadioButton android:id="@+id/q3_high" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Painful even without touch"/>
+                </RadioGroup>
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <androidx.cardview.widget.CardView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="12dp" app:cardCornerRadius="8dp" app:cardBackgroundColor="#FFFFFF">
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="12dp">
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="4. Swelling (Edema)" android:textStyle="bold" android:textColor="#880E4F"/>
+                <RadioGroup android:id="@+id/rgSwelling" android:layout_width="match_parent" android:layout_height="wrap_content">
+                    <RadioButton android:id="@+id/q4_low" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Slightly puffy between teeth"/>
+                    <RadioButton android:id="@+id/q4_med" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Visible swelling across gum line"/>
+                    <RadioButton android:id="@+id/q4_high" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Bulging; partly covers teeth"/>
+                </RadioGroup>
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <androidx.cardview.widget.CardView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="12dp" app:cardCornerRadius="8dp" app:cardBackgroundColor="#FFFFFF">
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="12dp">
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="5. Spread of Symptoms" android:textStyle="bold" android:textColor="#880E4F"/>
+                <RadioGroup android:id="@+id/rgCoverage" android:layout_width="match_parent" android:layout_height="wrap_content">
+                    <RadioButton android:id="@+id/q5_low" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Only 1 or 2 spots"/>
+                    <RadioButton android:id="@+id/q5_med" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Multiple areas involved"/>
+                    <RadioButton android:id="@+id/q5_high" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Most of the mouth is affected"/>
+                </RadioGroup>
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <androidx.cardview.widget.CardView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="24dp" app:cardCornerRadius="8dp" app:cardBackgroundColor="#FFFFFF">
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="12dp">
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="6. Breath &amp; Taste" android:textStyle="bold" android:textColor="#880E4F"/>
+                <RadioGroup android:id="@+id/rgBreath" android:layout_width="match_parent" android:layout_height="wrap_content">
+                    <RadioButton android:id="@+id/q6_low" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Normal/Morning breath only"/>
+                    <RadioButton android:id="@+id/q6_med" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Bad breath returns quickly"/>
+                    <RadioButton android:id="@+id/q6_high" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Metallic taste/Constant odor"/>
+                </RadioGroup>
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <Button
+            android:id="@+id/btnCalculate"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:text="Check Severity"
+            android:backgroundTint="#E91E63"
+            android:textColor="#FFFFFF"
+            android:textStyle="bold"/>
+
+        <TextView
+            android:id="@+id/tvResult"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:gravity="center"
+            android:padding="15dp"
+            android:background="#FFFFFF"
+            android:textColor="#AD1457"
+            android:text="Select all options to see results"/>
+
+    </LinearLayout>
+</ScrollView>
