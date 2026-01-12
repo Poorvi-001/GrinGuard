@@ -76,6 +76,15 @@ public class DashBoardActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
+        // 5. Recommended Dentist Card → Open Dentist Recommendation Page
+        CardView dentistCard = findViewById(R.id.dentistCard);
+
+        dentistCard.setOnClickListener(v -> {
+            Intent intent = new Intent(DashBoardActivity.this, DentistRecommendationActivity.class);
+            startActivity(intent);
+        });
+
+
 
         heroCard.setOnClickListener(v -> getContent.launch("image/*"));
     }
