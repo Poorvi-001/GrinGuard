@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#FDE2E4">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <!-- Title -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Recommended Dentists"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:textColor="#C2185B"
+            android:layout_gravity="center"
+            android:paddingBottom="20dp"/>
+
+        <!-- Dentist 1 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="#F8BBD0"
+            android:padding="16dp"
+            android:layout_marginBottom="12dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Dr. Anjali Sharma"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="#880E4F"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Delhi, Delhi"
+                android:textSize="14sp"
+                android:textColor="#4A148C"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Phone: +91 98765 43210"
+                android:textSize="14sp"
+                android:textColor="#4A148C"/>
+        </LinearLayout>
+
+        <!-- Dentist 2 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="#F8BBD0"
+            android:padding="16dp"
+            android:layout_marginBottom="12dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Dr. Ramesh Iyer"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="#880E4F"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Chennai, Tamil Nadu"
+                android:textSize="14sp"
+                android:textColor="#4A148C"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Phone: +91 91234 56789"
+                android:textSize="14sp"
+                android:textColor="#4A148C"/>
+        </LinearLayout>
+
+        <!-- Dentist 3 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="#F8BBD0"
+            android:padding="16dp"
+            android:layout_marginBottom="12dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Dr. Pooja Mehta"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="#880E4F"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Ahmedabad, Gujarat"
+                android:textSize="14sp"
+                android:textColor="#4A148C"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Phone: +91 99887 77665"
+                android:textSize="14sp"
+                android:textColor="#4A148C"/>
+        </LinearLayout>
+
+        <!-- Dentist 4 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="#F8BBD0"
+            android:padding="16dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Dr. Sandeep Kulkarni"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="#880E4F" />
+
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Pune, Maharashtra"
+                android:textSize="14sp"
+                android:textColor="#4A148C"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Phone: +91 90123 44556"
+                android:textSize="14sp"
+                android:textColor="#4A148C"/>
+        </LinearLayout>
+
+    </LinearLayout>
+</ScrollView>
