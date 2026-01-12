@@ -17,50 +17,42 @@
         android:theme="@style/Theme.Gringuard"
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
-
-        <activity android:name=".DashBoardActivity"
-            android:exported="true"/>
-<!--        <activity android:name=".DentistActivity"-->
-<!--            android:exported="true"/>-->
+        <activity
+            android:name=".DentistRecommendationActivity" />
+        <activity
+            android:name=".DashBoardActivity"
+            android:exported="true" /> <!-- <activity android:name=".DentistActivity" -->
+        <!-- android:exported="true"/> -->
         <activity
             android:name=".ChatActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
-
         <activity
             android:name=".WelcomeActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".LoginActivity"
             android:exported="false" />
-
-
         <activity
             android:name=".MainActivity_login"
-            android:exported="true">
-        </activity>
-
+            android:exported="true"></activity>
         <activity
             android:name=".EditActivity"
             android:exported="false" />
-
         <activity
             android:name=".HelpSupportActivity"
             android:exported="false" />
-
-
         <activity
             android:name=".AboutUsActivity"
             android:label="About Us"
             android:screenOrientation="portrait"
             tools:ignore="LockedOrientationActivity" />
-
     </application>
 
 </manifest>
