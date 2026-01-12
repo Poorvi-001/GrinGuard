@@ -38,9 +38,6 @@ public class EditActivity extends AppCompatActivity {
     }
 
     private void initViews() {
-        profileImg = findViewById(R.id.profileImg);
-        changePhotoBtn = findViewById(R.id.changePhotoBtn);
-        removePhotoBtn = findViewById(R.id.removePhotoBtn);
         logoutBtn = findViewById(R.id.logoutBtn);
         firstNameInput = findViewById(R.id.firstNameInput);
         lastNameInput = findViewById(R.id.lastNameInput);
