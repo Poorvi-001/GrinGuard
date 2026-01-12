@@ -13,6 +13,8 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
+import android.view.View;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 public class DashBoardActivity extends AppCompatActivity {
 
@@ -66,6 +68,22 @@ public class DashBoardActivity extends AppCompatActivity {
             Intent intent = new Intent(DashBoardActivity.this, ChatActivity.class);
             startActivity(intent);
         });
+
+        ImageView menuHelp = findViewById(R.id.fabHelp);
+
+        menuHelp.setOnClickListener(v -> {
+            Intent intent = new Intent(DashBoardActivity.this, HelpSupportActivity.class);
+            startActivity(intent);
+        });
+
+        // 5. Recommended Dentist Card → Open Dentist Recommendation Page
+        CardView dentistCard = findViewById(R.id.dentistCard);
+
+        dentistCard.setOnClickListener(v -> {
+            Intent intent = new Intent(DashBoardActivity.this, DentistRecommendationActivity.class);
+            startActivity(intent);
+        });
+
 
 
         heroCard.setOnClickListener(v -> getContent.launch("image/*"));

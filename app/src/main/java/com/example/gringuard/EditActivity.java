@@ -1,76 +1,84 @@
 package com.example.gringuard;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
-import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.RadioButton;
-import android.widget.RadioGroup;
-import android.widget.TextView;
-import android.widget.Toast;
+import android.provider.MediaStore;
+import android.widget.*;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
-
-import com.example.gringuard.R;
 
 public class EditActivity extends AppCompatActivity {
 
+    private ImageView profileImg;
+    private TextView changePhotoBtn, removePhotoBtn, logoutBtn;
     private EditText firstNameInput, lastNameInput, emailInput, ageInput;
     private RadioGroup genderGroup;
+    private RadioButton genderMale, genderFemale;
     private Button saveBtn;
-    private TextView logoutBtn;
+
+    private final ActivityResultLauncher<Intent> galleryLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            result -> {
+                if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+                    Uri imageUri = result.getData().getData();
+                    profileImg.setImageURI(imageUri);
+                }
+            }
+    );
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.edit_profile);
 
-        // Initialize Views
+        initViews();
+        setupClickListeners();
+    }
+
+    private void initViews() {
+        profileImg = findViewById(R.id.profileImg);
+        changePhotoBtn = findViewById(R.id.changePhotoBtn);
+        removePhotoBtn = findViewById(R.id.removePhotoBtn);
+        logoutBtn = findViewById(R.id.logoutBtn);
         firstNameInput = findViewById(R.id.firstNameInput);
         lastNameInput = findViewById(R.id.lastNameInput);
         emailInput = findViewById(R.id.emailInput);
         ageInput = findViewById(R.id.ageInput);
+
+        // Linking Gender Group
         genderGroup = findViewById(R.id.genderGroup);
+        genderMale = findViewById(R.id.genderMale);
+        genderFemale = findViewById(R.id.genderFemale);
+
         saveBtn = findViewById(R.id.saveBtn);
-        logoutBtn = findViewById(R.id.logoutBtn);
-
-        // Save Button Logic
-        saveBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                saveProfileData();
-            }
-        });
-
-        // Logout Button Logic
-        logoutBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Toast.makeText(EditActivity.this, "Logging out...", Toast.LENGTH_SHORT).show();
-                // Add your logout navigation logic here
-                finish();
-            }
-        });
     }
 
-    private void saveProfileData() {
-        String firstName = firstNameInput.getText().toString().trim();
-        String email = emailInput.getText().toString().trim();
+    private void setupClickListeners() {
+        changePhotoBtn.setOnClickListener(v -> {
+            Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+            galleryLauncher.launch(intent);
+        });
 
-        // Basic Validation
-        if (firstName.isEmpty() || email.isEmpty()) {
-            Toast.makeText(this, "Please fill in required fields", Toast.LENGTH_SHORT).show();
-            return;
-        }
+        removePhotoBtn.setOnClickListener(v -> {
+            profileImg.setImageResource(android.R.drawable.ic_menu_gallery);
+            Toast.makeText(this, "Photo Removed", Toast.LENGTH_SHORT).show();
+        });
 
-        // Get selected gender
-        int selectedId = genderGroup.getCheckedRadioButtonId();
-        String gender = "";
-        if (selectedId != -1) {
-            RadioButton selectedRadioButton = findViewById(selectedId);
-            gender = selectedRadioButton.getText().toString();
-        }
+        saveBtn.setOnClickListener(v -> {
+            Toast.makeText(this, "Profile Saved", Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(EditActivity.this, DashBoardActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            startActivity(intent);
+            finish();
+        });
 
-        // Logic to save data (e.g., to Firebase or SQLite)
-        Toast.makeText(this, "Profile Updated Successfully!", Toast.LENGTH_SHORT).show();
+        logoutBtn.setOnClickListener(v -> {
+            Intent intent = new Intent(EditActivity.this, LoginActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+            finish();
+        });
     }
 }
