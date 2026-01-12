@@ -8,7 +8,7 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:orientation="vertical"
         android:padding="20dp">
 
@@ -21,14 +21,15 @@
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:orientation="vertical"
-                android:padding="20dp">
+                android:padding="20dp"
+                android:gravity="center_vertical">
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="EDIT PROFILE"
+                    android:text="PROFILE"
                     android:textSize="22sp"
                     android:textStyle="bold"
                     android:layout_gravity="center"
@@ -51,14 +52,6 @@
                     android:minHeight="48dp"/>
 
                 <EditText
-                    android:id="@+id/emailInput"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="Email"
-                    android:minHeight="48dp"
-                    android:inputType="textEmailAddress"/>
-
-                <EditText
                     android:id="@+id/ageInput"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -71,7 +64,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
-                    android:layout_marginTop="10dp">
+                    android:layout_marginTop="16dp">
 
                     <RadioButton
                         android:id="@+id/genderMale"
@@ -92,27 +85,15 @@
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
-        <!-- Save Changes Button (OUTSIDE CardView) -->
+        <!-- Save Button OUTSIDE CardView -->
         <Button
             android:id="@+id/saveBtn"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Save Changes"
+            android:text="Save"
             android:layout_marginTop="20dp"
+            android:minHeight="56dp"
             android:backgroundTint="#F6B1D8"/>
-
-        <!-- Logout Text (OUTSIDE CardView) -->
-        <TextView
-            android:id="@+id/logoutBtn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Logout"
-            android:layout_gravity="center"
-            android:padding="12dp"
-            android:minHeight="48dp"
-            android:textColor="#FF5C5C"
-            android:textStyle="bold"
-            android:layout_marginTop="10dp"/>
 
     </LinearLayout>
 </ScrollView>
