@@ -2,10 +2,13 @@ package com.example.gringuard;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -30,67 +33,95 @@ public class LoginActivity extends AppCompatActivity {
         btnSignup = findViewById(R.id.btnSignup);
         btnForgotPass = findViewById(R.id.btnForgotPass);
 
-        // --- SIGN IN LOGIC ---
+        // --- 1. LOGIN LOGIC ---
         btnLogin.setOnClickListener(v -> {
             String email = emailBox.getText().toString().trim();
             String password = passBox.getText().toString().trim();
 
-            if (email.isEmpty() || password.isEmpty()) {
-                Toast.makeText(this, "Please enter email and password", Toast.LENGTH_SHORT).show();
-                return;
-            }
+            if (validateInputs(email, password)) {
+                btnLogin.setEnabled(false);
+                btnLogin.setText("Checking...");
 
-            mAuth.signInWithEmailAndPassword(email, password)
-                    .addOnCompleteListener(task -> {
-                        if (task.isSuccessful()) {
-                            Toast.makeText(this, "SignIn Successful!", Toast.LENGTH_SHORT).show();
-                            startActivity(new Intent(this, DashBoardActivity.class));
-                            finish();
-                        } else {
-                            Toast.makeText(this, "Error: " + task.getException().getMessage(), Toast.LENGTH_LONG).show();
-                        }
-                    });
+                mAuth.signInWithEmailAndPassword(email, password)
+                        .addOnCompleteListener(task -> {
+                            btnLogin.setEnabled(true);
+                            btnLogin.setText("SignIn");
+                            if (task.isSuccessful()) {
+                                startActivity(new Intent(LoginActivity.this, DashBoardActivity.class));
+                                finish();
+                            } else {
+                                showPopup("Login Failed", task.getException().getMessage());
+                            }
+                        });
+            }
         });
 
-        // --- SIGN UP LOGIC ---
+        // --- 2. SIGNUP LOGIC (Integrated) ---
         btnSignup.setOnClickListener(v -> {
             String email = emailBox.getText().toString().trim();
             String password = passBox.getText().toString().trim();
 
-            if (email.isEmpty() || password.length() < 6) {
-                Toast.makeText(this, "Valid email and 6-char password required", Toast.LENGTH_SHORT).show();
-                return;
-            }
+            if (validateInputs(email, password)) {
+                if (password.length() < 6) {
+                    passBox.setError("Password must be at least 6 characters");
+                    return;
+                }
 
-            mAuth.createUserWithEmailAndPassword(email, password)
-                    .addOnCompleteListener(task -> {
-                        if (task.isSuccessful()) {
-                            Toast.makeText(this, "SignUp Successful!", Toast.LENGTH_SHORT).show();
-                            startActivity(new Intent(this, DashBoardActivity.class));
-                            finish();
-                        } else {
-                            Toast.makeText(this, "Signup Failed: " + task.getException().getMessage(), Toast.LENGTH_LONG).show();
-                        }
-                    });
+                btnSignup.setEnabled(false);
+                btnSignup.setText("Creating...");
+
+                mAuth.createUserWithEmailAndPassword(email, password)
+                        .addOnCompleteListener(task -> {
+                            btnSignup.setEnabled(true);
+                            btnSignup.setText("SignUp");
+                            if (task.isSuccessful()) {
+                                // Success Popup
+                                showPopup("Account Created", "Welcome to Gringuard! You can now sign in or go to your profile.");
+                                // Automatically take them to Profile setup since it's a new user
+                                startActivity(new Intent(LoginActivity.this, Profile.class));
+                            } else {
+                                showPopup("Signup Error", task.getException().getMessage());
+                            }
+                        });
+            }
         });
 
-        // --- FORGOT PASSWORD LOGIC ---
+        // --- 3. FORGOT PASSWORD (with Popup) ---
         btnForgotPass.setOnClickListener(v -> {
             String email = emailBox.getText().toString().trim();
-
-            if (email.isEmpty()) {
-                Toast.makeText(this, "Enter your email to receive a reset link", Toast.LENGTH_SHORT).show();
-                return;
+            if (TextUtils.isEmpty(email)) {
+                showPopup("Forgot Password", "Please enter your email in the box first so we know where to send the link.");
+            } else {
+                mAuth.sendPasswordResetEmail(email).addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        showPopup("Email Sent", "Check your inbox for the password reset link.");
+                    } else {
+                        showPopup("Error", task.getException().getMessage());
+                    }
+                });
             }
-
-            mAuth.sendPasswordResetEmail(email)
-                    .addOnCompleteListener(task -> {
-                        if (task.isSuccessful()) {
-                            Toast.makeText(this, "Reset link sent to " + email, Toast.LENGTH_LONG).show();
-                        } else {
-                            Toast.makeText(this, "Failed: " + task.getException().getMessage(), Toast.LENGTH_LONG).show();
-                        }
-                    });
         });
+    }
+
+    // Helper to validate fields
+    private boolean validateInputs(String email, String password) {
+        if (TextUtils.isEmpty(email)) {
+            emailBox.setError("Email required");
+            return false;
+        }
+        if (TextUtils.isEmpty(password)) {
+            passBox.setError("Password required");
+            return false;
+        }
+        return true;
+    }
+
+    // Custom Popup Function
+    private void showPopup(String title, String message) {
+        new AlertDialog.Builder(this)
+                .setTitle(title)
+                .setMessage(message)
+                .setPositiveButton("OK", null)
+                .show();
     }
 }

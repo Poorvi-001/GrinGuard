@@ -49,7 +49,7 @@ dependencies {
     implementation("com.google.ai.client.generativeai:generativeai:0.9.0")
     implementation("com.google.guava:guava:33.0.0-android")
     implementation("io.noties.markwon:core:4.6.2")
-
+    implementation("com.google.firebase:firebase-database:20.3.0")
     implementation("io.noties.markwon:core:4.6.2")
 
     testImplementation(libs.junit)
