@@ -44,7 +44,6 @@ public class EditActivity extends AppCompatActivity {
         emailInput = findViewById(R.id.emailInput);
         ageInput = findViewById(R.id.ageInput);
 
-        // Linking Gender Group
         genderGroup = findViewById(R.id.genderGroup);
         genderMale = findViewById(R.id.genderMale);
         genderFemale = findViewById(R.id.genderFemale);

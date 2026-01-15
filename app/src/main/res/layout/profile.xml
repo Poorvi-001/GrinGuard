@@ -12,7 +12,6 @@
         android:orientation="vertical"
         android:padding="20dp">
 
-        <!-- CardView -->
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -85,7 +84,6 @@
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
-        <!-- Save Button OUTSIDE CardView -->
         <Button
             android:id="@+id/saveBtn"
             android:layout_width="match_parent"

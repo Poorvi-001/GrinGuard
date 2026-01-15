@@ -12,7 +12,6 @@
         android:orientation="vertical"
         android:padding="20dp">
 
-        <!-- CardView -->
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -92,7 +91,6 @@
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
-        <!-- Save Changes Button (OUTSIDE CardView) -->
         <Button
             android:id="@+id/saveBtn"
             android:layout_width="match_parent"
@@ -101,7 +99,6 @@
             android:layout_marginTop="20dp"
             android:backgroundTint="#F6B1D8"/>
 
-        <!-- Logout Text (OUTSIDE CardView) -->
         <TextView
             android:id="@+id/logoutBtn"
             android:layout_width="wrap_content"

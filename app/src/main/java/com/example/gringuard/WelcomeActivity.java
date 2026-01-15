@@ -22,7 +22,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 public class WelcomeActivity extends AppCompatActivity {
 
-    private static final int SPLASH_TIME = 5000; // 5 seconds
+    private static final int SPLASH_TIME = 5000;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,7 +34,7 @@ public class WelcomeActivity extends AppCompatActivity {
             public void run() {
                 Intent intent = new Intent(WelcomeActivity.this, LoginActivity.class);
                 startActivity(intent);
-                finish(); // prevents going back to welcome
+                finish();
             }
         }, SPLASH_TIME);
     }

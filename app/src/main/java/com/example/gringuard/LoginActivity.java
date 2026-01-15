@@ -30,7 +30,6 @@ public class LoginActivity extends AppCompatActivity {
         btnSignup = findViewById(R.id.btnSignup);
         btnForgotPass = findViewById(R.id.btnForgotPass);
 
-        // --- SIGN IN LOGIC ---
         btnLogin.setOnClickListener(v -> {
             String email = emailBox.getText().toString().trim();
             String password = passBox.getText().toString().trim();
@@ -52,7 +51,6 @@ public class LoginActivity extends AppCompatActivity {
                     });
         });
 
-        // --- SIGN UP LOGIC ---
         btnSignup.setOnClickListener(v -> {
             String email = emailBox.getText().toString().trim();
             String password = passBox.getText().toString().trim();
@@ -74,7 +72,6 @@ public class LoginActivity extends AppCompatActivity {
                     });
         });
 
-        // --- FORGOT PASSWORD LOGIC ---
         btnForgotPass.setOnClickListener(v -> {
             String email = emailBox.getText().toString().trim();
 

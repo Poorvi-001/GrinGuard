@@ -41,8 +41,7 @@ public class Cavity_Activity extends AppCompatActivity {
             String message;
             int color;
 
-            // Highest Threshold Logic for Cavities
-            if (maxSeverity == 3 || scores[2] == 3) { // Heat sensitivity is almost always pulpitis
+            if (maxSeverity == 3 || scores[2] == 3) {
                 message = "CRITICAL: Nerve Involvement\nPain to heat or night pain indicates the cavity has reached the nerve. Root canal likely needed.";
                 color = 0xFFD81B60;
             } else if (maxSeverity == 2) {

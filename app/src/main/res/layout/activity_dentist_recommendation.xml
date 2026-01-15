@@ -19,7 +19,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
 
-        <!-- DATA WILL BE ADDED FROM JAVA -->
         <LinearLayout
             android:id="@+id/containerDentists"
             android:orientation="vertical"

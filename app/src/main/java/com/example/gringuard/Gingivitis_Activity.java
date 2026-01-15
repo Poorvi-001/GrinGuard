@@ -12,22 +12,19 @@ public class Gingivitis_Activity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        // Ensure this matches your XML filename
         setContentView(R.layout.fractured_teeth_severity);
 
-        // RadioGroups (Using the IDs from your XML)
-        RadioGroup rgVisual = findViewById(R.id.rgVisual);      // Bleeding
-        RadioGroup rgColor = findViewById(R.id.rgCold);        // Color
-        RadioGroup rgSensitivity = findViewById(R.id.rgBite);  // Sensitivity
-        RadioGroup rgSwelling = findViewById(R.id.rgStability);// Swelling
-        RadioGroup rgSpread = findViewById(R.id.rgSpontaneous);// Coverage
-        RadioGroup rgBreath = findViewById(R.id.rgGums);       // Breath
+        RadioGroup rgVisual = findViewById(R.id.rgVisual);
+        RadioGroup rgColor = findViewById(R.id.rgCold);
+        RadioGroup rgSensitivity = findViewById(R.id.rgBite);
+        RadioGroup rgSwelling = findViewById(R.id.rgStability);
+        RadioGroup rgSpread = findViewById(R.id.rgSpontaneous);
+        RadioGroup rgBreath = findViewById(R.id.rgGums);
 
         Button btnCalculate = findViewById(R.id.btnCalculate);
         TextView tvResult = findViewById(R.id.tvResult);
 
         btnCalculate.setOnClickListener(v -> {
-            // Validate all selections
             if (rgVisual.getCheckedRadioButtonId() == -1 || rgColor.getCheckedRadioButtonId() == -1 ||
                     rgSensitivity.getCheckedRadioButtonId() == -1 || rgSwelling.getCheckedRadioButtonId() == -1 ||
                     rgSpread.getCheckedRadioButtonId() == -1 || rgBreath.getCheckedRadioButtonId() == -1) {
@@ -42,11 +39,10 @@ public class Gingivitis_Activity extends AppCompatActivity {
             int spScore = getScore(rgSpread);
             int bScore = getScore(rgBreath);
 
-            // HIGHEST THRESHOLD LOGIC
             int maxSeverity = Math.max(vScore, Math.max(cScore, Math.max(sScore,
                     Math.max(swScore, Math.max(spScore, bScore)))));
 
-            // Cumulative check for Medium Severity escalation
+
             int mediumCount = 0;
             int[] scores = {vScore, cScore, sScore, swScore, spScore, bScore};
             for (int s : scores) if (s == 2) mediumCount++;
@@ -54,23 +50,18 @@ public class Gingivitis_Activity extends AppCompatActivity {
             String resultText;
             int resultColor;
 
-            // 1. Clinical Edge Case: Possible Periodontitis
-            // If bleeding is spontaneous (high) but there is no pain (low), it might indicate deep chronic infection.
             if (vScore == 3 && sScore == 1) {
                 resultText = "HIGH SEVERITY: Chronic Infection\nSpontaneous bleeding without pain can indicate advanced gum disease (Periodontitis). Seek a professional deep cleaning.";
                 resultColor = 0xFFD81B60;
             }
-            // 2. High Severity: Severe Gingivitis
             else if (maxSeverity == 3 || (maxSeverity == 2 && mediumCount >= 3)) {
                 resultText = "HIGH SEVERITY: Severe Gingivitis\nSignificant inflammation and tissue distress. Requires professional dental intervention to prevent tooth loss.";
                 resultColor = 0xFFD81B60;
             }
-            // 3. Medium Severity: Moderate Gingivitis
             else if (maxSeverity == 2) {
                 resultText = "MEDIUM SEVERITY: Moderate\nGums are infected. Improved hygiene is needed along with a professional cleaning to reverse the damage.";
                 resultColor = 0xFFF4511E;
             }
-            // 4. Low Severity: Mild Gingivitis
             else {
                 resultText = "LOW SEVERITY: Mild\nEarly stage inflammation. Increase flossing and use an antiseptic mouthwash to reverse symptoms at home.";
                 resultColor = 0xFF2E7D32;

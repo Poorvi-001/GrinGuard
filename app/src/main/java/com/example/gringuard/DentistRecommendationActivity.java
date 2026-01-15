@@ -16,7 +16,6 @@ public class DentistRecommendationActivity extends AppCompatActivity {
 
         container = findViewById(R.id.containerDentists);
 
-        // ================= ANDHRA PRADESH =================
         addState("Andhra Pradesh");
         addDentist(
                 "Dr. Suresh Reddy",
@@ -25,7 +24,6 @@ public class DentistRecommendationActivity extends AppCompatActivity {
                 "Dwaraka Nagar, Visakhapatnam, Andhra Pradesh 530016"
         );
 
-        // ================= ARUNACHAL PRADESH =================
         addState("Arunachal Pradesh");
         addDentist(
                 "Dr. T. Wangmu",
@@ -34,7 +32,6 @@ public class DentistRecommendationActivity extends AppCompatActivity {
                 "Bank Tinali, Naharlagun, Arunachal Pradesh 791110"
         );
 
-        // ================= ASSAM =================
         addState("Assam");
         addDentist(
                 "Dr. Anupam Das",
@@ -43,7 +40,6 @@ public class DentistRecommendationActivity extends AppCompatActivity {
                 "GS Road, Christian Basti, Guwahati, Assam 781005"
         );
 
-        // ================= BIHAR =================
         addState("Bihar");
         addDentist(
                 "Dr. R. K. Sinha",
@@ -52,7 +48,6 @@ public class DentistRecommendationActivity extends AppCompatActivity {
                 "Boring Road, Patna, Bihar 800001"
         );
 
-        // ================= CHHATTISGARH =================
         addState("Chhattisgarh");
         addDentist(
                 "Dr. Neeraj Agrawal",
@@ -61,7 +56,6 @@ public class DentistRecommendationActivity extends AppCompatActivity {
                 "Shankar Nagar, Raipur, Chhattisgarh 492007"
         );
 
-        // ================= GOA =================
         addState("Goa");
         addDentist(
                 "Dr. Anthony Menezes",
@@ -70,7 +64,6 @@ public class DentistRecommendationActivity extends AppCompatActivity {
                 "18th June Road, Panaji, Goa 403001"
         );
 
-        // ================= GUJARAT =================
         addState("Gujarat");
         addDentist(
                 "Dr. Nisha Shah",
@@ -79,7 +72,6 @@ public class DentistRecommendationActivity extends AppCompatActivity {
                 "Satellite Road, Ahmedabad, Gujarat 380015"
         );
 
-        // ================= HARYANA =================
         addState("Haryana");
         addDentist(
                 "Dr. Amit Khatri",
@@ -88,7 +80,6 @@ public class DentistRecommendationActivity extends AppCompatActivity {
                 "DLF Phase 4, Gurugram, Haryana 122002"
         );
 
-        // ================= HIMACHAL PRADESH =================
         addState("Himachal Pradesh");
         addDentist(
                 "Dr. Sunita Thakur",
@@ -97,7 +88,6 @@ public class DentistRecommendationActivity extends AppCompatActivity {
                 "Mall Road, Shimla, Himachal Pradesh 171001"
         );
 
-        // ================= JHARKHAND =================
         addState("Jharkhand");
         addDentist(
                 "Dr. Prashant Verma",
@@ -106,7 +96,6 @@ public class DentistRecommendationActivity extends AppCompatActivity {
                 "Lalpur, Ranchi, Jharkhand 834001"
         );
 
-        // ================= KARNATAKA =================
         addState("Karnataka");
         addDentist(
                 "Dr. Ananya Rao",
@@ -115,7 +104,6 @@ public class DentistRecommendationActivity extends AppCompatActivity {
                 "Indiranagar, Bengaluru, Karnataka 560038"
         );
 
-        // ================= KERALA =================
         addState("Kerala");
         addDentist(
                 "Dr. S. Anil Kumar",
@@ -124,7 +112,6 @@ public class DentistRecommendationActivity extends AppCompatActivity {
                 "Pattom, Thiruvananthapuram, Kerala 695004"
         );
 
-        // ================= MADHYA PRADESH =================
         addState("Madhya Pradesh");
         addDentist(
                 "Dr. Manish Jain",
@@ -133,7 +120,6 @@ public class DentistRecommendationActivity extends AppCompatActivity {
                 "Vijay Nagar, Indore, Madhya Pradesh 452010"
         );
 
-        // ================= MAHARASHTRA =================
         addState("Maharashtra");
         addDentist(
                 "Dr. Abhishek Soni",
@@ -142,7 +128,6 @@ public class DentistRecommendationActivity extends AppCompatActivity {
                 "Andheri West, Mumbai, Maharashtra 400058"
         );
 
-        // ================= MANIPUR =================
         addState("Manipur");
         addDentist(
                 "Dr. L. Romesh Singh",
@@ -151,7 +136,6 @@ public class DentistRecommendationActivity extends AppCompatActivity {
                 "Paona Bazaar, Imphal, Manipur 795001"
         );
 
-        // ================= MEGHALAYA =================
         addState("Meghalaya");
         addDentist(
                 "Dr. R. Lyngdoh",
@@ -160,7 +144,6 @@ public class DentistRecommendationActivity extends AppCompatActivity {
                 "Laitumkhrah, Shillong, Meghalaya 793003"
         );
 
-        // ================= MIZORAM =================
         addState("Mizoram");
         addDentist(
                 "Dr. Lalnunmawia",
@@ -169,7 +152,6 @@ public class DentistRecommendationActivity extends AppCompatActivity {
                 "Chandmary, Aizawl, Mizoram 796007"
         );
 
-        // ================= NAGALAND =================
         addState("Nagaland");
         addDentist(
                 "Dr. Temjen Jamir",
@@ -178,7 +160,6 @@ public class DentistRecommendationActivity extends AppCompatActivity {
                 "PR Hill, Kohima, Nagaland 797001"
         );
 
-        // ================= ODISHA =================
         addState("Odisha");
         addDentist(
                 "Dr. Sandeep Mishra",
@@ -187,7 +168,6 @@ public class DentistRecommendationActivity extends AppCompatActivity {
                 "Jaydev Vihar, Bhubaneswar, Odisha 751013"
         );
 
-        // ================= PUNJAB =================
         addState("Punjab");
         addDentist(
                 "Dr. Harpreet Kaur",
@@ -196,7 +176,6 @@ public class DentistRecommendationActivity extends AppCompatActivity {
                 "Mall Road, Amritsar, Punjab 143001"
         );
 
-        // ================= RAJASTHAN =================
         addState("Rajasthan");
         addDentist(
                 "Dr. Rakesh Sharma",
@@ -205,7 +184,6 @@ public class DentistRecommendationActivity extends AppCompatActivity {
                 "C-Scheme, Jaipur, Rajasthan 302001"
         );
 
-        // ================= SIKKIM =================
         addState("Sikkim");
         addDentist(
                 "Dr. Tenzing Bhutia",
@@ -214,7 +192,6 @@ public class DentistRecommendationActivity extends AppCompatActivity {
                 "Deorali, Gangtok, Sikkim 737102"
         );
 
-        // ================= TAMIL NADU =================
         addState("Tamil Nadu");
         addDentist(
                 "Dr. R. Venkatesh",
@@ -223,7 +200,6 @@ public class DentistRecommendationActivity extends AppCompatActivity {
                 "Anna Nagar, Chennai, Tamil Nadu 600040"
         );
 
-        // ================= TELANGANA =================
         addState("Telangana");
         addDentist(
                 "Dr. Kiran Kumar",
@@ -232,7 +208,6 @@ public class DentistRecommendationActivity extends AppCompatActivity {
                 "Punjagutta, Hyderabad, Telangana 500082"
         );
 
-        // ================= TRIPURA =================
         addState("Tripura");
         addDentist(
                 "Dr. Arup Deb",
@@ -241,7 +216,6 @@ public class DentistRecommendationActivity extends AppCompatActivity {
                 "Krishna Nagar, Agartala, Tripura 799001"
         );
 
-        // ================= UTTAR PRADESH =================
         addState("Uttar Pradesh");
         addDentist(
                 "Dr. Ankit Verma",
@@ -250,7 +224,6 @@ public class DentistRecommendationActivity extends AppCompatActivity {
                 "Gomti Nagar, Lucknow, Uttar Pradesh 226010"
         );
 
-        // ================= UTTARAKHAND =================
         addState("Uttarakhand");
         addDentist(
                 "Dr. Pankaj Gupta",
@@ -259,7 +232,6 @@ public class DentistRecommendationActivity extends AppCompatActivity {
                 "Rajpur Road, Dehradun, Uttarakhand 248001"
         );
 
-        // ================= WEST BENGAL =================
         addState("West Bengal");
         addDentist(
                 "Dr. Arindam Bose",
@@ -268,8 +240,6 @@ public class DentistRecommendationActivity extends AppCompatActivity {
                 "Salt Lake, Kolkata, West Bengal 700091"
         );
     }
-
-    // ---------- UI HELPERS ----------
 
     private void addState(String stateName) {
         TextView tv = new TextView(this);

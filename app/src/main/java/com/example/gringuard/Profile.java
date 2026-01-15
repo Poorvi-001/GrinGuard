@@ -22,7 +22,6 @@ public class Profile extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.profile); // XML file name
 
-        // Initialize views
         firstNameInput = findViewById(R.id.firstNameInput);
         lastNameInput = findViewById(R.id.lastNameInput);
         ageInput = findViewById(R.id.ageInput);
@@ -39,7 +38,6 @@ public class Profile extends AppCompatActivity {
 
                 int selectedGenderId = genderGroup.getCheckedRadioButtonId();
 
-                // Validation
                 if (firstName.isEmpty()) {
                     firstNameInput.setError("Enter first name");
                     return;
