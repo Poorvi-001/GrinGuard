@@ -2,7 +2,6 @@ package com.example.gringuard;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
 import android.widget.*;
 import androidx.appcompat.app.AppCompatActivity;
 import com.google.firebase.auth.FirebaseAuth;
@@ -28,9 +27,6 @@ public class Profile extends AppCompatActivity {
 
         if (FirebaseAuth.getInstance().getCurrentUser() != null) {
             String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
-            // Using the dynamic instance to avoid URL typos
-            // USE THIS VERSION TO FORCE THE CONNECTION
-            // Firebase will look inside your new JSON file to find the URL automatically
             dbRef = FirebaseDatabase.getInstance().getReference("Users").child(uid);
         }
 
@@ -42,6 +38,9 @@ public class Profile extends AppCompatActivity {
         String lName = lastNameInput.getText().toString().trim();
         String age = ageInput.getText().toString().trim();
 
+        // AUTO-CAPTURE EMAIL
+        String email = FirebaseAuth.getInstance().getCurrentUser().getEmail();
+
         int selectedId = genderGroup.getCheckedRadioButtonId();
         RadioButton rb = findViewById(selectedId);
         String gender = (rb != null) ? rb.getText().toString() : "";
@@ -51,8 +50,9 @@ public class Profile extends AppCompatActivity {
             return;
         }
 
-        User user = new User(fName, lName, age, gender);
-        saveBtn.setEnabled(false); // Prevent multiple clicks
+        // Updated constructor
+        User user = new User(fName, lName, age, gender, email);
+        saveBtn.setEnabled(false);
 
         dbRef.setValue(user).addOnSuccessListener(aVoid -> {
             Toast.makeText(Profile.this, "Profile Saved Successfully!", Toast.LENGTH_SHORT).show();

@@ -1,18 +1,15 @@
 package com.example.gringuard;
 
 public class User {
-    // These MUST match your Firebase keys exactly
-    public String age;
-    public String firstName;
-    public String gender;
-    public String lastName;
+    public String age, firstName, gender, lastName, email;
 
-    public User() {} // Required for Firebase
+    public User() {}
 
-    public User(String firstName, String lastName, String age, String gender) {
+    public User(String firstName, String lastName, String age, String gender, String email) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.age = age;
         this.gender = gender;
+        this.email = email;
     }
 }
