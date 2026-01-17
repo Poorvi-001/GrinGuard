@@ -34,7 +34,7 @@ public class ChatActivity extends AppCompatActivity {
     private ScrollView scrollView;
     private Markwon markwon;
 
-    //    private io.noties.markwon.Markwon markwon;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -72,37 +72,24 @@ public class ChatActivity extends AppCompatActivity {
     private void appendChatLog(String sender, String message) {
         runOnUiThread(() -> {
             SpannableStringBuilder builder = new SpannableStringBuilder();
-
-            // 1. If there is already text, add space before the new message block
             if (chatResponse.getText().length() > 0) {
                 builder.append("\n\n");
             }
-
             int start = builder.length();
-            // 2. Add Name + Newline so text starts below the name
             builder.append(sender).append(":\n");
-
-            // 3. Style: Always BOLD
             builder.setSpan(new StyleSpan(Typeface.BOLD), start, builder.length(), 0);
-
-            // 4. Style: Colors (Back to your original settings)
-            // You = Pink, GrinGuard = Black
             int color = sender.equals("You") ? 0xFFFF1493 : 0xFF000000;
             builder.setSpan(new ForegroundColorSpan(color), start, builder.length(), 0);
 
             chatResponse.append(builder);
 
-            // 5. Append message content
             if (sender.equals("GrinGuard")) {
-                // Get all text currently in the box, add the new bot reply, and re-render
                 String combinedText = chatResponse.getText().toString() + message;
                 markwon.setMarkdown(chatResponse, combinedText);
             } else {
-                // For the user, just simple append
                 chatResponse.append(message);
             }
 
-            // 6. Scroll to bottom
             scrollView.post(() -> scrollView.fullScroll(ScrollView.FOCUS_DOWN));
         });
     }
