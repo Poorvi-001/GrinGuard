@@ -103,7 +103,7 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
-    // Helper to validate fields
+    // VALIDATE INPUTS
     private boolean validateInputs(String email, String password) {
         if (TextUtils.isEmpty(email)) {
             emailBox.setError("Email required");

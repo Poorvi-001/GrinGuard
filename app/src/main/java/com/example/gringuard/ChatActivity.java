@@ -43,19 +43,19 @@ public class ChatActivity extends AppCompatActivity {
         chatResponse = findViewById(R.id.chatResponse);
         inputEditText = findViewById(R.id.inputEditText);
         sendButton = findViewById(R.id.sendButton);
-        scrollView = findViewById(R.id.scrollView); // Ensure your XML has this ID
+        scrollView = findViewById(R.id.scrollView);
 
         GenerationConfig config = new GenerationConfig.Builder().build();
 
         GenerativeModel gm = new GenerativeModel(
                 "gemini-2.5-flash",
-                "AIzaSyC-WLJ8grez4nq12F91DkFczjWT6EwICEM",
+                "AIzaSyAf2pqkr7ur5biay-2AieMBVmVOU8s3XtM",
                 config
         );
         model = GenerativeModelFutures.from(gm);
         chatSession = model.startChat();
 
-        // Initial Greeting
+        // Initial Message
         chatResponse.setText("");
         appendChatLog("GrinGuard", "Welcome! I am your dental assistant. How can I help you today?");
 
