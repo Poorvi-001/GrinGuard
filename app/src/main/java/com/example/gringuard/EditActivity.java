@@ -31,10 +31,10 @@ public class EditActivity extends AppCompatActivity {
         logoutBtn = findViewById(R.id.logoutBtn);
 
         String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        // Matching the Profile URL structure
+
         dbRef = FirebaseDatabase.getInstance().getReference("Users").child(uid);
 
-        // Fetch Data
+
         dbRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot snapshot) {
@@ -64,8 +64,7 @@ public class EditActivity extends AppCompatActivity {
             String gender = (rb != null) ? rb.getText().toString() : "";
 
             User updatedUser = new User(fName, lName, age, gender);
-            // USE THIS VERSION TO FORCE THE CONNECTION
-            // Firebase will look inside your new JSON file to find the URL automatically
+
             dbRef = FirebaseDatabase.getInstance().getReference("Users").child(uid);
         });
 

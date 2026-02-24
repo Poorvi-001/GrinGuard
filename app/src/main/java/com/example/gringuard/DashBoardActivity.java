@@ -1,9 +1,5 @@
 package com.example.gringuard;
 
- // Make sure this matches your project package name
-
-
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
