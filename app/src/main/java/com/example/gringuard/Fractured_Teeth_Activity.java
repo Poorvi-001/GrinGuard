@@ -14,7 +14,6 @@ public class Fractured_Teeth_Activity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.fractured_teeth_severity);
 
-        // Declare all 6 RadioGroups
         RadioGroup rgVisual = findViewById(R.id.rgVisual);
         RadioGroup rgCold = findViewById(R.id.rgCold);
         RadioGroup rgBite = findViewById(R.id.rgBite);
@@ -41,12 +40,10 @@ public class Fractured_Teeth_Activity extends AppCompatActivity {
             int spScore = getScore(rgSpontaneous);
             int gScore = getScore(rgGums);
 
-            // HIGHEST THRESHOLD LOGIC
-            // If any single answer is high (3), the whole case is High Severity.
             int maxSeverity = Math.max(vScore, Math.max(cScore, Math.max(bScore,
                     Math.max(stScore, Math.max(spScore, gScore)))));
 
-            // Cumulative check for Medium Severity escalation
+
             int mediumCount = 0;
             int[] scores = {vScore, cScore, bScore, stScore, spScore, gScore};
             for (int s : scores) if (s == 2) mediumCount++;
@@ -54,22 +51,21 @@ public class Fractured_Teeth_Activity extends AppCompatActivity {
             String resultText;
             int resultColor;
 
-            // 1. Clinical Edge Case: Silent Nerve
             if (vScore >= 2 && cScore == 1) {
                 resultText = "HIGH SEVERITY: Possible Nerve Death\nDeep damage with zero sensitivity often indicates necrotic pulp. Seek dental care.";
                 resultColor = 0xFFD81B60;
             }
-            // 2. High Severity Emergency
+
             else if (maxSeverity == 3 || (maxSeverity == 2 && mediumCount >= 3)) {
                 resultText = "HIGH SEVERITY: Emergency\nIndicates pulp exposure or structural fracture. Seek immediate dental care.";
                 resultColor = 0xFFD81B60;
             }
-            // 3. Medium Severity Urgent
+
             else if (maxSeverity == 2) {
                 resultText = "MEDIUM SEVERITY: Urgent\nDentin is likely exposed. Visit a dentist within 24 hours to prevent infection.";
                 resultColor = 0xFFF4511E;
             }
-            // 4. Low Severity
+
             else {
                 resultText = "LOW SEVERITY: Routine\nLikely a minor enamel chip. Schedule a follow-up visit soon.";
                 resultColor = 0xFF2E7D32;

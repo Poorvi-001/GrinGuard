@@ -24,7 +24,6 @@ public class EditActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.edit_profile);
 
-        // 1. Initialize UI (Email input removed as requested)
         firstNameInput = findViewById(R.id.firstNameInput);
         lastNameInput = findViewById(R.id.lastNameInput);
         ageInput = findViewById(R.id.ageInput);
@@ -40,7 +39,6 @@ public class EditActivity extends AppCompatActivity {
         String uid = currentUser.getUid();
         dbRef = FirebaseDatabase.getInstance().getReference("Users").child(uid);
 
-        // 2. FETCH DATA: Fill boxes with current info
         dbRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot snapshot) {
@@ -60,7 +58,6 @@ public class EditActivity extends AppCompatActivity {
             public void onCancelled(DatabaseError error) { Log.e("Firebase", error.getMessage()); }
         });
 
-        // 3. SAVE ONLY TO DATABASE (Email is kept as is)
         saveBtn.setOnClickListener(v -> {
             String fName = firstNameInput.getText().toString().trim();
             String lName = lastNameInput.getText().toString().trim();
@@ -80,13 +77,10 @@ public class EditActivity extends AppCompatActivity {
             saveBtn.setEnabled(false);
             saveBtn.setText("Saving...");
 
-            // Get the existing email from Auth to keep the User object complete
             String currentEmail = currentUser.getEmail();
 
-            // Create updated object with same email but new details
             User updatedUser = new User(fName, lName, age, gender, currentEmail);
 
-            // Directly update the Database
             dbRef.setValue(updatedUser).addOnSuccessListener(aVoid -> {
                 saveBtn.setEnabled(true);
                 saveBtn.setText("Save");

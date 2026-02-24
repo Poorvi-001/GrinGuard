@@ -13,7 +13,6 @@ public class HelpSupportActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_help_support);
 
-        // Link all four separate TextViews
         TextView tvPhone1 = findViewById(R.id.tvPhone1);
         TextView tvPhone2 = findViewById(R.id.tvPhone2);
         TextView tvEmail1 = findViewById(R.id.tvEmail1);

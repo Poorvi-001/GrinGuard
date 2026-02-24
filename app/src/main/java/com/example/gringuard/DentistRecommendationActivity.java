@@ -269,7 +269,6 @@ public class DentistRecommendationActivity extends AppCompatActivity {
         );
     }
 
-    // ---------- UI HELPERS ----------
 
     private void addState(String stateName) {
         TextView tv = new TextView(this);

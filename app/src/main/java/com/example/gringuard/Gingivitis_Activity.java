@@ -12,10 +12,10 @@ public class Gingivitis_Activity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        // Ensure this matches your XML filename
+
         setContentView(R.layout.fractured_teeth_severity);
 
-        // RadioGroups (Using the IDs from your XML)
+
         RadioGroup rgVisual = findViewById(R.id.rgVisual);      // Bleeding
         RadioGroup rgColor = findViewById(R.id.rgCold);        // Color
         RadioGroup rgSensitivity = findViewById(R.id.rgBite);  // Sensitivity
