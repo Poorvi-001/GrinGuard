@@ -18,21 +18,18 @@ public class HelpSupportActivity extends AppCompatActivity {
         TextView tvEmail1 = findViewById(R.id.tvEmail1);
         TextView tvEmail2 = findViewById(R.id.tvEmail2);
 
-        // Click Logic for Phone 1
         tvPhone1.setOnClickListener(v -> {
             Intent intent = new Intent(Intent.ACTION_DIAL);
             intent.setData(Uri.parse("tel:+918937061646"));
             startActivity(intent);
         });
 
-        // Click Logic for Phone 2
         tvPhone2.setOnClickListener(v -> {
             Intent intent = new Intent(Intent.ACTION_DIAL);
             intent.setData(Uri.parse("tel:+918077560107"));
             startActivity(intent);
         });
 
-        // Click Logic for Email 1
         tvEmail1.setOnClickListener(v -> {
             Intent intent = new Intent(Intent.ACTION_SENDTO);
             intent.setData(Uri.parse("mailto:singhapoorvahere@gmail.com"));
@@ -40,7 +37,6 @@ public class HelpSupportActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
-        // Click Logic for Email 2
         tvEmail2.setOnClickListener(v -> {
             Intent intent = new Intent(Intent.ACTION_SENDTO);
             intent.setData(Uri.parse("mailto:mittalparidhi48@gmail.com"));

@@ -1,5 +1,6 @@
 package com.example.gringuard;
 
+ // Make sure this matches your project package name
 
 
 
@@ -25,16 +26,19 @@ public class DashBoardActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.homepage1);
 
+        // Open your Chatbot
         findViewById(R.id.virtualAssistantCard).setOnClickListener(v ->
                 startActivity(new Intent(this, ChatActivity.class)));
 
 
+        // 1. Link Header Profile Icon
         View profileBtn = findViewById(R.id.profileClickArea);
         profileBtn.setOnClickListener(v -> {
             Intent intent = new Intent(DashBoardActivity.this, EditActivity.class);
             startActivity(intent);
         });
 
+        // 2. Link Upload Logic
         CardView heroCard = findViewById(R.id.heroCard);
         imagePreview = findViewById(R.id.imagePreview);
         previewCard = findViewById(R.id.previewCard);
@@ -48,6 +52,7 @@ public class DashBoardActivity extends AppCompatActivity {
                     }
                 });
 
+        // 3-line Menu Click → Open About Us
         ImageView menuAboutUs = findViewById(R.id.menuAboutUs);
 
         menuAboutUs.setOnClickListener(v -> {
@@ -56,6 +61,7 @@ public class DashBoardActivity extends AppCompatActivity {
         });
 
 
+        // 4. Virtual Assistant Click → Open Chatbot
         CardView virtualAssistantCard = findViewById(R.id.virtualAssistantCard);
 
         virtualAssistantCard.setOnClickListener(v -> {
@@ -70,6 +76,7 @@ public class DashBoardActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
+        // 5. Recommended Dentist Card → Open Dentist Recommendation Page
         CardView dentistCard = findViewById(R.id.dentistCard);
 
         dentistCard.setOnClickListener(v -> {

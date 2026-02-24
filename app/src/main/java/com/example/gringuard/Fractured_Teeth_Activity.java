@@ -25,7 +25,6 @@ public class Fractured_Teeth_Activity extends AppCompatActivity {
         TextView tvResult = findViewById(R.id.tvResult);
 
         btnCalculate.setOnClickListener(v -> {
-            // Validate all selections
             if (rgVisual.getCheckedRadioButtonId() == -1 || rgCold.getCheckedRadioButtonId() == -1 ||
                     rgBite.getCheckedRadioButtonId() == -1 || rgStability.getCheckedRadioButtonId() == -1 ||
                     rgSpontaneous.getCheckedRadioButtonId() == -1 || rgGums.getCheckedRadioButtonId() == -1) {
@@ -43,7 +42,6 @@ public class Fractured_Teeth_Activity extends AppCompatActivity {
             int maxSeverity = Math.max(vScore, Math.max(cScore, Math.max(bScore,
                     Math.max(stScore, Math.max(spScore, gScore)))));
 
-
             int mediumCount = 0;
             int[] scores = {vScore, cScore, bScore, stScore, spScore, gScore};
             for (int s : scores) if (s == 2) mediumCount++;
@@ -55,17 +53,14 @@ public class Fractured_Teeth_Activity extends AppCompatActivity {
                 resultText = "HIGH SEVERITY: Possible Nerve Death\nDeep damage with zero sensitivity often indicates necrotic pulp. Seek dental care.";
                 resultColor = 0xFFD81B60;
             }
-
             else if (maxSeverity == 3 || (maxSeverity == 2 && mediumCount >= 3)) {
                 resultText = "HIGH SEVERITY: Emergency\nIndicates pulp exposure or structural fracture. Seek immediate dental care.";
                 resultColor = 0xFFD81B60;
             }
-
             else if (maxSeverity == 2) {
                 resultText = "MEDIUM SEVERITY: Urgent\nDentin is likely exposed. Visit a dentist within 24 hours to prevent infection.";
                 resultColor = 0xFFF4511E;
             }
-
             else {
                 resultText = "LOW SEVERITY: Routine\nLikely a minor enamel chip. Schedule a follow-up visit soon.";
                 resultColor = 0xFF2E7D32;
