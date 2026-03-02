@@ -6,7 +6,6 @@ import android.text.TextUtils;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -16,8 +15,8 @@ import com.google.firebase.auth.FirebaseAuth;
 public class LoginActivity extends AppCompatActivity {
 
     private EditText emailBox, passBox;
-    private Button btnLogin, btnSignup;
-    private TextView btnForgotPass;
+    private Button btnLogin;
+    private TextView btnSignup, btnForgotPass;
     private FirebaseAuth mAuth;
 
     @Override
@@ -33,7 +32,7 @@ public class LoginActivity extends AppCompatActivity {
         btnSignup = findViewById(R.id.btnSignup);
         btnForgotPass = findViewById(R.id.btnForgotPass);
 
-        //LOGIN
+        // LOGIN
         btnLogin.setOnClickListener(v -> {
             String email = emailBox.getText().toString().trim();
             String password = passBox.getText().toString().trim();
@@ -50,43 +49,19 @@ public class LoginActivity extends AppCompatActivity {
                                 startActivity(new Intent(LoginActivity.this, DashBoardActivity.class));
                                 finish();
                             } else {
-                                showPopup("Login Failed", task.getException().getMessage());
+                                String error = task.getException() != null ? task.getException().getMessage() : "Unknown error";
+                                showPopup("Login Failed", error);
                             }
                         });
             }
         });
 
-        //SIGNUP
+        // SIGN UP - Redirects to Profile page to fill details
         btnSignup.setOnClickListener(v -> {
-            String email = emailBox.getText().toString().trim();
-            String password = passBox.getText().toString().trim();
-
-            if (validateInputs(email, password)) {
-                if (password.length() < 6) {
-                    passBox.setError("Password must be at least 6 characters");
-                    return;
-                }
-
-                btnSignup.setEnabled(false);
-                btnSignup.setText("Creating...");
-
-                mAuth.createUserWithEmailAndPassword(email, password)
-                        .addOnCompleteListener(task -> {
-                            btnSignup.setEnabled(true);
-                            btnSignup.setText("SignUp");
-                            if (task.isSuccessful()) {
-                                // Success Popup
-                                showPopup("Account Created", "Welcome to Gringuard! You can now sign in or go to your profile.");
-                                // Automatically take them to Profile setup since it's a new user
-                                startActivity(new Intent(LoginActivity.this, Profile.class));
-                            } else {
-                                showPopup("Signup Error", task.getException().getMessage());
-                            }
-                        });
-            }
+            startActivity(new Intent(LoginActivity.this, Profile.class));
         });
 
-        //FORGOT PASSWORD
+        // FORGOT PASSWORD
         btnForgotPass.setOnClickListener(v -> {
             String email = emailBox.getText().toString().trim();
             if (TextUtils.isEmpty(email)) {
@@ -96,14 +71,14 @@ public class LoginActivity extends AppCompatActivity {
                     if (task.isSuccessful()) {
                         showPopup("Email Sent", "Check your inbox for the password reset link.");
                     } else {
-                        showPopup("Error", task.getException().getMessage());
+                        String error = task.getException() != null ? task.getException().getMessage() : "Unknown error";
+                        showPopup("Error", error);
                     }
                 });
             }
         });
     }
 
-    // VALIDATE INPUTS
     private boolean validateInputs(String email, String password) {
         if (TextUtils.isEmpty(email)) {
             emailBox.setError("Email required");
@@ -116,7 +91,6 @@ public class LoginActivity extends AppCompatActivity {
         return true;
     }
 
-    // Custom Popup Function
     private void showPopup(String title, String message) {
         new AlertDialog.Builder(this)
                 .setTitle(title)
