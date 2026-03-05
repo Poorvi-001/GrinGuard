@@ -57,6 +57,23 @@
 
                 <!-- FIRST NAME -->
                 <EditText
+                    android:id="@+id/emailInput"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Email Address"
+                    android:minHeight="48dp"
+                    android:inputType="textEmailAddress"
+                    android:layout_marginTop="10dp"/>
+
+                <EditText
+                    android:id="@+id/passwordInput"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Password"
+                    android:minHeight="48dp"
+                    android:inputType="textPassword"/>
+
+                <EditText
                     android:id="@+id/firstNameInput"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"

@@ -1,16 +1,8 @@
 package com.example.gringuard;
 
 import android.content.Intent;
-import android.graphics.Color;
-import android.graphics.Typeface;
 import android.os.Bundle;
-import android.text.SpannableString;
-import android.text.Spanned;
 import android.text.TextUtils;
-import android.text.method.LinkMovementMethod;
-import android.text.style.ClickableSpan;
-import android.text.style.StyleSpan;
-import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -24,7 +16,7 @@ public class LoginActivity extends AppCompatActivity {
 
     private EditText emailBox, passBox;
     private Button btnLogin;
-    private TextView btnForgotPass, txtSignupRedirect;
+    private TextView btnSignup, btnForgotPass;
     private FirebaseAuth mAuth;
 
     @Override
@@ -37,10 +29,10 @@ public class LoginActivity extends AppCompatActivity {
         emailBox = findViewById(R.id.emailBox);
         passBox = findViewById(R.id.passBox);
         btnLogin = findViewById(R.id.btnLogin);
+        btnSignup = findViewById(R.id.btnSignup);
         btnForgotPass = findViewById(R.id.btnForgotPass);
-        txtSignupRedirect = findViewById(R.id.txtSignupRedirect);
 
-        // ================= LOGIN LOGIC =================
+        // LOGIN
         btnLogin.setOnClickListener(v -> {
             String email = emailBox.getText().toString().trim();
             String password = passBox.getText().toString().trim();
@@ -52,84 +44,41 @@ public class LoginActivity extends AppCompatActivity {
                 mAuth.signInWithEmailAndPassword(email, password)
                         .addOnCompleteListener(task -> {
                             btnLogin.setEnabled(true);
-                            btnLogin.setText("Sign In");
-
+                            btnLogin.setText("SignIn");
                             if (task.isSuccessful()) {
                                 startActivity(new Intent(LoginActivity.this, DashBoardActivity.class));
                                 finish();
                             } else {
-                                showPopup("Login Failed", task.getException().getMessage());
+                                String error = task.getException() != null ? task.getException().getMessage() : "Unknown error";
+                                showPopup("Login Failed", error);
                             }
                         });
             }
         });
 
-        // ================= CLICKABLE SIGNUP TEXT =================
-        String fullText = "Don't have an account? SignUp";
-        SpannableString spannableString = new SpannableString(fullText);
+        // SIGN UP - Redirects to Profile page to fill details
+        btnSignup.setOnClickListener(v -> {
+            startActivity(new Intent(LoginActivity.this, Profile.class));
+        });
 
-        int startIndex = fullText.indexOf("SignUp");
-        int endIndex = startIndex + "SignUp".length();
-
-        ClickableSpan clickableSpan = new ClickableSpan() {
-            @Override
-            public void onClick(View widget) {
-
-                String email = emailBox.getText().toString().trim();
-                String password = passBox.getText().toString().trim();
-
-                if (validateInputs(email, password)) {
-
-                    if (password.length() < 6) {
-                        passBox.setError("Password must be at least 6 characters");
-                        return;
-                    }
-
-                    mAuth.createUserWithEmailAndPassword(email, password)
-                            .addOnCompleteListener(task -> {
-                                if (task.isSuccessful()) {
-                                    showPopup("Account Created",
-                                            "Welcome to Gringuard! Your account has been created successfully.");
-                                    startActivity(new Intent(LoginActivity.this, Profile.class));
-                                } else {
-                                    showPopup("Signup Error",
-                                            task.getException().getMessage());
-                                }
-                            });
-                }
-            }
-        };
-
-        spannableString.setSpan(clickableSpan, startIndex, endIndex, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-        spannableString.setSpan(new StyleSpan(Typeface.BOLD), startIndex, endIndex, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-
-        txtSignupRedirect.setText(spannableString);
-        txtSignupRedirect.setMovementMethod(LinkMovementMethod.getInstance());
-        txtSignupRedirect.setHighlightColor(Color.TRANSPARENT);
-
-        // ================= FORGOT PASSWORD =================
+        // FORGOT PASSWORD
         btnForgotPass.setOnClickListener(v -> {
             String email = emailBox.getText().toString().trim();
-
             if (TextUtils.isEmpty(email)) {
-                showPopup("Forgot Password",
-                        "Please enter your email first.");
+                showPopup("Forgot Password", "Please enter your email in the box first so we know where to send the link.");
             } else {
-                mAuth.sendPasswordResetEmail(email)
-                        .addOnCompleteListener(task -> {
-                            if (task.isSuccessful()) {
-                                showPopup("Email Sent",
-                                        "Check your inbox for reset link.");
-                            } else {
-                                showPopup("Error",
-                                        task.getException().getMessage());
-                            }
-                        });
+                mAuth.sendPasswordResetEmail(email).addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        showPopup("Email Sent", "Check your inbox for the password reset link.");
+                    } else {
+                        String error = task.getException() != null ? task.getException().getMessage() : "Unknown error";
+                        showPopup("Error", error);
+                    }
+                });
             }
         });
     }
 
-    // ================= VALIDATION =================
     private boolean validateInputs(String email, String password) {
         if (TextUtils.isEmpty(email)) {
             emailBox.setError("Email required");
@@ -142,7 +91,6 @@ public class LoginActivity extends AppCompatActivity {
         return true;
     }
 
-    // ================= POPUP =================
     private void showPopup(String title, String message) {
         new AlertDialog.Builder(this)
                 .setTitle(title)
