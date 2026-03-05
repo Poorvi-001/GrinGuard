@@ -1,14 +1,11 @@
 plugins {
-    alias(libs.plugins.android.application)
-    alias(libs.plugins.google.gms.google.services)
-
+    id("com.android.application")
+    id("com.google.gms.google-services")
 }
 
 android {
     namespace = "com.example.gringuard"
-    compileSdk {
-        version = release(36)
-    }
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.example.gringuard"
@@ -29,6 +26,7 @@ android {
             )
         }
     }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
@@ -36,23 +34,35 @@ android {
 }
 
 dependencies {
-    implementation(libs.appcompat)
-    implementation(libs.material)
-    implementation(libs.activity)
-    implementation(libs.constraintlayout)
-    implementation("com.google.firebase:firebase-auth:22.3.1")
+
+    // Android Core
+    implementation("androidx.appcompat:appcompat:1.7.0")
+    implementation("com.google.android.material:material:1.12.0")
+    implementation("androidx.activity:activity:1.12.2")
+    implementation("androidx.constraintlayout:constraintlayout:2.2.0")
+
+    // Firebase BOM
+    implementation(platform("com.google.firebase:firebase-bom:34.9.0"))
+
+    // Firebase Services
+    implementation("com.google.firebase:firebase-auth")
+    implementation("com.google.firebase:firebase-database")
+    implementation("com.google.firebase:firebase-analytics")
+
+    // Google Sign-In
     implementation("com.google.android.gms:play-services-auth:21.0.0")
-    implementation(libs.firebase.crashlytics.buildtools)
-    testImplementation(libs.junit)
-    androidTestImplementation(libs.ext.junit)
-    androidTestImplementation(libs.espresso.core)
+
+    // Gemini AI (Google Generative AI)
     implementation("com.google.ai.client.generativeai:generativeai:0.9.0")
-    implementation("com.google.guava:guava:33.0.0-android")
-    implementation("io.noties.markwon:core:4.6.2")
-    implementation("com.google.firebase:firebase-database:20.3.0")
+
+    // Markdown Rendering (for AI chat responses)
     implementation("io.noties.markwon:core:4.6.2")
 
-    testImplementation(libs.junit)
-    androidTestImplementation(libs.ext.junit)
-    androidTestImplementation(libs.espresso.core)
+    // Guava (required by generative AI)
+    implementation("com.google.guava:guava:33.0.0-android")
+
+    // Testing
+    testImplementation("junit:junit:4.13.2")
+    androidTestImplementation("androidx.test.ext:junit:1.2.1")
+    androidTestImplementation("androidx.test.espresso:espresso-core:3.6.1")
 }
