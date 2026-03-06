@@ -8,13 +8,12 @@ public class User {
     public String gender;
     public String email;
 
-    // Required empty constructor for Firebase
     public User() {
+        // Required for Firebase
     }
 
-    // Constructor with 5 parameters
-    public User(String ftName, String lName, String age,
-                String gender, String email) {
+    public User(String firstName, String lastName,
+                String age, String gender, String email) {
 
         this.firstName = firstName;
         this.lastName = lastName;

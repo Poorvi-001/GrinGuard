@@ -5,17 +5,24 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 import android.widget.*;
+
 import androidx.appcompat.app.AppCompatActivity;
+
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.*;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class EditActivity extends AppCompatActivity {
+
     private EditText firstNameInput, lastNameInput, ageInput;
     private RadioGroup genderGroup;
     private RadioButton genderMale, genderFemale;
     private Button saveBtn;
     private TextView logoutBtn;
+
     private DatabaseReference dbRef;
     private FirebaseUser currentUser;
 
@@ -34,31 +41,48 @@ public class EditActivity extends AppCompatActivity {
         logoutBtn = findViewById(R.id.logoutBtn);
 
         currentUser = FirebaseAuth.getInstance().getCurrentUser();
-        if (currentUser == null) return; // Guard clause
+
+        if (currentUser == null) {
+            startActivity(new Intent(this, LoginActivity.class));
+            finish();
+            return;
+        }
 
         String uid = currentUser.getUid();
         dbRef = FirebaseDatabase.getInstance().getReference("Users").child(uid);
 
+        // Load user data
         dbRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot snapshot) {
+
                 if (snapshot.exists()) {
+
                     User user = snapshot.getValue(User.class);
+
                     if (user != null) {
                         firstNameInput.setText(user.firstName);
                         lastNameInput.setText(user.lastName);
                         ageInput.setText(user.age);
 
-                        if ("Male".equalsIgnoreCase(user.gender)) genderMale.setChecked(true);
-                        else if ("Female".equalsIgnoreCase(user.gender)) genderFemale.setChecked(true);
+                        if ("Male".equalsIgnoreCase(user.gender)) {
+                            genderMale.setChecked(true);
+                        }
+                        else if ("Female".equalsIgnoreCase(user.gender)) {
+                            genderFemale.setChecked(true);
+                        }
                     }
                 }
             }
+
             @Override
-            public void onCancelled(DatabaseError error) { Log.e("Firebase", error.getMessage()); }
+            public void onCancelled(DatabaseError error) {
+                Log.e("Firebase", error.getMessage());
+            }
         });
 
         saveBtn.setOnClickListener(v -> {
+
             String fName = firstNameInput.getText().toString().trim();
             String lName = lastNameInput.getText().toString().trim();
             String age = ageInput.getText().toString().trim();
@@ -67,9 +91,9 @@ public class EditActivity extends AppCompatActivity {
             RadioButton rb = findViewById(selectedId);
             String gender = (rb != null) ? rb.getText().toString() : "";
 
-            // Validation
             if (TextUtils.isEmpty(fName) || TextUtils.isEmpty(lName) ||
                     TextUtils.isEmpty(age) || TextUtils.isEmpty(gender)) {
+
                 Toast.makeText(this, "All fields are required!", Toast.LENGTH_SHORT).show();
                 return;
             }
@@ -77,26 +101,43 @@ public class EditActivity extends AppCompatActivity {
             saveBtn.setEnabled(false);
             saveBtn.setText("Saving...");
 
-            String currentEmail = currentUser.getEmail();
+            Map<String, Object> updates = new HashMap<>();
+            updates.put("firstName", fName);
+            updates.put("lastName", lName);
+            updates.put("age", age);
+            updates.put("gender", gender);
+            updates.put("email", currentUser.getEmail());
 
-            User updatedUser = new User(fName, lName, age, gender, currentEmail);
+            dbRef.updateChildren(updates)
+                    .addOnSuccessListener(aVoid -> {
 
-            dbRef.setValue(updatedUser).addOnSuccessListener(aVoid -> {
-                saveBtn.setEnabled(true);
-                saveBtn.setText("Save");
-                Toast.makeText(EditActivity.this, "Profile Updated!", Toast.LENGTH_SHORT).show();
-                finish(); // Close activity and return to Dashboard
-            }).addOnFailureListener(e -> {
-                saveBtn.setEnabled(true);
-                saveBtn.setText("Save");
-                Toast.makeText(EditActivity.this, "Update Failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-            });
+                        saveBtn.setEnabled(true);
+                        saveBtn.setText("Save Changes");
+
+                        Toast.makeText(EditActivity.this,
+                                "Profile Updated!", Toast.LENGTH_SHORT).show();
+
+                        finish();
+                    })
+                    .addOnFailureListener(e -> {
+
+                        saveBtn.setEnabled(true);
+                        saveBtn.setText("Save Changes");
+
+                        Toast.makeText(EditActivity.this,
+                                "Update Failed: " + e.getMessage(),
+                                Toast.LENGTH_SHORT).show();
+                    });
         });
 
         logoutBtn.setOnClickListener(v -> {
+
             FirebaseAuth.getInstance().signOut();
+
             startActivity(new Intent(EditActivity.this, LoginActivity.class)
                     .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK));
+
+            finish();
         });
     }
 }
