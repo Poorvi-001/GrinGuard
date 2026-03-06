@@ -8,7 +8,7 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:orientation="vertical"
         android:padding="20dp">
 
@@ -20,10 +20,9 @@
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="20dp"
-                android:gravity="center_vertical">
+                android:padding="20dp">
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -35,44 +34,27 @@
                     android:textColor="#333333"
                     android:layout_marginBottom="20dp"/>
 
-                <!-- EMAIL FIELD -->
+                <!-- EMAIL -->
                 <EditText
                     android:id="@+id/emailInput"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="Email Address"
-                    android:minHeight="48dp"
                     android:inputType="textEmailAddress"
+                    android:minHeight="48dp"
                     android:layout_marginTop="10dp"/>
 
-                <!-- PASSWORD FIELD -->
+                <!-- PASSWORD -->
                 <EditText
                     android:id="@+id/passwordInput"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="Password"
-                    android:minHeight="48dp"
                     android:inputType="textPassword"
+                    android:minHeight="48dp"
                     android:layout_marginTop="10dp"/>
 
                 <!-- FIRST NAME -->
-                <EditText
-                    android:id="@+id/emailInput"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="Email Address"
-                    android:minHeight="48dp"
-                    android:inputType="textEmailAddress"
-                    android:layout_marginTop="10dp"/>
-
-                <EditText
-                    android:id="@+id/passwordInput"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="Password"
-                    android:minHeight="48dp"
-                    android:inputType="textPassword"/>
-
                 <EditText
                     android:id="@+id/firstNameInput"
                     android:layout_width="match_parent"
@@ -87,7 +69,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="Last Name"
-                    android:minHeight="48dp"/>
+                    android:minHeight="48dp"
+                    android:layout_marginTop="10dp"/>
 
                 <!-- AGE -->
                 <EditText
@@ -95,8 +78,9 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="Age"
+                    android:inputType="number"
                     android:minHeight="48dp"
-                    android:inputType="number"/>
+                    android:layout_marginTop="10dp"/>
 
                 <!-- GENDER -->
                 <RadioGroup
@@ -104,22 +88,21 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
-                    android:layout_marginTop="16dp">
+                    android:layout_marginTop="10dp">
 
                     <RadioButton
-                        android:id="@+id/genderMale"
+                        android:id="@+id/radioMale"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Male"
-                        android:minHeight="48dp"/>
+                        android:text="Male"/>
 
                     <RadioButton
-                        android:id="@+id/genderFemale"
+                        android:id="@+id/radioFemale"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Female"
-                        android:minHeight="48dp"
                         android:layout_marginStart="20dp"/>
+
                 </RadioGroup>
 
             </LinearLayout>
@@ -135,4 +118,5 @@
             android:backgroundTint="#F6B1D8"/>
 
     </LinearLayout>
+
 </ScrollView>
