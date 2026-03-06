@@ -1,22 +1,15 @@
 package com.example.gringuard;
 
 public class User {
+    // These must be public or have public getters
+    public String fName, lName, age, gender, email;
 
-    public String firstName;
-    public String lastName;
-    public String age;
-    public String gender;
-    public String email;
+    // Empty constructor is REQUIRED for Firebase
+    public User() {}
 
-    public User() {
-        // Required for Firebase
-    }
-
-    public User(String firstName, String lastName,
-                String age, String gender, String email) {
-
-        this.firstName = firstName;
-        this.lastName = lastName;
+    public User(String fName, String lName, String age, String gender, String email) {
+        this.fName = fName;
+        this.lName = lName;
         this.age = age;
         this.gender = gender;
         this.email = email;

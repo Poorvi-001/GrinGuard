@@ -55,7 +55,8 @@
                     android:inputType="textPassword"
                     android:layout_marginTop="10dp"/>
 
-                <!-- FIRST NAME -->
+
+
                 <EditText
                     android:id="@+id/firstNameInput"
                     android:layout_width="match_parent"
