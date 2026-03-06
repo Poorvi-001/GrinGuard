@@ -34,7 +34,6 @@ public class ChatActivity extends AppCompatActivity {
     private ScrollView scrollView;
     private Markwon markwon;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -49,13 +48,12 @@ public class ChatActivity extends AppCompatActivity {
 
         GenerativeModel gm = new GenerativeModel(
                 "gemini-2.5-flash",
-                "AIzaSyAf2pqkr7ur5biay-2AieMBVmVOU8s3XtM",
+                "AIzaSyA_nj6k6sY87HbOkVthO6AJnr_dW6xHAJg",
                 config
         );
         model = GenerativeModelFutures.from(gm);
         chatSession = model.startChat();
 
-        // Initial Message
         chatResponse.setText("");
         appendChatLog("GrinGuard", "Welcome! I am your dental assistant. How can I help you today?");
 
@@ -72,12 +70,16 @@ public class ChatActivity extends AppCompatActivity {
     private void appendChatLog(String sender, String message) {
         runOnUiThread(() -> {
             SpannableStringBuilder builder = new SpannableStringBuilder();
+
             if (chatResponse.getText().length() > 0) {
                 builder.append("\n\n");
             }
+
             int start = builder.length();
             builder.append(sender).append(":\n");
+
             builder.setSpan(new StyleSpan(Typeface.BOLD), start, builder.length(), 0);
+
             int color = sender.equals("You") ? 0xFFFF1493 : 0xFF000000;
             builder.setSpan(new ForegroundColorSpan(color), start, builder.length(), 0);
 

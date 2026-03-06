@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:background="@drawable/pink_teeth"
+    android:padding="24dp">
+
+    <TextView
+        android:id="@+id/titleText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Health Tracker"
+        android:textSize="32sp"
+        android:textStyle="bold"
+        android:textColor="#E91E63"
+        android:layout_marginBottom="40dp"/>
+
+    <Button
+        android:id="@+id/btnTips"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:text="Personalised Tips"
+        android:textStyle="bold"
+        android:backgroundTint="#F8BBD0"
+        android:layout_marginBottom="20dp"/>
+
+    <Button
+        android:id="@+id/btnFollowPlan"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:text="Follow Plan"
+        android:textStyle="bold"
+        android:backgroundTint="#F48FB1"
+        android:layout_marginBottom="20dp"/>
+
+    <Button
+        android:id="@+id/btnGoals"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:text="Track Goals"
+        android:textStyle="bold"
+        android:backgroundTint="#F06292"
+        android:layout_marginBottom="20dp"/>
+
+    <Button
+        android:id="@+id/btnSeverity"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:text="Check Severity"
+        android:textStyle="bold"
+        android:textColor="#FFFFFF"
+        android:backgroundTint="#EC407A"/>
+
+</LinearLayout>
