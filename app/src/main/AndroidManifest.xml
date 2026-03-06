@@ -69,6 +69,28 @@
             android:name=".MainActivity_login"
             android:exported="false" />
 
+        <activity
+            android:name=".HealthActivity"
+            android:exported="false"
+            android:label="Health Tracker" />
+
+        <activity
+            android:name=".Cavity_Activity"
+            android:exported="false" />
+
+        <activity
+            android:name=".Gingivitis_Activity"
+            android:exported="false" />
+
+        <activity
+            android:name=".Fractured_Teeth_Activity"
+            android:exported="false" />
+
+        <activity
+            android:name=".GingitivitisLowActivity"
+            android:exported="false"
+            android:label="Gingivitis Tips" />
+
     </application>
 
 </manifest>

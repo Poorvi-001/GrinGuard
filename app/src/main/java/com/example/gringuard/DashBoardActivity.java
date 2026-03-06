@@ -1,20 +1,13 @@
 package com.example.gringuard;
 
- // Make sure this matches your project package name
-
-
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageView;
-import android.widget.Toast;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
-import android.view.View;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 public class DashBoardActivity extends AppCompatActivity {
 
@@ -26,19 +19,49 @@ public class DashBoardActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.homepage1);
 
-        // Open your Chatbot
-        findViewById(R.id.virtualAssistantCard).setOnClickListener(v ->
-                startActivity(new Intent(this, ChatActivity.class)));
-
-
-        // 1. Link Header Profile Icon
+        // Header Profile Icon
         View profileBtn = findViewById(R.id.profileClickArea);
         profileBtn.setOnClickListener(v -> {
             Intent intent = new Intent(DashBoardActivity.this, EditActivity.class);
             startActivity(intent);
         });
 
-        // 2. Link Upload Logic
+        // 3-line Menu Click → Open About Us
+        ImageView menuAboutUs = findViewById(R.id.menuAboutUs);
+        menuAboutUs.setOnClickListener(v -> {
+            Intent intent = new Intent(DashBoardActivity.this, AboutUsActivity.class);
+            startActivity(intent);
+        });
+
+        // Health Tracker Card → Open HealthActivity
+        CardView healthTrackerCard = findViewById(R.id.healthTrackerCard);
+        healthTrackerCard.setOnClickListener(v -> {
+            Intent intent = new Intent(DashBoardActivity.this, HealthActivity.class);
+            startActivity(intent);
+        });
+
+        // Virtual Assistant Click → Open Chatbot
+        CardView virtualAssistantCard = findViewById(R.id.virtualAssistantCard);
+        virtualAssistantCard.setOnClickListener(v -> {
+            Intent intent = new Intent(DashBoardActivity.this, ChatActivity.class);
+            startActivity(intent);
+        });
+
+        // Recommended Dentist Card → Open DentistRecommendationActivity
+        CardView dentistCard = findViewById(R.id.dentistCard);
+        dentistCard.setOnClickListener(v -> {
+            Intent intent = new Intent(DashBoardActivity.this, DentistRecommendationActivity.class);
+            startActivity(intent);
+        });
+
+        // Help FAB
+        ImageView menuHelp = findViewById(R.id.fabHelp);
+        menuHelp.setOnClickListener(v -> {
+            Intent intent = new Intent(DashBoardActivity.this, HelpSupportActivity.class);
+            startActivity(intent);
+        });
+
+        // Image Upload Logic
         CardView heroCard = findViewById(R.id.heroCard);
         imagePreview = findViewById(R.id.imagePreview);
         previewCard = findViewById(R.id.previewCard);
@@ -51,40 +74,6 @@ public class DashBoardActivity extends AppCompatActivity {
                         imagePreview.setImageURI(uri);
                     }
                 });
-
-        // 3-line Menu Click → Open About Us
-        ImageView menuAboutUs = findViewById(R.id.menuAboutUs);
-
-        menuAboutUs.setOnClickListener(v -> {
-            Intent intent = new Intent(DashBoardActivity.this, AboutUsActivity.class);
-            startActivity(intent);
-        });
-
-
-        // 4. Virtual Assistant Click → Open Chatbot
-        CardView virtualAssistantCard = findViewById(R.id.virtualAssistantCard);
-
-        virtualAssistantCard.setOnClickListener(v -> {
-            Intent intent = new Intent(DashBoardActivity.this, ChatActivity.class);
-            startActivity(intent);
-        });
-
-        ImageView menuHelp = findViewById(R.id.fabHelp);
-
-        menuHelp.setOnClickListener(v -> {
-            Intent intent = new Intent(DashBoardActivity.this, HelpSupportActivity.class);
-            startActivity(intent);
-        });
-
-        // 5. Recommended Dentist Card → Open Dentist Recommendation Page
-        CardView dentistCard = findViewById(R.id.dentistCard);
-
-        dentistCard.setOnClickListener(v -> {
-            Intent intent = new Intent(DashBoardActivity.this, DentistRecommendationActivity.class);
-            startActivity(intent);
-        });
-
-
 
         heroCard.setOnClickListener(v -> getContent.launch("image/*"));
     }

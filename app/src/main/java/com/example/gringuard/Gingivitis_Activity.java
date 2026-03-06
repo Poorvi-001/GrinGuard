@@ -12,14 +12,14 @@ public class Gingivitis_Activity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.fractured_teeth_severity);
+        setContentView(R.layout.gingivitis);
 
         RadioGroup rgVisual = findViewById(R.id.rgVisual);
-        RadioGroup rgColor = findViewById(R.id.rgCold);
-        RadioGroup rgSensitivity = findViewById(R.id.rgBite);
-        RadioGroup rgSwelling = findViewById(R.id.rgStability);
-        RadioGroup rgSpread = findViewById(R.id.rgSpontaneous);
-        RadioGroup rgBreath = findViewById(R.id.rgGums);
+        RadioGroup rgColor = findViewById(R.id.rgColor);
+        RadioGroup rgSensitivity = findViewById(R.id.rgSensitivity);
+        RadioGroup rgSwelling = findViewById(R.id.rgSwelling);
+        RadioGroup rgCoverage = findViewById(R.id.rgCoverage);
+        RadioGroup rgBreath = findViewById(R.id.rgBreath);
 
         Button btnCalculate = findViewById(R.id.btnCalculate);
         TextView tvResult = findViewById(R.id.tvResult);
@@ -27,7 +27,7 @@ public class Gingivitis_Activity extends AppCompatActivity {
         btnCalculate.setOnClickListener(v -> {
             if (rgVisual.getCheckedRadioButtonId() == -1 || rgColor.getCheckedRadioButtonId() == -1 ||
                     rgSensitivity.getCheckedRadioButtonId() == -1 || rgSwelling.getCheckedRadioButtonId() == -1 ||
-                    rgSpread.getCheckedRadioButtonId() == -1 || rgBreath.getCheckedRadioButtonId() == -1) {
+                    rgCoverage.getCheckedRadioButtonId() == -1 || rgBreath.getCheckedRadioButtonId() == -1) {
                 Toast.makeText(this, "Please answer all 6 questions", Toast.LENGTH_SHORT).show();
                 return;
             }
@@ -36,15 +36,15 @@ public class Gingivitis_Activity extends AppCompatActivity {
             int cScore = getScore(rgColor);
             int sScore = getScore(rgSensitivity);
             int swScore = getScore(rgSwelling);
-            int spScore = getScore(rgSpread);
+            int coScore = getScore(rgCoverage);
             int bScore = getScore(rgBreath);
 
             int maxSeverity = Math.max(vScore, Math.max(cScore, Math.max(sScore,
-                    Math.max(swScore, Math.max(spScore, bScore)))));
+                    Math.max(swScore, Math.max(coScore, bScore)))));
 
 
             int mediumCount = 0;
-            int[] scores = {vScore, cScore, sScore, swScore, spScore, bScore};
+            int[] scores = {vScore, cScore, sScore, swScore, coScore, bScore};
             for (int s : scores) if (s == 2) mediumCount++;
 
             String resultText;
