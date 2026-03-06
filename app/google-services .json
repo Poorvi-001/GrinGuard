@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "893642639235",
+    "firebase_url": "https://gringuard-aee7d-default-rtdb.firebaseio.com",
+    "project_id": "gringuard-aee7d",
+    "storage_bucket": "gringuard-aee7d.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:893642639235:android:9e3620c7708e1a16ec18b6",
+        "android_client_info": {
+          "package_name": "com.example.gringuard"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDrpn5ngxkmwrDUmtN5Rk2cVdRvaqumlwE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
