@@ -91,6 +91,9 @@
             android:exported="false"
             android:label="Gingivitis Tips" />
 
+        <activity
+            android:name=".ResultActivity"/>
+
     </application>
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
