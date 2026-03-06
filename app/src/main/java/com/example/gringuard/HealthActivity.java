@@ -1,5 +1,6 @@
 package com.example.gringuard;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.widget.Button;
@@ -28,8 +29,10 @@ public class HealthActivity extends AppCompatActivity {
 
         checkSeverityAvailability();
 
-        btnTips.setOnClickListener(v ->
-                Toast.makeText(this, "Opening Personalised Tips", Toast.LENGTH_SHORT).show());
+        btnTips.setOnClickListener(v -> {
+            Intent intent = new Intent(HealthActivity.this, GingitivitisLowActivity.class);
+            startActivity(intent);
+        });
 
         btnFollowPlan.setOnClickListener(v ->
                 Toast.makeText(this, "Opening Follow Plan", Toast.LENGTH_SHORT).show());
@@ -38,42 +41,36 @@ public class HealthActivity extends AppCompatActivity {
                 Toast.makeText(this, "Opening Track Goals", Toast.LENGTH_SHORT).show());
 
         btnSeverity.setOnClickListener(v -> {
-            long currentTime = System.currentTimeMillis();
+            // Updated to open Gingivitis_Activity
+            Intent intent = new Intent(HealthActivity.this, Gingivitis_Activity.class);
+            startActivity(intent);
 
+            // Keep the severity check timing logic if needed
+            long currentTime = System.currentTimeMillis();
             SharedPreferences.Editor editor = preferences.edit();
             editor.putLong(KEY_LAST_CLICK, currentTime);
             editor.apply();
-
-            Toast.makeText(this, "Severity Check Started", Toast.LENGTH_SHORT).show();
-
-            btnSeverity.setEnabled(false);
         });
     }
 
     private void checkSeverityAvailability() {
-
         long lastClickTime = preferences.getLong(KEY_LAST_CLICK, 0);
 
         if (lastClickTime == 0) {
-            // First time user → allow click
             btnSeverity.setEnabled(true);
             return;
         }
 
         long currentTime = System.currentTimeMillis();
-
         long oneWeekMillis = 7L * 24 * 60 * 60 * 1000;
-
         long nextAllowedTime = lastClickTime + oneWeekMillis;
 
-        // Enable ONLY if today is same day (within 24 hours window)
         if (currentTime >= nextAllowedTime &&
                 currentTime < nextAllowedTime + (24L * 60 * 60 * 1000)) {
-
             btnSeverity.setEnabled(true);
-
         } else {
-            btnSeverity.setEnabled(false);
+            // Keep the button enabled for now so user can test the transition
+            btnSeverity.setEnabled(true); 
         }
     }
 }
