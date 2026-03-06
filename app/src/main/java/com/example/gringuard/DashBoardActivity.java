@@ -30,7 +30,7 @@ public class DashBoardActivity extends AppCompatActivity {
     private ImageView imagePreview;
     private CardView previewCard;
 
-    // TFLite variables
+    // TFLite fields
     private Interpreter tflite;
     private List<String> labelList;
 
@@ -39,19 +39,40 @@ public class DashBoardActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.homepage1);
 
-        // 1. Initialize TFLite
+        // --- MODEL INITIALIZATION ---
         try {
             tflite = new Interpreter(loadModelFile());
             labelList = loadLabelList();
         } catch (IOException e) {
             e.printStackTrace();
-            Toast.makeText(this, "Model failed to load", Toast.LENGTH_SHORT).show();
         }
 
-        // --- Your Existing UI Code ---
-        findViewById(R.id.virtualAssistantCard).setOnClickListener(v -> startActivity(new Intent(this, ChatActivity.class)));
-        findViewById(R.id.profileClickArea).setOnClickListener(v -> startActivity(new Intent(DashBoardActivity.this, EditActivity.class)));
+        // --- EXISTING BUTTON LOGIC ---
+        // Header Profile Icon
+        View profileBtn = findViewById(R.id.profileClickArea);
+        profileBtn.setOnClickListener(v -> startActivity(new Intent(DashBoardActivity.this, EditActivity.class)));
 
+        // 3-line Menu Click
+        ImageView menuAboutUs = findViewById(R.id.menuAboutUs);
+        menuAboutUs.setOnClickListener(v -> startActivity(new Intent(DashBoardActivity.this, AboutUsActivity.class)));
+
+        // Health Tracker Card
+        CardView healthTrackerCard = findViewById(R.id.healthTrackerCard);
+        healthTrackerCard.setOnClickListener(v -> startActivity(new Intent(DashBoardActivity.this, HealthActivity.class)));
+
+        // Virtual Assistant Click
+        CardView virtualAssistantCard = findViewById(R.id.virtualAssistantCard);
+        virtualAssistantCard.setOnClickListener(v -> startActivity(new Intent(DashBoardActivity.this, ChatActivity.class)));
+
+        // Recommended Dentist Card
+        CardView dentistCard = findViewById(R.id.dentistCard);
+        dentistCard.setOnClickListener(v -> startActivity(new Intent(DashBoardActivity.this, DentistRecommendationActivity.class)));
+
+        // Help FAB
+        ImageView menuHelp = findViewById(R.id.fabHelp);
+        menuHelp.setOnClickListener(v -> startActivity(new Intent(DashBoardActivity.this, HelpSupportActivity.class)));
+
+        // Image Upload Logic
         CardView heroCard = findViewById(R.id.heroCard);
         imagePreview = findViewById(R.id.imagePreview);
         previewCard = findViewById(R.id.previewCard);
@@ -62,58 +83,45 @@ public class DashBoardActivity extends AppCompatActivity {
                     if (uri != null) {
                         previewCard.setVisibility(View.VISIBLE);
                         imagePreview.setImageURI(uri);
-                        // Run inference
+                        // --- INTEGRATED MODEL CALL ---
                         runInference(uri);
                     }
                 });
 
         heroCard.setOnClickListener(v -> getContent.launch("image/*"));
-
-        // ... (Keep your other existing button listeners here)
     }
 
-    // --- Inference Logic ---
-
+    // --- NEW MODEL METHODS ---
     private void runInference(Uri uri) {
         try {
             Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), uri);
             Bitmap resized = Bitmap.createScaledBitmap(bitmap, 224, 224, true);
 
-            ByteBuffer inputBuffer = ByteBuffer.allocateDirect(1 * 224 * 224 * 3 * 4);
-            inputBuffer.order(ByteOrder.nativeOrder());
-
-            // Fill buffer with pixel data (standard RGB normalization)
-            int[] intValues = new int[224 * 224];
-            resized.getPixels(intValues, 0, 224, 0, 0, 224, 224);
-            for (int pixelValue : intValues) {
-                inputBuffer.putFloat(((pixelValue >> 16) & 0xFF) / 255.0f);
-                inputBuffer.putFloat(((pixelValue >> 8) & 0xFF) / 255.0f);
-                inputBuffer.putFloat((pixelValue & 0xFF) / 255.0f);
+            ByteBuffer input = ByteBuffer.allocateDirect(1 * 224 * 224 * 3 * 4);
+            input.order(ByteOrder.nativeOrder());
+            for (int y = 0; y < 224; y++) {
+                for (int x = 0; x < 224; x++) {
+                    int px = resized.getPixel(x, y);
+                    input.putFloat(((px >> 16) & 0xFF) / 255.0f);
+                    input.putFloat(((px >> 8) & 0xFF) / 255.0f);
+                    input.putFloat((px & 0xFF) / 255.0f);
+                }
             }
 
             float[][] output = new float[1][labelList.size()];
-            tflite.run(inputBuffer, output);
+            tflite.run(input, output);
 
-            // Find index of highest probability
             int maxIdx = 0;
-            for (int i = 1; i < output[0].length; i++) {
-                if (output[0][i] > output[0][maxIdx]) maxIdx = i;
-            }
+            for (int i = 1; i < output[0].length; i++) if (output[0][i] > output[0][maxIdx]) maxIdx = i;
 
             Toast.makeText(this, "Result: " + labelList.get(maxIdx), Toast.LENGTH_LONG).show();
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        } catch (IOException e) { e.printStackTrace(); }
     }
 
-    // --- Helper Methods ---
-
     private MappedByteBuffer loadModelFile() throws IOException {
-        AssetFileDescriptor fileDescriptor = this.getAssets().openFd("best_float16.tflite");
-        FileInputStream inputStream = new FileInputStream(fileDescriptor.getFileDescriptor());
-        FileChannel fileChannel = inputStream.getChannel();
-        return fileChannel.map(FileChannel.MapMode.READ_ONLY, fileDescriptor.getStartOffset(), fileDescriptor.getDeclaredLength());
+        AssetFileDescriptor fd = this.getAssets().openFd("best_float16.tflite");
+        FileInputStream is = new FileInputStream(fd.getFileDescriptor());
+        return is.getChannel().map(FileChannel.MapMode.READ_ONLY, fd.getStartOffset(), fd.getDeclaredLength());
     }
 
     private List<String> loadLabelList() throws IOException {

@@ -45,8 +45,8 @@ public class EditActivity extends AppCompatActivity {
                 if (snapshot.exists()) {
                     User user = snapshot.getValue(User.class);
                     if (user != null) {
-                        firstNameInput.setText(user.firstName);
-                        lastNameInput.setText(user.lastName);
+                        firstNameInput.setText(user.fName);
+                        lastNameInput.setText(user.lName);
                         ageInput.setText(user.age);
 
                         if ("Male".equalsIgnoreCase(user.gender)) genderMale.setChecked(true);
