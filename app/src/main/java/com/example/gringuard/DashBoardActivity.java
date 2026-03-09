@@ -1,16 +1,18 @@
 package com.example.gringuard;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.AssetFileDescriptor;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
-import android.widget.Toast;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 import org.tensorflow.lite.Interpreter;
@@ -39,14 +41,13 @@ public class DashBoardActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.homepage1);
 
-
+        // --- MODEL INITIALIZATION ---
         try {
             tflite = new Interpreter(loadModelFile());
             labelList = loadLabelList();
         } catch (IOException e) {
             e.printStackTrace();
         }
-
 
         // Header Profile Icon
         View profileBtn = findViewById(R.id.profileClickArea);
@@ -58,7 +59,16 @@ public class DashBoardActivity extends AppCompatActivity {
 
         // Health Tracker Card
         CardView healthTrackerCard = findViewById(R.id.healthTrackerCard);
-        healthTrackerCard.setOnClickListener(v -> startActivity(new Intent(DashBoardActivity.this, HealthActivity.class)));
+        healthTrackerCard.setOnClickListener(v -> {
+            SharedPreferences prefs = getSharedPreferences("DentalData", MODE_PRIVATE);
+            String severity = prefs.getString("severity", "");
+
+            if ("high".equalsIgnoreCase(severity)) {
+                showHighSeverityPopup();
+            } else {
+                startActivity(new Intent(DashBoardActivity.this, HealthActivity.class));
+            }
+        });
 
         // Virtual Assistant Click
         CardView virtualAssistantCard = findViewById(R.id.virtualAssistantCard);
@@ -81,18 +91,29 @@ public class DashBoardActivity extends AppCompatActivity {
                 new ActivityResultContracts.GetContent(),
                 uri -> {
                     if (uri != null) {
-                        previewCard.setVisibility(View.VISIBLE);
-                        imagePreview.setImageURI(uri);
-                        // --- INTEGRATED MODEL CALL ---
-                        runInference(uri);
+                        // Instead of showing on dashboard, we process and go to ResultActivity
+                        runInferenceAndGoToResult(uri);
                     }
                 });
 
         heroCard.setOnClickListener(v -> getContent.launch("image/*"));
     }
 
+    private void showHighSeverityPopup() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        LayoutInflater inflater = getLayoutInflater();
+        View dialogView = inflater.inflate(R.layout.popup, null);
+        builder.setView(dialogView);
 
-    private void runInference(Uri uri) {
+        AlertDialog dialog = builder.create();
+        
+        // Add a click listener to the root view to dismiss the popup if it has no button
+        dialogView.setOnClickListener(v -> dialog.dismiss());
+        
+        dialog.show();
+    }
+
+    private void runInferenceAndGoToResult(Uri uri) {
         try {
             Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), uri);
             Bitmap resized = Bitmap.createScaledBitmap(bitmap, 224, 224, true);
@@ -114,7 +135,18 @@ public class DashBoardActivity extends AppCompatActivity {
             int maxIdx = 0;
             for (int i = 1; i < output[0].length; i++) if (output[0][i] > output[0][maxIdx]) maxIdx = i;
 
-            Toast.makeText(this, "Result: " + labelList.get(maxIdx), Toast.LENGTH_LONG).show();
+            String detectedDisease = labelList.get(maxIdx);
+
+            // Save for Health Tracker tips
+            SharedPreferences prefs = getSharedPreferences("DentalData", MODE_PRIVATE);
+            prefs.edit().putString("detectedDisease", detectedDisease).apply();
+
+            // Open ResultActivity with the data
+            Intent intent = new Intent(DashBoardActivity.this, ResultActivity.class);
+            intent.putExtra("disease", detectedDisease);
+            intent.putExtra("imageUri", uri.toString());
+            startActivity(intent);
+
         } catch (IOException e) { e.printStackTrace(); }
     }
 

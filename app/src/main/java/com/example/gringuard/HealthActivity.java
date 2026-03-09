@@ -2,9 +2,11 @@ package com.example.gringuard;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.Toast;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 public class HealthActivity extends AppCompatActivity {
@@ -12,8 +14,10 @@ public class HealthActivity extends AppCompatActivity {
     Button btnTips, btnFollowPlan, btnGoals, btnSeverity;
     SharedPreferences preferences;
 
-    private static final String PREF_NAME = "SeverityPrefs";
-    private static final String KEY_LAST_CLICK = "lastClickTime";
+    private static final String PREF_NAME = "DentalData";
+    private static final String SEV_PREF_NAME = "SeverityPrefs";
+    private static final String KEY_START_TIME = "startTime";
+    private static final String KEY_LAST_CHECK_DAY = "lastCheckDay";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,50 +31,150 @@ public class HealthActivity extends AppCompatActivity {
 
         preferences = getSharedPreferences(PREF_NAME, MODE_PRIVATE);
 
-        checkSeverityAvailability();
+        updateSeverityButtonStatus();
 
         btnTips.setOnClickListener(v -> {
-            Intent intent = new Intent(HealthActivity.this, GingitivitisLowActivity.class);
-            startActivity(intent);
+            String disease = preferences.getString("detectedDisease", "");
+            String severity = preferences.getString("severity", "");
+
+            if (disease.isEmpty() || severity.isEmpty()) {
+                Toast.makeText(this, "Please check severity first!", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            Intent intent = null;
+
+            if (disease.equalsIgnoreCase("Gingivitis")) {
+                if (severity.equals("low")) intent = new Intent(this, GingitivitisLowActivity.class);
+                else if (severity.equals("medium")) intent = new Intent(this, GingivitisActivityMedium.class);
+            } else if (disease.equalsIgnoreCase("Cavity") || disease.equalsIgnoreCase("Caries")) {
+                if (severity.equals("low")) intent = new Intent(this, CariesLowActivity.class);
+                else if (severity.equals("medium")) intent = new Intent(this, CariesMediumactivity.class);
+            } else if (disease.equalsIgnoreCase("Fractured")) {
+                if (severity.equals("low")) intent = new Intent(this, FracturedLowActivity.class);
+                else if (severity.equals("medium")) intent = new Intent(this, FracturedMediumActivity.class);
+            }
+
+            if (intent != null) {
+                startActivity(intent);
+            } else {
+                Toast.makeText(this, "No specific tips for high severity. Please see a dentist.", Toast.LENGTH_SHORT).show();
+            }
         });
 
-        btnFollowPlan.setOnClickListener(v ->
-                Toast.makeText(this, "Opening Follow Plan", Toast.LENGTH_SHORT).show());
+        btnFollowPlan.setOnClickListener(v -> {
+            String disease = preferences.getString("detectedDisease", "");
+            String severity = preferences.getString("severity", "");
+
+            if (disease.isEmpty() || severity.isEmpty()) {
+                Toast.makeText(this, "Please check severity first!", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            Intent intent = null;
+
+            if (disease.equalsIgnoreCase("Gingivitis")) {
+                if (severity.equals("low")) intent = new Intent(this, FollowPlanGingivitisLow.class);
+            } else if (disease.equalsIgnoreCase("Cavity") || disease.equalsIgnoreCase("Caries")) {
+                if (severity.equals("low")) intent = new Intent(this, FollowPlanCariesLow.class);
+                else if (severity.equals("medium")) intent = new Intent(this, FollowPlanCariesMedium.class);
+            } else if (disease.equalsIgnoreCase("Fractured")) {
+                if (severity.equals("low")) intent = new Intent(this, FollowPlanFracturedLow.class);
+                else if (severity.equals("medium")) intent = new Intent(this, FollowPlanFracturedMedium.class);
+            }
+
+            if (intent != null) {
+                startActivity(intent);
+            } else {
+                Toast.makeText(this, "Follow plan not available for this severity.", Toast.LENGTH_SHORT).show();
+            }
+        });
 
         btnGoals.setOnClickListener(v ->
                 Toast.makeText(this, "Opening Track Goals", Toast.LENGTH_SHORT).show());
 
         btnSeverity.setOnClickListener(v -> {
-            // Updated to open Gingivitis_Activity
-            Intent intent = new Intent(HealthActivity.this, Gingivitis_Activity.class);
-            startActivity(intent);
-
-            // Keep the severity check timing logic if needed
+            SharedPreferences sevPrefs = getSharedPreferences(SEV_PREF_NAME, MODE_PRIVATE);
+            long startTime = sevPrefs.getLong(KEY_START_TIME, 0);
             long currentTime = System.currentTimeMillis();
-            SharedPreferences.Editor editor = preferences.edit();
-            editor.putLong(KEY_LAST_CLICK, currentTime);
-            editor.apply();
+
+            if (startTime == 0) {
+                startTime = currentTime;
+                sevPrefs.edit().putLong(KEY_START_TIME, startTime).apply();
+            }
+
+            int currentDay = (int) ((currentTime - startTime) / (24 * 60 * 60 * 1000)) + 1;
+            int lastCheckDay = sevPrefs.getInt(KEY_LAST_CHECK_DAY, 0);
+            boolean isCheckDay = (currentDay == 1 || currentDay == 7 || currentDay == 14 || currentDay == 21);
+
+            if (isCheckDay && lastCheckDay != currentDay) {
+                sevPrefs.edit().putInt(KEY_LAST_CHECK_DAY, currentDay).apply();
+
+                String disease = preferences.getString("detectedDisease", "");
+                Intent intent;
+                if (disease.equalsIgnoreCase("Gingivitis")) {
+                    intent = new Intent(this, Gingivitis_Activity.class);
+                } else if (disease.equalsIgnoreCase("Fractured")) {
+                    intent = new Intent(this, Fractured_Teeth_Activity.class);
+                } else {
+                    intent = new Intent(this, Caries_Activity.class);
+                }
+                startActivity(intent);
+            } else {
+                showDisabledPopup();
+            }
         });
     }
 
-    private void checkSeverityAvailability() {
-        long lastClickTime = preferences.getLong(KEY_LAST_CLICK, 0);
-
-        if (lastClickTime == 0) {
-            btnSeverity.setEnabled(true);
+    private void updateSeverityButtonStatus() {
+        SharedPreferences sevPrefs = getSharedPreferences(SEV_PREF_NAME, MODE_PRIVATE);
+        long startTime = sevPrefs.getLong(KEY_START_TIME, 0);
+        
+        if (startTime == 0) {
+            enableSeverityButton();
             return;
         }
 
         long currentTime = System.currentTimeMillis();
-        long oneWeekMillis = 7L * 24 * 60 * 60 * 1000;
-        long nextAllowedTime = lastClickTime + oneWeekMillis;
+        int currentDay = (int) ((currentTime - startTime) / (24 * 60 * 60 * 1000)) + 1;
+        int lastCheckDay = sevPrefs.getInt(KEY_LAST_CHECK_DAY, 0);
 
-        if (currentTime >= nextAllowedTime &&
-                currentTime < nextAllowedTime + (24L * 60 * 60 * 1000)) {
-            btnSeverity.setEnabled(true);
-        } else {
-            // Keep the button enabled for now so user can test the transition
-            btnSeverity.setEnabled(true);
+        if (currentDay > 21) {
+            disableSeverityButton();
+            return;
         }
+
+        boolean isCheckDay = (currentDay == 1 || currentDay == 7 || currentDay == 14 || currentDay == 21);
+        
+        if (isCheckDay && lastCheckDay != currentDay) {
+            enableSeverityButton();
+        } else {
+            disableSeverityButton();
+        }
+    }
+
+    private void enableSeverityButton() {
+        btnSeverity.setBackgroundColor(Color.parseColor("#EC407A"));
+        btnSeverity.setEnabled(true);
+    }
+
+    private void disableSeverityButton() {
+        btnSeverity.setBackgroundColor(Color.parseColor("#9E9E9E"));
+        // Keep button clickable to show the popup
+        btnSeverity.setEnabled(true); 
+    }
+
+    private void showDisabledPopup() {
+        new AlertDialog.Builder(this)
+                .setTitle("Check Disabled")
+                .setMessage("Enabled at every 7th day")
+                .setPositiveButton("OK", null)
+                .show();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        updateSeverityButtonStatus();
     }
 }

@@ -91,7 +91,50 @@
             android:exported="false"
             android:label="Gingivitis Tips" />
 
+        <activity
+            android:name=".CariesLowActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".CariesMediumactivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".FracturedLowActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".FracturedMediumActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".GingivitisActivityMedium"
+            android:exported="false" />
+
+        <activity
+            android:name=".ResultActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".FollowPlanCariesLow"
+            android:exported="false" />
+
+        <activity
+            android:name=".FollowPlanCariesMedium"
+            android:exported="false" />
+
+        <activity
+            android:name=".FollowPlanFracturedLow"
+            android:exported="false" />
+
+        <activity
+            android:name=".FollowPlanFracturedMedium"
+            android:exported="false" />
+
+        <activity
+            android:name=".FollowPlanGingivitisLow"
+            android:exported="false" />
+
     </application>
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+
 </manifest>
