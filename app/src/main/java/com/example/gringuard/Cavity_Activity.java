@@ -1,5 +1,6 @@
 package com.example.gringuard;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.RadioGroup;
@@ -40,20 +41,33 @@ public class Cavity_Activity extends AppCompatActivity {
 
             String message;
             int color;
+            String severity = "high";
 
             if (maxSeverity == 3 || scores[2] == 3) {
                 message = "CRITICAL: Nerve Involvement\nPain to heat or night pain indicates the cavity has reached the nerve. Root canal likely needed.";
                 color = 0xFFD81B60;
+                severity = "high";
             } else if (maxSeverity == 2) {
                 message = "MEDIUM SEVERITY: Dentin Decay\nThe decay has reached the sensitive layer. Needs a filling immediately to avoid a root canal.";
                 color = 0xFFF4511E;
+                severity = "medium";
             } else {
                 message = "LOW SEVERITY: Enamel Decay\nEarly stage decay. May be reversible with fluoride treatment or a simple filling.";
                 color = 0xFF2E7D32;
+                severity = "low";
             }
 
             tvResult.setText(message);
             tvResult.setTextColor(color);
+
+            // Store the severity and disease type for HealthTracker
+            SharedPreferences prefs = getSharedPreferences("DentalData", MODE_PRIVATE);
+            SharedPreferences.Editor editor = prefs.edit();
+            editor.putString("detectedDisease", "Cavity");
+            editor.putString("severity", severity);
+            editor.apply();
+            
+            Toast.makeText(this, "Severity Checked: " + severity.toUpperCase(), Toast.LENGTH_SHORT).show();
         });
     }
 

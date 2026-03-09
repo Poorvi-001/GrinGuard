@@ -1,5 +1,6 @@
 package com.example.gringuard;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.RadioGroup;
@@ -49,26 +50,40 @@ public class Gingivitis_Activity extends AppCompatActivity {
 
             String resultText;
             int resultColor;
+            String severity = "high";
 
             if (vScore == 3 && sScore == 1) {
                 resultText = "HIGH SEVERITY: Chronic Infection\nSpontaneous bleeding without pain can indicate advanced gum disease (Periodontitis). Seek a professional deep cleaning.";
                 resultColor = 0xFFD81B60;
+                severity = "high";
             }
             else if (maxSeverity == 3 || (maxSeverity == 2 && mediumCount >= 3)) {
                 resultText = "HIGH SEVERITY: Severe Gingivitis\nSignificant inflammation and tissue distress. Requires professional dental intervention to prevent tooth loss.";
                 resultColor = 0xFFD81B60;
+                severity = "high";
             }
             else if (maxSeverity == 2) {
                 resultText = "MEDIUM SEVERITY: Moderate\nGums are infected. Improved hygiene is needed along with a professional cleaning to reverse the damage.";
                 resultColor = 0xFFF4511E;
+                severity = "medium";
             }
             else {
                 resultText = "LOW SEVERITY: Mild\nEarly stage inflammation. Increase flossing and use an antiseptic mouthwash to reverse symptoms at home.";
                 resultColor = 0xFF2E7D32;
+                severity = "low";
             }
 
             tvResult.setText(resultText);
             tvResult.setTextColor(resultColor);
+
+            // Store the severity and disease type for HealthTracker
+            SharedPreferences prefs = getSharedPreferences("DentalData", MODE_PRIVATE);
+            SharedPreferences.Editor editor = prefs.edit();
+            editor.putString("detectedDisease", "Gingivitis");
+            editor.putString("severity", severity);
+            editor.apply();
+
+            Toast.makeText(this, "Severity Checked: " + severity.toUpperCase(), Toast.LENGTH_SHORT).show();
         });
     }
 
