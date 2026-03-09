@@ -2,9 +2,11 @@ package com.example.gringuard;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.Toast;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 public class HealthActivity extends AppCompatActivity {
@@ -14,7 +16,8 @@ public class HealthActivity extends AppCompatActivity {
 
     private static final String PREF_NAME = "DentalData";
     private static final String SEV_PREF_NAME = "SeverityPrefs";
-    private static final String KEY_LAST_CLICK = "lastClickTime";
+    private static final String KEY_START_TIME = "startTime";
+    private static final String KEY_LAST_CHECK_DAY = "lastCheckDay";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,7 +31,7 @@ public class HealthActivity extends AppCompatActivity {
 
         preferences = getSharedPreferences(PREF_NAME, MODE_PRIVATE);
 
-        checkSeverityAvailability();
+        updateSeverityButtonStatus();
 
         btnTips.setOnClickListener(v -> {
             String disease = preferences.getString("detectedDisease", "");
@@ -91,36 +94,87 @@ public class HealthActivity extends AppCompatActivity {
                 Toast.makeText(this, "Opening Track Goals", Toast.LENGTH_SHORT).show());
 
         btnSeverity.setOnClickListener(v -> {
-            String disease = preferences.getString("detectedDisease", "");
-            Intent intent;
-            if (disease.equalsIgnoreCase("Gingivitis")) {
-                intent = new Intent(this, Gingivitis_Activity.class);
-            } else if (disease.equalsIgnoreCase("Fractured")) {
-                intent = new Intent(this, Fractured_Teeth_Activity.class);
-            } else {
-                intent = new Intent(this, Caries_Activity.class);
+            SharedPreferences sevPrefs = getSharedPreferences(SEV_PREF_NAME, MODE_PRIVATE);
+            long startTime = sevPrefs.getLong(KEY_START_TIME, 0);
+            long currentTime = System.currentTimeMillis();
+
+            if (startTime == 0) {
+                startTime = currentTime;
+                sevPrefs.edit().putLong(KEY_START_TIME, startTime).apply();
             }
-            startActivity(intent);
+
+            int currentDay = (int) ((currentTime - startTime) / (24 * 60 * 60 * 1000)) + 1;
+            int lastCheckDay = sevPrefs.getInt(KEY_LAST_CHECK_DAY, 0);
+            boolean isCheckDay = (currentDay == 1 || currentDay == 7 || currentDay == 14 || currentDay == 21);
+
+            if (isCheckDay && lastCheckDay != currentDay) {
+                sevPrefs.edit().putInt(KEY_LAST_CHECK_DAY, currentDay).apply();
+
+                String disease = preferences.getString("detectedDisease", "");
+                Intent intent;
+                if (disease.equalsIgnoreCase("Gingivitis")) {
+                    intent = new Intent(this, Gingivitis_Activity.class);
+                } else if (disease.equalsIgnoreCase("Fractured")) {
+                    intent = new Intent(this, Fractured_Teeth_Activity.class);
+                } else {
+                    intent = new Intent(this, Caries_Activity.class);
+                }
+                startActivity(intent);
+            } else {
+                showDisabledPopup();
+            }
         });
     }
 
-    private void checkSeverityAvailability() {
+    private void updateSeverityButtonStatus() {
         SharedPreferences sevPrefs = getSharedPreferences(SEV_PREF_NAME, MODE_PRIVATE);
-        long lastClickTime = sevPrefs.getLong(KEY_LAST_CLICK, 0);
-
-        if (lastClickTime == 0) {
-            btnSeverity.setEnabled(true);
+        long startTime = sevPrefs.getLong(KEY_START_TIME, 0);
+        
+        if (startTime == 0) {
+            enableSeverityButton();
             return;
         }
 
         long currentTime = System.currentTimeMillis();
-        long oneWeekMillis = 7L * 24 * 60 * 60 * 1000;
-        long nextAllowedTime = lastClickTime + oneWeekMillis;
+        int currentDay = (int) ((currentTime - startTime) / (24 * 60 * 60 * 1000)) + 1;
+        int lastCheckDay = sevPrefs.getInt(KEY_LAST_CHECK_DAY, 0);
 
-        if (currentTime >= nextAllowedTime) {
-            btnSeverity.setEnabled(true);
-        } else {
-            btnSeverity.setEnabled(true); // Enabled for testing
+        if (currentDay > 21) {
+            disableSeverityButton();
+            return;
         }
+
+        boolean isCheckDay = (currentDay == 1 || currentDay == 7 || currentDay == 14 || currentDay == 21);
+        
+        if (isCheckDay && lastCheckDay != currentDay) {
+            enableSeverityButton();
+        } else {
+            disableSeverityButton();
+        }
+    }
+
+    private void enableSeverityButton() {
+        btnSeverity.setBackgroundColor(Color.parseColor("#EC407A"));
+        btnSeverity.setEnabled(true);
+    }
+
+    private void disableSeverityButton() {
+        btnSeverity.setBackgroundColor(Color.parseColor("#9E9E9E"));
+        // Keep button clickable to show the popup
+        btnSeverity.setEnabled(true); 
+    }
+
+    private void showDisabledPopup() {
+        new AlertDialog.Builder(this)
+                .setTitle("Check Disabled")
+                .setMessage("Enabled at every 7th day")
+                .setPositiveButton("OK", null)
+                .show();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        updateSeverityButtonStatus();
     }
 }

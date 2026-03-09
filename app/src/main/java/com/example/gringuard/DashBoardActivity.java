@@ -7,10 +7,12 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 import org.tensorflow.lite.Interpreter;
@@ -57,7 +59,16 @@ public class DashBoardActivity extends AppCompatActivity {
 
         // Health Tracker Card
         CardView healthTrackerCard = findViewById(R.id.healthTrackerCard);
-        healthTrackerCard.setOnClickListener(v -> startActivity(new Intent(DashBoardActivity.this, HealthActivity.class)));
+        healthTrackerCard.setOnClickListener(v -> {
+            SharedPreferences prefs = getSharedPreferences("DentalData", MODE_PRIVATE);
+            String severity = prefs.getString("severity", "");
+
+            if ("high".equalsIgnoreCase(severity)) {
+                showHighSeverityPopup();
+            } else {
+                startActivity(new Intent(DashBoardActivity.this, HealthActivity.class));
+            }
+        });
 
         // Virtual Assistant Click
         CardView virtualAssistantCard = findViewById(R.id.virtualAssistantCard);
@@ -86,6 +97,20 @@ public class DashBoardActivity extends AppCompatActivity {
                 });
 
         heroCard.setOnClickListener(v -> getContent.launch("image/*"));
+    }
+
+    private void showHighSeverityPopup() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        LayoutInflater inflater = getLayoutInflater();
+        View dialogView = inflater.inflate(R.layout.popup, null);
+        builder.setView(dialogView);
+
+        AlertDialog dialog = builder.create();
+        
+        // Add a click listener to the root view to dismiss the popup if it has no button
+        dialogView.setOnClickListener(v -> dialog.dismiss());
+        
+        dialog.show();
     }
 
     private void runInferenceAndGoToResult(Uri uri) {
