@@ -39,7 +39,7 @@ public class DashBoardActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.homepage1);
 
-        // --- MODEL INITIALIZATION ---
+
         try {
             tflite = new Interpreter(loadModelFile());
             labelList = loadLabelList();
@@ -47,7 +47,7 @@ public class DashBoardActivity extends AppCompatActivity {
             e.printStackTrace();
         }
 
-        // --- EXISTING BUTTON LOGIC ---
+
         // Header Profile Icon
         View profileBtn = findViewById(R.id.profileClickArea);
         profileBtn.setOnClickListener(v -> startActivity(new Intent(DashBoardActivity.this, EditActivity.class)));
@@ -91,7 +91,7 @@ public class DashBoardActivity extends AppCompatActivity {
         heroCard.setOnClickListener(v -> getContent.launch("image/*"));
     }
 
-    // --- NEW MODEL METHODS ---
+
     private void runInference(Uri uri) {
         try {
             Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), uri);
