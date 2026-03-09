@@ -75,7 +75,7 @@
             android:label="Health Tracker" />
 
         <activity
-            android:name=".Cavity_Activity"
+            android:name=".Caries_Activity"
             android:exported="false" />
 
         <activity
@@ -92,11 +92,11 @@
             android:label="Gingivitis Tips" />
 
         <activity
-            android:name=".CavityLowActivity"
+            android:name=".CariesLowActivity"
             android:exported="false" />
 
         <activity
-            android:name=".CavityMediumactivity"
+            android:name=".CariesMediumactivity"
             android:exported="false" />
 
         <activity
@@ -116,11 +116,11 @@
             android:exported="false" />
 
         <activity
-            android:name=".FollowPlanCavityLow"
+            android:name=".FollowPlanCariesLow"
             android:exported="false" />
 
         <activity
-            android:name=".FollowPlanCavityMedium"
+            android:name=".FollowPlanCariesMedium"
             android:exported="false" />
 
         <activity

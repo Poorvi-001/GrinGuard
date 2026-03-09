@@ -45,8 +45,8 @@ public class HealthActivity extends AppCompatActivity {
                 if (severity.equals("low")) intent = new Intent(this, GingitivitisLowActivity.class);
                 else if (severity.equals("medium")) intent = new Intent(this, GingivitisActivityMedium.class);
             } else if (disease.equalsIgnoreCase("Cavity") || disease.equalsIgnoreCase("Caries")) {
-                if (severity.equals("low")) intent = new Intent(this, CavityLowActivity.class);
-                else if (severity.equals("medium")) intent = new Intent(this, CavityMediumactivity.class);
+                if (severity.equals("low")) intent = new Intent(this, CariesLowActivity.class);
+                else if (severity.equals("medium")) intent = new Intent(this, CariesMediumactivity.class);
             } else if (disease.equalsIgnoreCase("Fractured")) {
                 if (severity.equals("low")) intent = new Intent(this, FracturedLowActivity.class);
                 else if (severity.equals("medium")) intent = new Intent(this, FracturedMediumActivity.class);
@@ -73,8 +73,8 @@ public class HealthActivity extends AppCompatActivity {
             if (disease.equalsIgnoreCase("Gingivitis")) {
                 if (severity.equals("low")) intent = new Intent(this, FollowPlanGingivitisLow.class);
             } else if (disease.equalsIgnoreCase("Cavity") || disease.equalsIgnoreCase("Caries")) {
-                if (severity.equals("low")) intent = new Intent(this, FollowPlanCavityLow.class);
-                else if (severity.equals("medium")) intent = new Intent(this, FollowPlanCavityMedium.class);
+                if (severity.equals("low")) intent = new Intent(this, FollowPlanCariesLow.class);
+                else if (severity.equals("medium")) intent = new Intent(this, FollowPlanCariesMedium.class);
             } else if (disease.equalsIgnoreCase("Fractured")) {
                 if (severity.equals("low")) intent = new Intent(this, FollowPlanFracturedLow.class);
                 else if (severity.equals("medium")) intent = new Intent(this, FollowPlanFracturedMedium.class);
@@ -98,7 +98,7 @@ public class HealthActivity extends AppCompatActivity {
             } else if (disease.equalsIgnoreCase("Fractured")) {
                 intent = new Intent(this, Fractured_Teeth_Activity.class);
             } else {
-                intent = new Intent(this, Cavity_Activity.class);
+                intent = new Intent(this, Caries_Activity.class);
             }
             startActivity(intent);
         });
