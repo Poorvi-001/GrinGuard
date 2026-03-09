@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#FFF0F6"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="24dp">
+
+        <!-- Title -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Follow Plan"
+            android:textColor="#E91E63"
+            android:textSize="28sp"
+            android:textStyle="bold"
+            android:gravity="center"
+            android:layout_marginBottom="10dp"/>
+
+        <!-- Disease -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Calculus (Tartar) - Low Severity"
+            android:textColor="#E91E63"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="10dp"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Mark the activities you completed today"
+            android:textColor="#555555"
+            android:textSize="16sp"
+            android:layout_marginBottom="20dp"/>
+
+        <!-- Card -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="#FFFFFF"
+            android:padding="20dp"
+            android:elevation="4dp">
+
+            <CheckBox
+                android:id="@+id/checkHardFood"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Did you brush your teeth twice today to prevent plaque buildup?"
+                android:textColor="#000000"
+                android:textSize="16sp"
+                android:buttonTint="#E91E63"
+                android:layout_marginBottom="12dp"/>
+
+            <CheckBox
+                android:id="@+id/checkBrush"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Did you floss between your teeth to remove plaque today?"
+                android:textColor="#000000"
+                android:textSize="16sp"
+                android:buttonTint="#E91E63"
+                android:layout_marginBottom="12dp"/>
+
+            <CheckBox
+                android:id="@+id/checkRinse"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Did you rinse your mouth with mouthwash to reduce bacteria?"
+                android:textColor="#000000"
+                android:textSize="16sp"
+                android:buttonTint="#E91E63"
+                android:layout_marginBottom="12dp"/>
+
+            <CheckBox
+                android:id="@+id/checkColdFood"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Did you limit sugary or sticky foods that increase plaque formation?"
+                android:textColor="#000000"
+                android:textSize="16sp"
+                android:buttonTint="#E91E63"
+                android:layout_marginBottom="12dp"/>
+
+            <CheckBox
+                android:id="@+id/checkMonitor"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Did you check your teeth and gums today for tartar or plaque buildup?"
+                android:textColor="#000000"
+                android:textSize="16sp"
+                android:buttonTint="#E91E63"
+                android:layout_marginBottom="20dp"/>
+
+            <!-- Save Button -->
+            <Button
+                android:id="@+id/savePlanBtn"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Save Progress"
+                android:textColor="#FFFFFF"
+                android:textStyle="bold"
+                android:backgroundTint="#E91E63"/>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</ScrollView>
+
