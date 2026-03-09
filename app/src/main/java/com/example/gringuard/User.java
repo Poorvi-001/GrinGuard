@@ -12,11 +12,11 @@ public class User {
         // Required for Firebase
     }
 
-    public User(String fName, String lName,
+    public User(String firstName, String lastName,
                 String age, String gender, String email) {
 
-        this.fName = fName;
-        this.lName = lName;
+        this.fName = firstName;
+        this.lName = lastName;
         this.age = age;
         this.gender = gender;
         this.email = email;
