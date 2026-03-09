@@ -8,7 +8,7 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-public class FollowPlanCavityLow extends AppCompatActivity {
+public class FollowPlanCariesLow extends AppCompatActivity {
 
     CheckBox checkBrush, checkFloss, checkSugar, checkWater, checkMouthwash;
     Button savePlanBtn;
@@ -18,7 +18,7 @@ public class FollowPlanCavityLow extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.follow_plan_activity_cavity_low);
+        setContentView(R.layout.follow_plan_activity_caries_low);
 
         // Link UI elements
         checkBrush = findViewById(R.id.checkBrush);
