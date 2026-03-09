@@ -91,7 +91,7 @@ public class Fractured_Teeth_Activity extends AppCompatActivity {
             if (severity.equals("high")) {
                 showHighSeverityPopup();
             } else {
-                Toast.makeText(this, "Severity Checked: " + severity.toUpperCase(), Toast.LENGTH_SHORT).show();
+                show21DayPlanPopup();
             }
         });
     }
@@ -107,6 +107,36 @@ public class Fractured_Teeth_Activity extends AppCompatActivity {
 
         Button okBtn = dialogView.findViewById(R.id.okBtn);
         okBtn.setOnClickListener(v -> {
+            dialog.dismiss();
+            Intent intent = new Intent(Fractured_Teeth_Activity.this, DashBoardActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+            finish();
+        });
+
+        dialog.show();
+    }
+
+    private void show21DayPlanPopup() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        LayoutInflater inflater = getLayoutInflater();
+        View dialogView = inflater.inflate(R.layout.popup_21_day_plan, null);
+        builder.setView(dialogView);
+
+        AlertDialog dialog = builder.create();
+        dialog.setCancelable(false);
+
+        Button btnYes = dialogView.findViewById(R.id.btnYes);
+        Button btnNo = dialogView.findViewById(R.id.btnNo);
+
+        btnYes.setOnClickListener(v -> {
+            dialog.dismiss();
+            Intent intent = new Intent(Fractured_Teeth_Activity.this, HealthActivity.class);
+            startActivity(intent);
+            finish();
+        });
+
+        btnNo.setOnClickListener(v -> {
             dialog.dismiss();
             Intent intent = new Intent(Fractured_Teeth_Activity.this, DashBoardActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
