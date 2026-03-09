@@ -75,7 +75,7 @@
             android:label="Health Tracker" />
 
         <activity
-            android:name=".Cavity_Activity"
+            android:name=".Caries_Activity"
             android:exported="false" />
 
         <activity
@@ -90,9 +90,6 @@
             android:name=".GingitivitisLowActivity"
             android:exported="false"
             android:label="Gingivitis Tips" />
-
-        <activity
-            android:name=".ResultActivity"/>
 
     </application>
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
