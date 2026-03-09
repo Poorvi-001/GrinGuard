@@ -8,7 +8,7 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-public class FollowPlanFracturedMedium extends AppCompatActivity {
+public class FollowPlanGingivitisMedium extends AppCompatActivity {
 
     CheckBox checkHardFood, checkBrush, checkRinse, checkColdFood, checkMonitor;
     Button savePlanBtn;
@@ -18,23 +18,20 @@ public class FollowPlanFracturedMedium extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.follow_plan_fractured_medium);
+        setContentView(R.layout.follow_plan_gingivitis_medium);
 
-        // Link UI elements
         checkHardFood = findViewById(R.id.checkHardFood);
         checkBrush = findViewById(R.id.checkBrush);
         checkRinse = findViewById(R.id.checkRinse);
         checkColdFood = findViewById(R.id.checkColdFood);
         checkMonitor = findViewById(R.id.checkMonitor);
+
         savePlanBtn = findViewById(R.id.savePlanBtn);
 
-        // Initialize SharedPreferences
-        sharedPreferences = getSharedPreferences("FollowPlanFracturedMedium", MODE_PRIVATE);
+        sharedPreferences = getSharedPreferences("GingivitisMediumPlan", MODE_PRIVATE);
 
-        // Load saved progress when activity opens
         loadProgress();
 
-        // Save button click
         savePlanBtn.setOnClickListener(v -> saveProgress());
     }
 
@@ -42,11 +39,11 @@ public class FollowPlanFracturedMedium extends AppCompatActivity {
 
         SharedPreferences.Editor editor = sharedPreferences.edit();
 
-        editor.putBoolean("hardFood_fm", checkHardFood.isChecked());
-        editor.putBoolean("brush_fm", checkBrush.isChecked());
-        editor.putBoolean("rinse_fm", checkRinse.isChecked());
-        editor.putBoolean("coldFood_fm", checkColdFood.isChecked());
-        editor.putBoolean("monitor_fm", checkMonitor.isChecked());
+        editor.putBoolean("check1", checkHardFood.isChecked());
+        editor.putBoolean("check2", checkBrush.isChecked());
+        editor.putBoolean("check3", checkRinse.isChecked());
+        editor.putBoolean("check4", checkColdFood.isChecked());
+        editor.putBoolean("check5", checkMonitor.isChecked());
 
         editor.apply();
 
@@ -66,11 +63,11 @@ public class FollowPlanFracturedMedium extends AppCompatActivity {
     }
 
     private void loadProgress() {
-        // Correctly load progress using specific keys to avoid overlap
-        checkHardFood.setChecked(sharedPreferences.getBoolean("hardFood_fm", false));
-        checkBrush.setChecked(sharedPreferences.getBoolean("brush_fm", false));
-        checkRinse.setChecked(sharedPreferences.getBoolean("rinse_fm", false));
-        checkColdFood.setChecked(sharedPreferences.getBoolean("coldFood_fm", false));
-        checkMonitor.setChecked(sharedPreferences.getBoolean("monitor_fm", false));
+
+        checkHardFood.setChecked(sharedPreferences.getBoolean("check1", false));
+        checkBrush.setChecked(sharedPreferences.getBoolean("check2", false));
+        checkRinse.setChecked(sharedPreferences.getBoolean("check3", false));
+        checkColdFood.setChecked(sharedPreferences.getBoolean("check4", false));
+        checkMonitor.setChecked(sharedPreferences.getBoolean("check5", false));
     }
 }

@@ -75,6 +75,7 @@ public class HealthActivity extends AppCompatActivity {
 
             if (disease.equalsIgnoreCase("Gingivitis")) {
                 if (severity.equals("low")) intent = new Intent(this, FollowPlanGingivitisLow.class);
+                else if (severity.equals("medium")) intent = new Intent(this, FollowPlanGingivitisMedium.class);
             } else if (disease.equalsIgnoreCase("Cavity") || disease.equalsIgnoreCase("Caries")) {
                 if (severity.equals("low")) intent = new Intent(this, FollowPlanCariesLow.class);
                 else if (severity.equals("medium")) intent = new Intent(this, FollowPlanCariesMedium.class);
