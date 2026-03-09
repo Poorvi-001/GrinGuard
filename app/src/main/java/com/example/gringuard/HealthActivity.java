@@ -70,7 +70,7 @@ public class HealthActivity extends AppCompatActivity {
             btnSeverity.setEnabled(true);
         } else {
             // Keep the button enabled for now so user can test the transition
-            btnSeverity.setEnabled(true); 
+            btnSeverity.setEnabled(true);
         }
     }
 }
