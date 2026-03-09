@@ -14,7 +14,7 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Cavity Depth Assessment"
+            android:text="Caries Assessment"
             android:textColor="#AD1457"
             android:textSize="22sp"
             android:textStyle="bold"
@@ -91,12 +91,12 @@
             android:id="@+id/btnAnalyze"
             android:layout_width="match_parent"
             android:layout_height="60dp"
-            android:text="Analyze Cavity"
+            android:text="Analyze Caries"
             android:backgroundTint="#E91E63"
             android:textColor="#FFFFFF"/>
 
         <TextView
-            android:id="@+id/tvCavityResult"
+            android:id="@+id/tvCariesResult"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"

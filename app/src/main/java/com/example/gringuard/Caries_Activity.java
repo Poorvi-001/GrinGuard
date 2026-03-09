@@ -7,15 +7,15 @@ import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
-public class Cavity_Activity extends AppCompatActivity {
+public class Caries_Activity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.cavity_severity);
+        setContentView(R.layout.caries_severity);
 
         Button btnAnalyze = findViewById(R.id.btnAnalyze);
-        TextView tvResult = findViewById(R.id.tvCavityResult);
+        TextView tvResult = findViewById(R.id.tvCariesResult);
 
         RadioGroup rgVisual = findViewById(R.id.rgVisual);
         RadioGroup rgSweets = findViewById(R.id.rgSweets);
@@ -42,7 +42,7 @@ public class Cavity_Activity extends AppCompatActivity {
             int color;
 
             if (maxSeverity == 3 || scores[2] == 3) {
-                message = "CRITICAL: Nerve Involvement\nPain to heat or night pain indicates the cavity has reached the nerve. Root canal likely needed.";
+                message = "HIGH SEVERITY: Nerve Involvement\nPain to heat or night pain indicates the caries has reached the nerve. Root canal likely needed.";
                 color = 0xFFD81B60;
             } else if (maxSeverity == 2) {
                 message = "MEDIUM SEVERITY: Dentin Decay\nThe decay has reached the sensitive layer. Needs a filling immediately to avoid a root canal.";

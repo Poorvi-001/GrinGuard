@@ -26,16 +26,21 @@ public class ResultActivity extends AppCompatActivity {
         resultText = findViewById(R.id.resultText);
         severityBtn = findViewById(R.id.severityBtn);
 
-        // Receive data from DashboardActivity
+        // Receive data from previous activity
         Intent intent = getIntent();
 
         disease = intent.getStringExtra("disease");
         String imageUri = intent.getStringExtra("imageUri");
 
+        // Prevent null crash
+        if (disease == null) {
+            disease = "Unknown";
+        }
+
         // Set disease result
         resultText.setText("Result: " + disease);
 
-        // Set uploaded image
+        // Show uploaded image
         if (imageUri != null) {
             Uri uri = Uri.parse(imageUri);
             resultImage.setImageURI(uri);
@@ -44,13 +49,13 @@ public class ResultActivity extends AppCompatActivity {
         // Severity button logic
         severityBtn.setOnClickListener(v -> {
 
-            Intent nextIntent;
+            Intent nextIntent = null;
 
             if (disease.equalsIgnoreCase("Caries") ||
                     disease.equalsIgnoreCase("decaycavity") ||
                     disease.equalsIgnoreCase("earlydecay")) {
 
-                nextIntent = new Intent(ResultActivity.this, Cavity_Activity.class);
+                nextIntent = new Intent(ResultActivity.this, Caries_Activity.class);
 
             }
             else if (disease.equalsIgnoreCase("Gingivitis")) {
@@ -61,14 +66,12 @@ public class ResultActivity extends AppCompatActivity {
             else if (disease.equalsIgnoreCase("Fractured Teeth")) {
 
                 nextIntent = new Intent(ResultActivity.this, Fractured_Teeth_Activity.class);
-
-            }
-            else {
-
-                return; // Healthy tooth case
             }
 
-            startActivity(nextIntent);
+            if (nextIntent != null) {
+                startActivity(nextIntent);
+            }
+
         });
 
     }

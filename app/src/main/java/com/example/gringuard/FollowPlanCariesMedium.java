@@ -8,7 +8,7 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-public class FollowPlanCavityMedium extends AppCompatActivity {
+public class FollowPlanCariesMedium extends AppCompatActivity {
 
     CheckBox checkPain, checkSensitive, checkToothpaste, checkMouthwash, checkDentist;
     Button savePlanBtn;
@@ -18,7 +18,7 @@ public class FollowPlanCavityMedium extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.follow_plan_cavity_medium);
+        setContentView(R.layout.follow_plan_caries_medium);
 
         // Link UI
         checkPain = findViewById(R.id.checkPain);
