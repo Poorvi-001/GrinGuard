@@ -159,6 +159,10 @@
             android:name=".FollowPlanCalulusMedium"
             android:exported="false" />
 
+        <activity
+            android:name=".TrackGoalsActivity"
+            android:exported="false" />
+
     </application>
 
 </manifest>

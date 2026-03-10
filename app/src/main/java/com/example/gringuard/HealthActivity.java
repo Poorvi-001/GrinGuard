@@ -97,8 +97,9 @@ public class HealthActivity extends AppCompatActivity {
             }
         });
 
-        btnGoals.setOnClickListener(v ->
-                Toast.makeText(this, "Opening Track Goals", Toast.LENGTH_SHORT).show());
+        btnGoals.setOnClickListener(v -> {
+            startActivity(new Intent(this, TrackGoalsActivity.class));
+        });
 
         btnSeverity.setOnClickListener(v -> {
             SharedPreferences sevPrefs = getSharedPreferences(SEV_PREF_NAME, MODE_PRIVATE);
