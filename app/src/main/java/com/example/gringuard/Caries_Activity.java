@@ -109,6 +109,7 @@ public class Caries_Activity extends AppCompatActivity {
         });
 
         dialog.show();
+
     }
 
     private int getScore(RadioGroup rg) {
@@ -119,4 +120,6 @@ public class Caries_Activity extends AppCompatActivity {
         if (name.endsWith("_high")) return 3;
         return 1;
     }
+    // Inside your QuestionnaireActivity, where you finish the scan/quiz:
+
 }
