@@ -135,6 +135,30 @@
             android:name=".FollowPlanGingivitisLow"
             android:exported="false" />
 
+        <activity
+            android:name=".FollowPlanGingivitisMedium"
+            android:exported="false" />
+
+        <activity
+            android:name=".CalculusActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".CalculusActivityLow"
+            android:exported="false" />
+
+        <activity
+            android:name=".CalculusActivityMedium"
+            android:exported="false" />
+
+        <activity
+            android:name=".FollowPlanCalculusLow"
+            android:exported="false" />
+
+        <activity
+            android:name=".FollowPlanCalulusMedium"
+            android:exported="false" />
+
     </application>
 
 </manifest>

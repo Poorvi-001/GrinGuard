@@ -42,11 +42,11 @@ public class FollowPlanFracturedMedium extends AppCompatActivity {
 
         SharedPreferences.Editor editor = sharedPreferences.edit();
 
-        editor.putBoolean("hardFood", checkHardFood.isChecked());
-        editor.putBoolean("brush", checkBrush.isChecked());
-        editor.putBoolean("rinse", checkRinse.isChecked());
-        editor.putBoolean("coldFood", checkColdFood.isChecked());
-        editor.putBoolean("monitor", checkMonitor.isChecked());
+        editor.putBoolean("hardFood_fm", checkHardFood.isChecked());
+        editor.putBoolean("brush_fm", checkBrush.isChecked());
+        editor.putBoolean("rinse_fm", checkRinse.isChecked());
+        editor.putBoolean("coldFood_fm", checkColdFood.isChecked());
+        editor.putBoolean("monitor_fm", checkMonitor.isChecked());
 
         editor.apply();
 
@@ -66,11 +66,11 @@ public class FollowPlanFracturedMedium extends AppCompatActivity {
     }
 
     private void loadProgress() {
-
-        checkHardFood.setChecked(sharedPreferences.getBoolean("hardFood", false));
-        checkBrush.setChecked(sharedPreferences.getBoolean("brush", false));
-        checkRinse.setChecked(sharedPreferences.getBoolean("rinse", false));
-        checkColdFood.setChecked(sharedPreferences.getBoolean("coldFood", false));
-        checkMonitor.setChecked(sharedPreferences.getBoolean("monitor", false));
+        // Correctly load progress using specific keys to avoid overlap
+        checkHardFood.setChecked(sharedPreferences.getBoolean("hardFood_fm", false));
+        checkBrush.setChecked(sharedPreferences.getBoolean("brush_fm", false));
+        checkRinse.setChecked(sharedPreferences.getBoolean("rinse_fm", false));
+        checkColdFood.setChecked(sharedPreferences.getBoolean("coldFood_fm", false));
+        checkMonitor.setChecked(sharedPreferences.getBoolean("monitor_fm", false));
     }
 }

@@ -1,4 +1,3 @@
-
 package com.example.gringuard;
 
 import android.content.SharedPreferences;
@@ -48,7 +47,19 @@ public class FollowPlanGingivitisMedium extends AppCompatActivity {
 
         editor.apply();
 
-        Toast.makeText(this, "Progress Saved Successfully!", Toast.LENGTH_SHORT).show();
+        int completed = 0;
+
+        if (checkHardFood.isChecked()) completed++;
+        if (checkBrush.isChecked()) completed++;
+        if (checkRinse.isChecked()) completed++;
+        if (checkColdFood.isChecked()) completed++;
+        if (checkMonitor.isChecked()) completed++;
+
+        Toast.makeText(
+                this,
+                "Progress saved! You completed " + completed + " out of 5 tasks today.",
+                Toast.LENGTH_LONG
+        ).show();
     }
 
     private void loadProgress() {
@@ -60,4 +71,3 @@ public class FollowPlanGingivitisMedium extends AppCompatActivity {
         checkMonitor.setChecked(sharedPreferences.getBoolean("check5", false));
     }
 }
-

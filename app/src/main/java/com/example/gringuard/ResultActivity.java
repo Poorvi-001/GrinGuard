@@ -67,6 +67,10 @@ public class ResultActivity extends AppCompatActivity {
 
                 nextIntent = new Intent(ResultActivity.this, Fractured_Teeth_Activity.class);
             }
+            else if (disease.equalsIgnoreCase("Calculus")) {
+
+                nextIntent = new Intent(ResultActivity.this, CalculusActivity.class);
+            }
 
             if (nextIntent != null) {
                 startActivity(nextIntent);
