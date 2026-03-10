@@ -5,8 +5,10 @@ import android.os.Bundle;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.Toast;
-
 import androidx.appcompat.app.AppCompatActivity;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 public class FollowPlanFracturedMedium extends AppCompatActivity {
 
@@ -20,7 +22,6 @@ public class FollowPlanFracturedMedium extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.follow_plan_fractured_medium);
 
-        // Link UI elements
         checkHardFood = findViewById(R.id.checkHardFood);
         checkBrush = findViewById(R.id.checkBrush);
         checkRinse = findViewById(R.id.checkRinse);
@@ -28,13 +29,10 @@ public class FollowPlanFracturedMedium extends AppCompatActivity {
         checkMonitor = findViewById(R.id.checkMonitor);
         savePlanBtn = findViewById(R.id.savePlanBtn);
 
-        // Initialize SharedPreferences
         sharedPreferences = getSharedPreferences("FollowPlanFracturedMedium", MODE_PRIVATE);
 
-        // Load saved progress when activity opens
         loadProgress();
 
-        // Save button click
         savePlanBtn.setOnClickListener(v -> saveProgress());
     }
 
@@ -58,15 +56,17 @@ public class FollowPlanFracturedMedium extends AppCompatActivity {
         if (checkColdFood.isChecked()) completed++;
         if (checkMonitor.isChecked()) completed++;
 
-        Toast.makeText(
-                this,
-                "Progress saved! You completed " + completed + " out of 5 tasks today.",
-                Toast.LENGTH_LONG
-        ).show();
+        int percentage = (completed * 100) / 5;
+
+        // Save to central CalendarProgress
+        String today = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
+        SharedPreferences calPrefs = getSharedPreferences("CalendarProgress", MODE_PRIVATE);
+        calPrefs.edit().putInt(today, percentage).apply();
+
+        Toast.makeText(this, "Progress saved! " + percentage + "% completed today.", Toast.LENGTH_SHORT).show();
     }
 
     private void loadProgress() {
-        // Correctly load progress using specific keys to avoid overlap
         checkHardFood.setChecked(sharedPreferences.getBoolean("hardFood_fm", false));
         checkBrush.setChecked(sharedPreferences.getBoolean("brush_fm", false));
         checkRinse.setChecked(sharedPreferences.getBoolean("rinse_fm", false));
