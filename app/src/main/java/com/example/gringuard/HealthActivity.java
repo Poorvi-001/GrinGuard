@@ -53,6 +53,9 @@ public class HealthActivity extends AppCompatActivity {
             } else if (disease.equalsIgnoreCase("Fractured")) {
                 if (severity.equals("low")) intent = new Intent(this, FracturedLowActivity.class);
                 else if (severity.equals("medium")) intent = new Intent(this, FracturedMediumActivity.class);
+            } else if (disease.equalsIgnoreCase("Calculus")) {
+                if (severity.equals("low")) intent = new Intent(this, CalculusActivityLow.class);
+                else if (severity.equals("medium")) intent = new Intent(this, CalculusActivityMedium.class);
             }
 
             if (intent != null) {
@@ -75,12 +78,16 @@ public class HealthActivity extends AppCompatActivity {
 
             if (disease.equalsIgnoreCase("Gingivitis")) {
                 if (severity.equals("low")) intent = new Intent(this, FollowPlanGingivitisLow.class);
+                else if (severity.equals("medium")) intent = new Intent(this, FollowPlanGingivitisMedium.class);
             } else if (disease.equalsIgnoreCase("Cavity") || disease.equalsIgnoreCase("Caries")) {
                 if (severity.equals("low")) intent = new Intent(this, FollowPlanCariesLow.class);
                 else if (severity.equals("medium")) intent = new Intent(this, FollowPlanCariesMedium.class);
             } else if (disease.equalsIgnoreCase("Fractured")) {
                 if (severity.equals("low")) intent = new Intent(this, FollowPlanFracturedLow.class);
                 else if (severity.equals("medium")) intent = new Intent(this, FollowPlanFracturedMedium.class);
+            } else if (disease.equalsIgnoreCase("Calculus")) {
+                if (severity.equals("low")) intent = new Intent(this, FollowPlanCalculusLow.class);
+                else if (severity.equals("medium")) intent = new Intent(this, FollowPlanCalulusMedium.class);
             }
 
             if (intent != null) {
@@ -116,6 +123,8 @@ public class HealthActivity extends AppCompatActivity {
                     intent = new Intent(this, Gingivitis_Activity.class);
                 } else if (disease.equalsIgnoreCase("Fractured")) {
                     intent = new Intent(this, Fractured_Teeth_Activity.class);
+                } else if (disease.equalsIgnoreCase("Calculus")) {
+                    intent = new Intent(this, CalculusActivity.class);
                 } else {
                     intent = new Intent(this, Caries_Activity.class);
                 }
@@ -160,7 +169,6 @@ public class HealthActivity extends AppCompatActivity {
 
     private void disableSeverityButton() {
         btnSeverity.setBackgroundColor(Color.parseColor("#9E9E9E"));
-        // Keep button clickable to show the popup
         btnSeverity.setEnabled(true); 
     }
 
