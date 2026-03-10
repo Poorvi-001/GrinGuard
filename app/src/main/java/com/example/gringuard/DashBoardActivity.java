@@ -70,6 +70,10 @@ public class DashBoardActivity extends AppCompatActivity {
             }
         });
 
+        // Export Report Card
+        CardView exportReportCard = findViewById(R.id.exportReportCard);
+        exportReportCard.setOnClickListener(v -> startActivity(new Intent(DashBoardActivity.this, ReportActivity.class)));
+
         // Virtual Assistant Click
         CardView virtualAssistantCard = findViewById(R.id.virtualAssistantCard);
         virtualAssistantCard.setOnClickListener(v -> startActivity(new Intent(DashBoardActivity.this, ChatActivity.class)));
@@ -107,7 +111,6 @@ public class DashBoardActivity extends AppCompatActivity {
 
         AlertDialog dialog = builder.create();
         
-        // Add a click listener to the root view to dismiss the popup if it has no button
         dialogView.setOnClickListener(v -> dialog.dismiss());
         
         dialog.show();

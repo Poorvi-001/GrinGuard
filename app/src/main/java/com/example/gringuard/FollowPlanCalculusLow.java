@@ -5,8 +5,10 @@ import android.os.Bundle;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.Toast;
-
 import androidx.appcompat.app.AppCompatActivity;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 public class FollowPlanCalculusLow extends AppCompatActivity {
 
@@ -55,11 +57,14 @@ public class FollowPlanCalculusLow extends AppCompatActivity {
         if (checkColdFood.isChecked()) completed++;
         if (checkMonitor.isChecked()) completed++;
 
-        Toast.makeText(
-                this,
-                "Progress saved! You completed " + completed + " out of 5 tasks today.",
-                Toast.LENGTH_LONG
-        ).show();
+        int percentage = (completed * 100) / 5;
+
+        // Save to central CalendarProgress
+        String today = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
+        SharedPreferences calPrefs = getSharedPreferences("CalendarProgress", MODE_PRIVATE);
+        calPrefs.edit().putInt(today, percentage).apply();
+
+        Toast.makeText(this, "Progress saved! " + percentage + "% completed today.", Toast.LENGTH_SHORT).show();
     }
 
 
@@ -72,4 +77,3 @@ public class FollowPlanCalculusLow extends AppCompatActivity {
         checkMonitor.setChecked(sharedPreferences.getBoolean("check5", false));
     }
 }
-
