@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView
+    android:id="@+id/reportLayout"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#FFF0F5">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="24dp">
+
+        <!-- App Title -->
+        <TextView
+            android:id="@+id/title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="GRINGUARD"
+            android:textSize="28sp"
+            android:textStyle="bold"
+            android:textColor="#E91E63"
+            android:gravity="center"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="AI Powered Dental Disease Detection"
+            android:textColor="#E91E63"
+            android:gravity="center"
+            android:layout_marginBottom="20dp"/>
+
+
+        <!-- Report Title -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Dental Health Analysis Report"
+            android:textStyle="bold"
+            android:textSize="20sp"
+            android:textColor="#C2185B"/>
+
+        <TextView
+            android:id="@+id/dateText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Date:"
+            android:layout_marginBottom="20dp"/>
+
+
+        <!-- User Info -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="User Information"
+            android:textStyle="bold"
+            android:textSize="18sp"
+            android:textColor="#E91E63"/>
+
+        <TextView
+            android:id="@+id/nameText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Name:"/>
+
+        <TextView
+            android:id="@+id/ageText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Age:"/>
+
+        <TextView
+            android:id="@+id/genderText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Gender:"/>
+
+        <TextView
+            android:id="@+id/emailText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Email:"
+            android:layout_marginBottom="20dp"/>
+
+
+        <!-- Detection Result -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Detection Result"
+            android:textStyle="bold"
+            android:textSize="18sp"
+            android:textColor="#E91E63"/>
+
+        <TextView
+            android:id="@+id/conditionText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Detected Condition:"/>
+
+        <TextView
+            android:id="@+id/severityText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Severity:"
+            android:layout_marginBottom="20dp"/>
+
+
+        <!-- Description -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Condition Description"
+            android:textStyle="bold"
+            android:textColor="#E91E63"/>
+
+        <TextView
+            android:id="@+id/descriptionText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Description here"
+            android:layout_marginBottom="20dp"/>
+
+
+        <!-- Tips -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Recommended Care Tips"
+            android:textStyle="bold"
+            android:textColor="#E91E63"/>
+
+        <TextView
+            android:id="@+id/tipsText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Tips here"
+            android:layout_marginBottom="20dp"/>
+
+
+        <!-- Disclaimer -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Disclaimer"
+            android:textStyle="bold"
+            android:textColor="#E91E63"/>
+
+        <TextView
+            android:id="@+id/disclaimerText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="This report is based on AI detection and is not a substitute for professional dental advice."
+            android:layout_marginBottom="30dp"/>
+
+
+        <!-- Export Button -->
+        <Button
+            android:id="@+id/exportPdfBtn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Export as PDF"
+            android:backgroundTint="#E91E63"
+            android:textColor="#FFFFFF"/>
+
+    </LinearLayout>
+
+</ScrollView>
