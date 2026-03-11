@@ -8,6 +8,7 @@ import android.util.Log;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
 public class plan_fo_21_days extends AppCompatActivity {
@@ -29,19 +30,23 @@ public class plan_fo_21_days extends AppCompatActivity {
     }
 
     private void saveToFirebase(String disease, String severity) {
+        // 1. Get the current authenticated user
         String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
-        // This creates the clean structure your router needs
+        // 2. Point to the base "Users" node, then the specific UID
+        // This ensures it lands exactly where your other data is stored
+        DatabaseReference userRef = FirebaseDatabase.getInstance().getReference("Users").child(uid);
+
+        // 3. Create the Treatment object
         Treatment plan = new Treatment(disease, severity, System.currentTimeMillis());
 
-        FirebaseDatabase.getInstance().getReference("Users")
-                .child(uid).child("CurrentTreatment")
-                .setValue(plan)
-                .addOnSuccessListener(a -> {
-                    // Now launch the plan activity
-                    Intent intent = new Intent(this, HealthActivity.class);
-                    startActivity(intent);
+        // 4. Use .child("CurrentTreatment") to create it as a sibling to 'email' and 'fname'
+        userRef.child("CurrentTreatment").setValue(plan)
+                .addOnSuccessListener(aVoid -> {
+                    Log.d("DEBUG", "Data successfully saved as a sibling to your user profile!");
+                    startActivity(new Intent(this, HealthActivity.class));
                     finish();
-                });
+                })
+                .addOnFailureListener(e -> Log.e("DEBUG", "Write failed", e));
     }
 }
