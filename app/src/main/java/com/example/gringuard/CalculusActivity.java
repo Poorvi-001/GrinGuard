@@ -2,6 +2,7 @@ package com.example.gringuard;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -53,27 +54,20 @@ public class CalculusActivity extends AppCompatActivity {
             for (int s : scores) if (s == 2) mediumCount++;
 
             String resultText;
-            int resultColor;
             String severity = "high";
 
             if (maxSeverity == 3 || (maxSeverity == 2 && mediumCount >= 3)) {
                 resultText = "HIGH SEVERITY: Severe Calculus\nExtensive buildup and gum distress. Requires professional scaling and root planing to prevent advanced gum disease.";
-                resultColor = 0xFFD81B60;
                 severity = "high";
             }
             else if (maxSeverity == 2) {
                 resultText = "MEDIUM SEVERITY: Moderate Calculus\nSignificant buildup present. Professional cleaning is necessary as calculus cannot be removed by brushing alone.";
-                resultColor = 0xFFF4511E;
                 severity = "medium";
             }
             else {
                 resultText = "LOW SEVERITY: Mild Calculus\nEarly stage buildup. While brushing helps prevent more, a professional cleaning is still recommended to remove existing tartar.";
-                resultColor = 0xFF2E7D32;
                 severity = "low";
             }
-
-            tvResult.setText(resultText);
-            tvResult.setTextColor(resultColor);
 
             // Store the severity and disease type for HealthTracker
             SharedPreferences prefs = getSharedPreferences("DentalData", MODE_PRIVATE);
@@ -88,17 +82,47 @@ public class CalculusActivity extends AppCompatActivity {
             long currentTime = System.currentTimeMillis();
             if (startTime == 0) {
                 sevPrefs.edit().putLong("startTime", currentTime).apply();
-                startTime = currentTime;
             }
-            int currentDay = (int) ((currentTime - startTime) / (24 * 60 * 60 * 1000)) + 1;
+            int currentDay = (int) ((currentTime - (startTime == 0 ? currentTime : startTime)) / (24 * 60 * 60 * 1000)) + 1;
             sevPrefs.edit().putInt("lastCheckDay", currentDay).apply();
 
+            showSeverityPopup(resultText, severity);
+        });
+    }
+
+    private void showSeverityPopup(String resultMessage, String severity) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        LayoutInflater inflater = getLayoutInflater();
+        View dialogView = inflater.inflate(R.layout.severity_popup, null);
+        builder.setView(dialogView);
+
+        AlertDialog severityDialog = builder.create();
+        severityDialog.setCancelable(false);
+
+        TextView tvSeverityValue = dialogView.findViewById(R.id.tvSeverityValue);
+        Button btnOkResult = dialogView.findViewById(R.id.btnOkResult);
+
+        tvSeverityValue.setText(resultMessage);
+
+        // Color changing logic for Calculus
+        if (severity.equals("low")) {
+            tvSeverityValue.setTextColor(Color.parseColor("#4CAF50")); // Green
+        } else if (severity.equals("medium")) {
+            tvSeverityValue.setTextColor(Color.parseColor("#FBC02D")); // Dark Yellow
+        } else if (severity.equals("high")) {
+            tvSeverityValue.setTextColor(Color.parseColor("#F44336")); // Red
+        }
+
+        btnOkResult.setOnClickListener(v -> {
+            severityDialog.dismiss();
             if (severity.equals("high")) {
                 showHighSeverityPopup();
             } else {
                 show21DayPlanPopup();
             }
         });
+
+        severityDialog.show();
     }
 
     private void showHighSeverityPopup() {

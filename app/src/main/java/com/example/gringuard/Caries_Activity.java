@@ -2,6 +2,7 @@ package com.example.gringuard;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -44,25 +45,18 @@ public class Caries_Activity extends AppCompatActivity {
             for(int s : scores) if (s > maxSeverity) maxSeverity = s;
 
             String message;
-            int color;
             String severity = "high";
 
             if (maxSeverity == 3 || scores[2] == 3) {
                 message = "HIGH SEVERITY: Nerve Involvement\nPain to heat or night pain indicates the caries has reached the nerve. Root canal likely needed.";
-                color = 0xFFD81B60;
                 severity = "high";
             } else if (maxSeverity == 2) {
                 message = "MEDIUM SEVERITY: Dentin Decay\nThe decay has reached the sensitive layer. Needs a filling immediately to avoid a root canal.";
-                color = 0xFFF4511E;
                 severity = "medium";
             } else {
                 message = "LOW SEVERITY: Enamel Decay\nEarly stage decay. May be reversible with fluoride treatment or a simple filling.";
-                color = 0xFF2E7D32;
                 severity = "low";
             }
-
-            tvResult.setText(message);
-            tvResult.setTextColor(color);
 
             // Store the severity and disease type for HealthTracker
             SharedPreferences prefs = getSharedPreferences("DentalData", MODE_PRIVATE);
@@ -77,17 +71,47 @@ public class Caries_Activity extends AppCompatActivity {
             long currentTime = System.currentTimeMillis();
             if (startTime == 0) {
                 sevPrefs.edit().putLong("startTime", currentTime).apply();
-                startTime = currentTime;
             }
-            int currentDay = (int) ((currentTime - startTime) / (24 * 60 * 60 * 1000)) + 1;
+            int currentDay = (int) ((currentTime - (startTime == 0 ? currentTime : startTime)) / (24 * 60 * 60 * 1000)) + 1;
             sevPrefs.edit().putInt("lastCheckDay", currentDay).apply();
 
+            showSeverityPopup(message, severity);
+        });
+    }
+
+    private void showSeverityPopup(String resultMessage, String severity) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        LayoutInflater inflater = getLayoutInflater();
+        View dialogView = inflater.inflate(R.layout.severity_popup, null);
+        builder.setView(dialogView);
+
+        AlertDialog severityDialog = builder.create();
+        severityDialog.setCancelable(false);
+
+        TextView tvSeverityValue = dialogView.findViewById(R.id.tvSeverityValue);
+        Button btnOkResult = dialogView.findViewById(R.id.btnOkResult);
+
+        tvSeverityValue.setText(resultMessage);
+        
+        // Color changing logic
+        if (severity.equals("low")) {
+            tvSeverityValue.setTextColor(Color.parseColor("#4CAF50")); // Green
+        } else if (severity.equals("medium")) {
+            tvSeverityValue.setTextColor(Color.parseColor("#FFEB3B")); // Yellow
+        } else if (severity.equals("high")) {
+            tvSeverityValue.setTextColor(Color.parseColor("#F44336")); // Red
+        }
+
+        btnOkResult.setOnClickListener(v -> {
+            severityDialog.dismiss();
             if (severity.equals("high")) {
                 showHighSeverityPopup();
             } else {
                 show21DayPlanPopup();
             }
         });
+
+        severityDialog.show();
     }
 
     private void showHighSeverityPopup() {

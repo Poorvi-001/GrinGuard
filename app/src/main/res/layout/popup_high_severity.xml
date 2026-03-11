@@ -1,38 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="280dp"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
     android:background="#D32F2F"
-    android:padding="20dp">
+    android:orientation="vertical"
+    android:padding="20dp"
+    android:layout_gravity="center">
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
+        android:gravity="center"
         android:text="High Severity"
         android:textColor="#FFFFFF"
         android:textSize="22sp"
-        android:textStyle="bold"
-        android:gravity="center"
-        android:layout_marginBottom="10dp"/>
+        android:textStyle="bold" />
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="20dp"
+        android:gravity="center"
         android:text="Contact your local Dentist."
         android:textColor="#FFFFFF"
-        android:textSize="16sp"
-        android:gravity="center"
-        android:layout_marginBottom="20dp"/>
+        android:textSize="16sp" />
 
     <Button
         android:id="@+id/okBtn"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:backgroundTint="#FFFFFF"
         android:text="OK"
         android:textColor="#D32F2F"
-        android:backgroundTint="#FFFFFF"
-        android:textStyle="bold"/>
+        android:textStyle="bold" />
 
 </LinearLayout>
