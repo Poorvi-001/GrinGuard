@@ -112,7 +112,7 @@ public class Fractured_Teeth_Activity extends AppCompatActivity {
             if (severity.equals("high")) {
                 showHighSeverityPopup();
             } else {
-                show21DayPlanPopup();
+                show21DayPlanPopup(severity);  // ← NEW, pass severity
             }
         });
 
@@ -140,7 +140,7 @@ public class Fractured_Teeth_Activity extends AppCompatActivity {
         dialog.show();
     }
 
-    private void show21DayPlanPopup() {
+    private void show21DayPlanPopup(String severity) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         LayoutInflater inflater = getLayoutInflater();
         View dialogView = inflater.inflate(R.layout.popup_21_day_plan, null);
@@ -154,7 +154,11 @@ public class Fractured_Teeth_Activity extends AppCompatActivity {
 
         btnYes.setOnClickListener(v -> {
             dialog.dismiss();
-            Intent intent = new Intent(Fractured_Teeth_Activity.this, HealthActivity.class);
+
+            // ✅ NOW pass disease and severity to plan_fo_21_days
+            Intent intent = new Intent(Fractured_Teeth_Activity.this, plan_fo_21_days.class);
+            intent.putExtra("DISEASE_KEY", "Fractured Teeth");
+            intent.putExtra("SEVERITY_KEY", severity);
             startActivity(intent);
             finish();
         });

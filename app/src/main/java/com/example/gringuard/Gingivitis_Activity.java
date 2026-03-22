@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.RadioGroup;
@@ -48,45 +47,34 @@ public class Gingivitis_Activity extends AppCompatActivity {
             int maxSeverity = Math.max(vScore, Math.max(cScore, Math.max(sScore,
                     Math.max(swScore, Math.max(coScore, bScore)))));
 
-
             int mediumCount = 0;
             int[] scores = {vScore, cScore, sScore, swScore, coScore, bScore};
             for (int s : scores) if (s == 2) mediumCount++;
 
             String resultText;
-            String severity = "high";
+            String severity;
 
             if (vScore == 3 && sScore == 1) {
                 resultText = "HIGH SEVERITY: Chronic Infection\nSpontaneous bleeding without pain can indicate advanced gum disease (Periodontitis). Seek a professional deep cleaning.";
                 severity = "high";
-            }
-            else if (maxSeverity == 3 || (maxSeverity == 2 && mediumCount >= 3)) {
+            } else if (maxSeverity == 3 || (maxSeverity == 2 && mediumCount >= 3)) {
                 resultText = "HIGH SEVERITY: Severe Gingivitis\nSignificant inflammation and tissue distress. Requires professional dental intervention to prevent tooth loss.";
                 severity = "high";
-            }
-            else if (maxSeverity == 2) {
+            } else if (maxSeverity == 2) {
                 resultText = "MEDIUM SEVERITY: Moderate\nGums are infected. Improved hygiene is needed along with a professional cleaning to reverse the damage.";
                 severity = "medium";
-            }
-            else {
+            } else {
                 resultText = "LOW SEVERITY: Mild\nEarly stage inflammation. Increase flossing and use an antiseptic mouthwash to reverse symptoms at home.";
                 severity = "low";
             }
 
-            // Store the severity and disease type for HealthTracker
             SharedPreferences prefs = getSharedPreferences("DentalData", MODE_PRIVATE);
-            SharedPreferences.Editor editor = prefs.edit();
-            editor.putString("detectedDisease", "Gingivitis");
-            editor.putString("severity", severity);
-            editor.apply();
+            prefs.edit().putString("detectedDisease", "Gingivitis").putString("severity", severity).apply();
 
-            // Initialize 21-day program state for HealthActivity
             SharedPreferences sevPrefs = getSharedPreferences("SeverityPrefs", MODE_PRIVATE);
             long startTime = sevPrefs.getLong("startTime", 0);
             long currentTime = System.currentTimeMillis();
-            if (startTime == 0) {
-                sevPrefs.edit().putLong("startTime", currentTime).apply();
-            }
+            if (startTime == 0) sevPrefs.edit().putLong("startTime", currentTime).apply();
             int currentDay = (int) ((currentTime - (startTime == 0 ? currentTime : startTime)) / (24 * 60 * 60 * 1000)) + 1;
             sevPrefs.edit().putInt("lastCheckDay", currentDay).apply();
 
@@ -96,8 +84,7 @@ public class Gingivitis_Activity extends AppCompatActivity {
 
     private void showSeverityPopup(String resultMessage, String severity) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        LayoutInflater inflater = getLayoutInflater();
-        View dialogView = inflater.inflate(R.layout.severity_popup, null);
+        View dialogView = getLayoutInflater().inflate(R.layout.severity_popup, null);
         builder.setView(dialogView);
 
         AlertDialog severityDialog = builder.create();
@@ -107,13 +94,13 @@ public class Gingivitis_Activity extends AppCompatActivity {
         Button btnOkResult = dialogView.findViewById(R.id.btnOkResult);
 
         tvSeverityValue.setText(resultMessage);
-        
+
         if (severity.equals("low")) {
-            tvSeverityValue.setTextColor(Color.parseColor("#4CAF50")); // Green
+            tvSeverityValue.setTextColor(Color.parseColor("#4CAF50"));
         } else if (severity.equals("medium")) {
-            tvSeverityValue.setTextColor(Color.parseColor("#FBC02D")); // Dark Yellow
+            tvSeverityValue.setTextColor(Color.parseColor("#FBC02D"));
         } else if (severity.equals("high")) {
-            tvSeverityValue.setTextColor(Color.parseColor("#F44336")); // Red
+            tvSeverityValue.setTextColor(Color.parseColor("#F44336"));
         }
 
         btnOkResult.setOnClickListener(v -> {
@@ -121,7 +108,7 @@ public class Gingivitis_Activity extends AppCompatActivity {
             if (severity.equals("high")) {
                 showHighSeverityPopup();
             } else {
-                show21DayPlanPopup();
+                show21DayPlanPopup(severity); // ✅ pass severity
             }
         });
 
@@ -130,8 +117,7 @@ public class Gingivitis_Activity extends AppCompatActivity {
 
     private void showHighSeverityPopup() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        LayoutInflater inflater = getLayoutInflater();
-        View dialogView = inflater.inflate(R.layout.popup_high_severity, null);
+        View dialogView = getLayoutInflater().inflate(R.layout.popup_high_severity, null);
         builder.setView(dialogView);
 
         AlertDialog dialog = builder.create();
@@ -149,10 +135,9 @@ public class Gingivitis_Activity extends AppCompatActivity {
         dialog.show();
     }
 
-    private void show21DayPlanPopup() {
+    private void show21DayPlanPopup(String severity) { // ✅ accepts severity
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        LayoutInflater inflater = getLayoutInflater();
-        View dialogView = inflater.inflate(R.layout.popup_21_day_plan, null);
+        View dialogView = getLayoutInflater().inflate(R.layout.popup_21_day_plan, null);
         builder.setView(dialogView);
 
         AlertDialog dialog = builder.create();
@@ -163,7 +148,9 @@ public class Gingivitis_Activity extends AppCompatActivity {
 
         btnYes.setOnClickListener(v -> {
             dialog.dismiss();
-            Intent intent = new Intent(Gingivitis_Activity.this, HealthActivity.class);
+            Intent intent = new Intent(Gingivitis_Activity.this, plan_fo_21_days.class); // ✅
+            intent.putExtra("DISEASE_KEY", "Gingivitis");                                 // ✅
+            intent.putExtra("SEVERITY_KEY", severity);                                    // ✅
             startActivity(intent);
             finish();
         });
@@ -181,6 +168,7 @@ public class Gingivitis_Activity extends AppCompatActivity {
 
     private int getScore(RadioGroup rg) {
         int id = rg.getCheckedRadioButtonId();
+        if (id == -1) return 1; // ✅ safety check
         String name = getResources().getResourceEntryName(id);
         if (name.endsWith("_low")) return 1;
         if (name.endsWith("_med")) return 2;
