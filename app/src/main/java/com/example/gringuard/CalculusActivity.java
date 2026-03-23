@@ -11,26 +11,27 @@ import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import com.google.firebase.auth.FirebaseAuth;
 
 public class CalculusActivity extends AppCompatActivity {
 
-    String uid;
+    private boolean fromHealthTracker = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.calculus);
 
-        uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        fromHealthTracker = getIntent().getBooleanExtra("FROM_HEALTH_TRACKER", false);
 
-        RadioGroup rgVisual      = findViewById(R.id.rgVisual);
-        RadioGroup rgColor       = findViewById(R.id.rgColor);
+        RadioGroup rgVisual = findViewById(R.id.rgVisual);
+        RadioGroup rgColor = findViewById(R.id.rgColor);
         RadioGroup rgSensitivity = findViewById(R.id.rgSensitivity);
-        RadioGroup rgSwelling    = findViewById(R.id.rgSwelling);
-        RadioGroup rgCoverage    = findViewById(R.id.rgCoverage);
-        RadioGroup rgBreath      = findViewById(R.id.rgBreath);
-        Button btnCalculate      = findViewById(R.id.btnCalculate);
+        RadioGroup rgSwelling = findViewById(R.id.rgSwelling);
+        RadioGroup rgCoverage = findViewById(R.id.rgCoverage);
+        RadioGroup rgBreath = findViewById(R.id.rgBreath);
+
+        Button btnCalculate = findViewById(R.id.btnCalculate);
+        TextView tvResult = findViewById(R.id.tvResult);
 
         btnCalculate.setOnClickListener(v -> {
             if (rgVisual.getCheckedRadioButtonId() == -1 || rgColor.getCheckedRadioButtonId() == -1 ||
@@ -40,12 +41,12 @@ public class CalculusActivity extends AppCompatActivity {
                 return;
             }
 
-            int vScore  = getScore(rgVisual);
-            int cScore  = getScore(rgColor);
-            int sScore  = getScore(rgSensitivity);
+            int vScore = getScore(rgVisual);
+            int cScore = getScore(rgColor);
+            int sScore = getScore(rgSensitivity);
             int swScore = getScore(rgSwelling);
             int coScore = getScore(rgCoverage);
-            int bScore  = getScore(rgBreath);
+            int bScore = getScore(rgBreath);
 
             int maxSeverity = Math.max(vScore, Math.max(cScore, Math.max(sScore,
                     Math.max(swScore, Math.max(coScore, bScore)))));
@@ -68,14 +69,22 @@ public class CalculusActivity extends AppCompatActivity {
                 severity = "low";
             }
 
-            // ✅ UID-scoped prefs
-            getSharedPreferences("DentalData_" + uid, MODE_PRIVATE)
-                    .edit().putString("detectedDisease", "Calculus")
-                    .putString("severity", severity).apply();
+            SharedPreferences prefs = getSharedPreferences("DentalData", MODE_PRIVATE);
+            prefs.edit().putString("detectedDisease", "Calculus").putString("severity", severity).apply();
 
-            getSharedPreferences("SeverityPrefs_" + uid, MODE_PRIVATE)
-                    .edit().putLong("startTime", System.currentTimeMillis())
-                    .putInt("lastCheckDay", 1).apply();
+            SharedPreferences sevPrefs = getSharedPreferences("SeverityPrefs", MODE_PRIVATE);
+            long startTime = sevPrefs.getLong("startTime", 0);
+            long currentTime = System.currentTimeMillis();
+            if (startTime == 0) {
+                startTime = currentTime;
+                sevPrefs.edit().putLong("startTime", startTime).apply();
+            }
+            int currentDay = (int) ((currentTime - startTime) / (24 * 60 * 60 * 1000)) + 1;
+            sevPrefs.edit().putInt("lastCheckDay", currentDay).apply();
+
+            // Save history for Graphical Analysis
+            SharedPreferences historyPrefs = getSharedPreferences("SeverityHistory", MODE_PRIVATE);
+            historyPrefs.edit().putString(String.valueOf(currentDay), severity).apply();
 
             showSeverityPopup(resultText, severity);
         });
@@ -85,22 +94,39 @@ public class CalculusActivity extends AppCompatActivity {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         View dialogView = getLayoutInflater().inflate(R.layout.severity_popup, null);
         builder.setView(dialogView);
+
         AlertDialog severityDialog = builder.create();
         severityDialog.setCancelable(false);
 
         TextView tvSeverityValue = dialogView.findViewById(R.id.tvSeverityValue);
-        Button btnOkResult       = dialogView.findViewById(R.id.btnOkResult);
+        Button btnOkResult = dialogView.findViewById(R.id.btnOkResult);
+
         tvSeverityValue.setText(resultMessage);
 
-        if (severity.equals("low"))         tvSeverityValue.setTextColor(Color.parseColor("#4CAF50"));
-        else if (severity.equals("medium")) tvSeverityValue.setTextColor(Color.parseColor("#FBC02D"));
-        else if (severity.equals("high"))   tvSeverityValue.setTextColor(Color.parseColor("#F44336"));
+        if (severity.equals("low")) {
+            tvSeverityValue.setTextColor(Color.parseColor("#4CAF50"));
+        } else if (severity.equals("medium")) {
+            tvSeverityValue.setTextColor(Color.parseColor("#FBC02D"));
+        } else if (severity.equals("high")) {
+            tvSeverityValue.setTextColor(Color.parseColor("#F44336"));
+        }
 
         btnOkResult.setOnClickListener(v -> {
             severityDialog.dismiss();
-            if (severity.equals("high")) showHighSeverityPopup();
-            else show21DayPlanPopup(severity);
+            if (severity.equals("high")) {
+                showHighSeverityPopup();
+            } else {
+                if (fromHealthTracker) {
+                    Intent intent = new Intent(CalculusActivity.this, HealthActivity.class);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                    startActivity(intent);
+                    finish();
+                } else {
+                    show21DayPlanPopup(severity);
+                }
+            }
         });
+
         severityDialog.show();
     }
 
@@ -108,8 +134,10 @@ public class CalculusActivity extends AppCompatActivity {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         View dialogView = getLayoutInflater().inflate(R.layout.popup_high_severity, null);
         builder.setView(dialogView);
+
         AlertDialog dialog = builder.create();
         dialog.setCancelable(false);
+
         Button okBtn = dialogView.findViewById(R.id.okBtn);
         okBtn.setOnClickListener(v -> {
             dialog.dismiss();
@@ -118,6 +146,7 @@ public class CalculusActivity extends AppCompatActivity {
             startActivity(intent);
             finish();
         });
+
         dialog.show();
     }
 
@@ -125,20 +154,22 @@ public class CalculusActivity extends AppCompatActivity {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         View dialogView = getLayoutInflater().inflate(R.layout.popup_21_day_plan, null);
         builder.setView(dialogView);
+
         AlertDialog dialog = builder.create();
         dialog.setCancelable(false);
 
         Button btnYes = dialogView.findViewById(R.id.btnYes);
-        Button btnNo  = dialogView.findViewById(R.id.btnNo);
+        Button btnNo = dialogView.findViewById(R.id.btnNo);
 
         btnYes.setOnClickListener(v -> {
             dialog.dismiss();
-            Intent intent = new Intent(CalculusActivity.this, plan_fo_21_days.class);
-            intent.putExtra("DISEASE_KEY", "Calculus");
-            intent.putExtra("SEVERITY_KEY", severity);
+            Intent intent = new Intent(CalculusActivity.this, plan_fo_21_days.class); 
+            intent.putExtra("DISEASE_KEY", "Calculus");                                
+            intent.putExtra("SEVERITY_KEY", severity);                                 
             startActivity(intent);
             finish();
         });
+
         btnNo.setOnClickListener(v -> {
             dialog.dismiss();
             Intent intent = new Intent(CalculusActivity.this, DashBoardActivity.class);
@@ -146,15 +177,16 @@ public class CalculusActivity extends AppCompatActivity {
             startActivity(intent);
             finish();
         });
+
         dialog.show();
     }
 
     private int getScore(RadioGroup rg) {
         int id = rg.getCheckedRadioButtonId();
-        if (id == -1) return 1;
+        if (id == -1) return 1; 
         String name = getResources().getResourceEntryName(id);
-        if (name.endsWith("_low"))  return 1;
-        if (name.endsWith("_med"))  return 2;
+        if (name.endsWith("_low")) return 1;
+        if (name.endsWith("_med")) return 2;
         if (name.endsWith("_high")) return 3;
         return 1;
     }
