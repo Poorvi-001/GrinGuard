@@ -1,12 +1,11 @@
 package com.example.gringuard;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.widget.*;
-
 import androidx.appcompat.app.AppCompatActivity;
-
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
@@ -39,7 +38,6 @@ public class Profile extends AppCompatActivity {
     }
 
     private void registerAndSaveProfile() {
-
         String email = emailInput.getText().toString().trim();
         String password = passwordInput.getText().toString().trim();
         String fName = firstNameInput.getText().toString().trim();
@@ -53,9 +51,7 @@ public class Profile extends AppCompatActivity {
         if (TextUtils.isEmpty(email) || TextUtils.isEmpty(password) ||
                 fName.isEmpty() || lName.isEmpty() ||
                 age.isEmpty() || gender.isEmpty()) {
-
-            Toast.makeText(this, "Please fill all fields",
-                    Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Please fill all fields", Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -69,53 +65,30 @@ public class Profile extends AppCompatActivity {
 
         mAuth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(task -> {
-
                     if (task.isSuccessful()) {
-
                         String uid = mAuth.getCurrentUser().getUid();
-
-                        dbRef = FirebaseDatabase
-                                .getInstance()
-                                .getReference("Users")
-                                .child(uid);
+                        dbRef = FirebaseDatabase.getInstance().getReference("Users").child(uid);
 
                         User user = new User(fName, lName, age, gender, email);
 
-                        dbRef.setValue(user)
-                                .addOnSuccessListener(aVoid -> {
+                        dbRef.setValue(user).addOnSuccessListener(aVoid -> {
+                            // START 21-DAY PROGRAM HERE (Registration Day = Day 1)
+                            SharedPreferences sevPrefs = getSharedPreferences("SeverityPrefs", MODE_PRIVATE);
+                            sevPrefs.edit().putLong("startTime", System.currentTimeMillis()).apply();
 
-                                    Toast.makeText(Profile.this,
-                                            "Registration Successful!",
-                                            Toast.LENGTH_SHORT).show();
-
-                                    startActivity(new Intent(Profile.this,
-                                            DashBoardActivity.class));
-
-                                    finish();
-                                })
-                                .addOnFailureListener(e -> {
-
-                                    saveBtn.setEnabled(true);
-                                    saveBtn.setText("Save");
-
-                                    Toast.makeText(Profile.this,
-                                            "Database Error: " + e.getMessage(),
-                                            Toast.LENGTH_SHORT).show();
-                                });
-                    }
-
-                    else {
-
+                            Toast.makeText(Profile.this, "Registration Successful!", Toast.LENGTH_SHORT).show();
+                            startActivity(new Intent(Profile.this, DashBoardActivity.class));
+                            finish();
+                        }).addOnFailureListener(e -> {
+                            saveBtn.setEnabled(true);
+                            saveBtn.setText("Save");
+                            Toast.makeText(Profile.this, "Database Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                        });
+                    } else {
                         saveBtn.setEnabled(true);
                         saveBtn.setText("Save");
-
-                        String error = task.getException() != null ?
-                                task.getException().getMessage() :
-                                "Unknown error";
-
-                        Toast.makeText(Profile.this,
-                                "Signup Failed: " + error,
-                                Toast.LENGTH_SHORT).show();
+                        String error = task.getException() != null ? task.getException().getMessage() : "Unknown error";
+                        Toast.makeText(Profile.this, "Signup Failed: " + error, Toast.LENGTH_SHORT).show();
                     }
                 });
     }

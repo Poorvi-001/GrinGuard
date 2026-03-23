@@ -113,7 +113,9 @@ public class HealthActivity extends AppCompatActivity {
 
             int currentDay = (int) ((currentTime - startTime) / (24 * 60 * 60 * 1000)) + 1;
             int lastCheckDay = sevPrefs.getInt(KEY_LAST_CHECK_DAY, 0);
-            boolean isCheckDay = (currentDay == 1 || currentDay == 7 || currentDay == 14 || currentDay == 21);
+            
+            // Enabled only on day 7, 14, and 21
+            boolean isCheckDay = (currentDay == 7 || currentDay == 14 || currentDay == 21);
 
             if (isCheckDay && lastCheckDay != currentDay) {
                 sevPrefs.edit().putInt(KEY_LAST_CHECK_DAY, currentDay).apply();
@@ -129,6 +131,9 @@ public class HealthActivity extends AppCompatActivity {
                 } else {
                     intent = new Intent(this, Caries_Activity.class);
                 }
+                
+                // Add flag to indicate this is a re-check from health tracker
+                intent.putExtra("FROM_HEALTH_TRACKER", true);
                 startActivity(intent);
             } else {
                 showDisabledPopup();
@@ -141,7 +146,8 @@ public class HealthActivity extends AppCompatActivity {
         long startTime = sevPrefs.getLong(KEY_START_TIME, 0);
         
         if (startTime == 0) {
-            enableSeverityButton();
+            // If tracking hasn't started, disable it until day 7
+            disableSeverityButton();
             return;
         }
 
@@ -154,7 +160,8 @@ public class HealthActivity extends AppCompatActivity {
             return;
         }
 
-        boolean isCheckDay = (currentDay == 1 || currentDay == 7 || currentDay == 14 || currentDay == 21);
+        // Enabled only on day 7, 14, and 21
+        boolean isCheckDay = (currentDay == 7 || currentDay == 14 || currentDay == 21);
         
         if (isCheckDay && lastCheckDay != currentDay) {
             enableSeverityButton();
@@ -170,13 +177,13 @@ public class HealthActivity extends AppCompatActivity {
 
     private void disableSeverityButton() {
         btnSeverity.setBackgroundColor(Color.parseColor("#9E9E9E"));
-        btnSeverity.setEnabled(true); 
+        btnSeverity.setEnabled(true); // Enabled for click to show popup explanation
     }
 
     private void showDisabledPopup() {
         new AlertDialog.Builder(this)
                 .setTitle("Check Disabled")
-                .setMessage("Enabled at every 7th day")
+                .setMessage("Enabled at every 7th day (Day 7, 14, 21)")
                 .setPositiveButton("OK", null)
                 .show();
     }

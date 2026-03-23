@@ -15,10 +15,14 @@ import androidx.appcompat.app.AppCompatActivity;
 
 public class Fractured_Teeth_Activity extends AppCompatActivity {
 
+    private boolean fromHealthTracker = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.fractured_teeth_severity);
+
+        fromHealthTracker = getIntent().getBooleanExtra("FROM_HEALTH_TRACKER", false);
 
         RadioGroup rgVisual = findViewById(R.id.rgVisual);
         RadioGroup rgCold = findViewById(R.id.rgCold);
@@ -76,10 +80,15 @@ public class Fractured_Teeth_Activity extends AppCompatActivity {
             long startTime = sevPrefs.getLong("startTime", 0);
             long currentTime = System.currentTimeMillis();
             if (startTime == 0) {
-                sevPrefs.edit().putLong("startTime", currentTime).apply();
+                startTime = currentTime;
+                sevPrefs.edit().putLong("startTime", startTime).apply();
             }
-            int currentDay = (int) ((currentTime - (startTime == 0 ? currentTime : startTime)) / (24 * 60 * 60 * 1000)) + 1;
+            int currentDay = (int) ((currentTime - startTime) / (24 * 60 * 60 * 1000)) + 1;
             sevPrefs.edit().putInt("lastCheckDay", currentDay).apply();
+
+            // Save history for Graphical Analysis
+            SharedPreferences historyPrefs = getSharedPreferences("SeverityHistory", MODE_PRIVATE);
+            historyPrefs.edit().putString(String.valueOf(currentDay), severity).apply();
 
             showSeverityPopup(resultText, severity);
         });
@@ -112,7 +121,14 @@ public class Fractured_Teeth_Activity extends AppCompatActivity {
             if (severity.equals("high")) {
                 showHighSeverityPopup();
             } else {
-                show21DayPlanPopup(severity);  // ← NEW, pass severity
+                if (fromHealthTracker) {
+                    Intent intent = new Intent(Fractured_Teeth_Activity.this, HealthActivity.class);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                    startActivity(intent);
+                    finish();
+                } else {
+                    show21DayPlanPopup(severity);
+                }
             }
         });
 
@@ -155,7 +171,6 @@ public class Fractured_Teeth_Activity extends AppCompatActivity {
         btnYes.setOnClickListener(v -> {
             dialog.dismiss();
 
-            // ✅ NOW pass disease and severity to plan_fo_21_days
             Intent intent = new Intent(Fractured_Teeth_Activity.this, plan_fo_21_days.class);
             intent.putExtra("DISEASE_KEY", "Fractured Teeth");
             intent.putExtra("SEVERITY_KEY", severity);
@@ -176,6 +191,7 @@ public class Fractured_Teeth_Activity extends AppCompatActivity {
 
     private int getScore(RadioGroup rg) {
         int id = rg.getCheckedRadioButtonId();
+        if (id == -1) return 1;
         String name = getResources().getResourceEntryName(id);
         if (name.endsWith("_low")) return 1;
         if (name.endsWith("_med")) return 2;
