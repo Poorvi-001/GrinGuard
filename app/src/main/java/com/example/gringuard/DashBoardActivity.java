@@ -10,11 +10,15 @@ import android.provider.MediaStore;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.Toast;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import org.tensorflow.lite.Interpreter;
 import java.io.BufferedReader;
 import java.io.FileInputStream;
@@ -35,6 +39,8 @@ public class DashBoardActivity extends AppCompatActivity {
     // TFLite fields
     private Interpreter tflite;
     private List<String> labelList;
+
+    private ActivityResultLauncher<String> getContent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,16 +97,53 @@ public class DashBoardActivity extends AppCompatActivity {
         imagePreview = findViewById(R.id.imagePreview);
         previewCard = findViewById(R.id.previewCard);
 
-        ActivityResultLauncher<String> getContent = registerForActivityResult(
+        getContent = registerForActivityResult(
                 new ActivityResultContracts.GetContent(),
                 uri -> {
                     if (uri != null) {
-                        // Instead of showing on dashboard, we process and go to ResultActivity
                         runInferenceAndGoToResult(uri);
                     }
                 });
 
-        heroCard.setOnClickListener(v -> getContent.launch("image/*"));
+        heroCard.setOnClickListener(v -> {
+            SharedPreferences prefs = getSharedPreferences("DentalData", MODE_PRIVATE);
+            String severity = prefs.getString("severity", "");
+            
+            // Check if there's an existing active plan (severity exists and not high)
+            if (!severity.isEmpty()) {
+                showResetWarningDialog();
+            } else {
+                getContent.launch("image/*");
+            }
+        });
+    }
+
+    private void showResetWarningDialog() {
+        new AlertDialog.Builder(this)
+                .setTitle("Reset Data?")
+                .setMessage("If you want to upload a new image, then your previous data will be lost.")
+                .setPositiveButton("Yes", (dialog, which) -> {
+                    resetAllData();
+                    getContent.launch("image/*");
+                })
+                .setNegativeButton("No", null)
+                .show();
+    }
+
+    private void resetAllData() {
+        // 1. Clear Local SharedPreferences
+        getSharedPreferences("DentalData", MODE_PRIVATE).edit().clear().apply();
+        getSharedPreferences("SeverityPrefs", MODE_PRIVATE).edit().clear().apply();
+        getSharedPreferences("SeverityHistory", MODE_PRIVATE).edit().clear().apply();
+        
+        String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        getSharedPreferences("GringuardPrefs_" + uid, MODE_PRIVATE).edit().clear().apply();
+        getSharedPreferences("CalendarProgress_" + uid, MODE_PRIVATE).edit().clear().apply();
+
+        // 2. Clear Firebase FollowPlan Data
+        DatabaseReference db = FirebaseDatabase.getInstance().getReference();
+        db.child("Users").child(uid).child("FollowPlan").removeValue()
+                .addOnSuccessListener(aVoid -> Toast.makeText(this, "Previous data reset successful", Toast.LENGTH_SHORT).show());
     }
 
     private void showHighSeverityPopup() {
