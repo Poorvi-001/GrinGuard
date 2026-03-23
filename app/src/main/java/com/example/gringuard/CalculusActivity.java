@@ -2,8 +2,8 @@ package com.example.gringuard;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.Bundle;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.RadioGroup;
@@ -47,64 +47,74 @@ public class CalculusActivity extends AppCompatActivity {
             int maxSeverity = Math.max(vScore, Math.max(cScore, Math.max(sScore,
                     Math.max(swScore, Math.max(coScore, bScore)))));
 
-
             int mediumCount = 0;
             int[] scores = {vScore, cScore, sScore, swScore, coScore, bScore};
             for (int s : scores) if (s == 2) mediumCount++;
 
             String resultText;
-            int resultColor;
-            String severity = "high";
+            String severity;
 
             if (maxSeverity == 3 || (maxSeverity == 2 && mediumCount >= 3)) {
                 resultText = "HIGH SEVERITY: Severe Calculus\nExtensive buildup and gum distress. Requires professional scaling and root planing to prevent advanced gum disease.";
-                resultColor = 0xFFD81B60;
                 severity = "high";
-            }
-            else if (maxSeverity == 2) {
+            } else if (maxSeverity == 2) {
                 resultText = "MEDIUM SEVERITY: Moderate Calculus\nSignificant buildup present. Professional cleaning is necessary as calculus cannot be removed by brushing alone.";
-                resultColor = 0xFFF4511E;
                 severity = "medium";
-            }
-            else {
+            } else {
                 resultText = "LOW SEVERITY: Mild Calculus\nEarly stage buildup. While brushing helps prevent more, a professional cleaning is still recommended to remove existing tartar.";
-                resultColor = 0xFF2E7D32;
                 severity = "low";
             }
 
-            tvResult.setText(resultText);
-            tvResult.setTextColor(resultColor);
-
-            // Store the severity and disease type for HealthTracker
             SharedPreferences prefs = getSharedPreferences("DentalData", MODE_PRIVATE);
-            SharedPreferences.Editor editor = prefs.edit();
-            editor.putString("detectedDisease", "Calculus");
-            editor.putString("severity", severity);
-            editor.apply();
+            prefs.edit().putString("detectedDisease", "Calculus").putString("severity", severity).apply();
 
-            // Initialize 21-day program state for HealthActivity
             SharedPreferences sevPrefs = getSharedPreferences("SeverityPrefs", MODE_PRIVATE);
             long startTime = sevPrefs.getLong("startTime", 0);
             long currentTime = System.currentTimeMillis();
-            if (startTime == 0) {
-                sevPrefs.edit().putLong("startTime", currentTime).apply();
-                startTime = currentTime;
-            }
-            int currentDay = (int) ((currentTime - startTime) / (24 * 60 * 60 * 1000)) + 1;
+            if (startTime == 0) sevPrefs.edit().putLong("startTime", currentTime).apply();
+            int currentDay = (int) ((currentTime - (startTime == 0 ? currentTime : startTime)) / (24 * 60 * 60 * 1000)) + 1;
             sevPrefs.edit().putInt("lastCheckDay", currentDay).apply();
 
+            showSeverityPopup(resultText, severity);
+        });
+    }
+
+    private void showSeverityPopup(String resultMessage, String severity) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        View dialogView = getLayoutInflater().inflate(R.layout.severity_popup, null);
+        builder.setView(dialogView);
+
+        AlertDialog severityDialog = builder.create();
+        severityDialog.setCancelable(false);
+
+        TextView tvSeverityValue = dialogView.findViewById(R.id.tvSeverityValue);
+        Button btnOkResult = dialogView.findViewById(R.id.btnOkResult);
+
+        tvSeverityValue.setText(resultMessage);
+
+        if (severity.equals("low")) {
+            tvSeverityValue.setTextColor(Color.parseColor("#4CAF50"));
+        } else if (severity.equals("medium")) {
+            tvSeverityValue.setTextColor(Color.parseColor("#FBC02D"));
+        } else if (severity.equals("high")) {
+            tvSeverityValue.setTextColor(Color.parseColor("#F44336"));
+        }
+
+        btnOkResult.setOnClickListener(v -> {
+            severityDialog.dismiss();
             if (severity.equals("high")) {
                 showHighSeverityPopup();
             } else {
-                show21DayPlanPopup();
+                show21DayPlanPopup(severity); // ✅ pass severity
             }
         });
+
+        severityDialog.show();
     }
 
     private void showHighSeverityPopup() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        LayoutInflater inflater = getLayoutInflater();
-        View dialogView = inflater.inflate(R.layout.popup_high_severity, null);
+        View dialogView = getLayoutInflater().inflate(R.layout.popup_high_severity, null);
         builder.setView(dialogView);
 
         AlertDialog dialog = builder.create();
@@ -122,10 +132,9 @@ public class CalculusActivity extends AppCompatActivity {
         dialog.show();
     }
 
-    private void show21DayPlanPopup() {
+    private void show21DayPlanPopup(String severity) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        LayoutInflater inflater = getLayoutInflater();
-        View dialogView = inflater.inflate(R.layout.popup_21_day_plan, null);
+        View dialogView = getLayoutInflater().inflate(R.layout.popup_21_day_plan, null);
         builder.setView(dialogView);
 
         AlertDialog dialog = builder.create();
@@ -136,7 +145,9 @@ public class CalculusActivity extends AppCompatActivity {
 
         btnYes.setOnClickListener(v -> {
             dialog.dismiss();
-            Intent intent = new Intent(CalculusActivity.this, HealthActivity.class);
+            Intent intent = new Intent(CalculusActivity.this, plan_fo_21_days.class); // ✅
+            intent.putExtra("DISEASE_KEY", "Calculus");                                // ✅
+            intent.putExtra("SEVERITY_KEY", severity);                                 // ✅
             startActivity(intent);
             finish();
         });
@@ -154,6 +165,7 @@ public class CalculusActivity extends AppCompatActivity {
 
     private int getScore(RadioGroup rg) {
         int id = rg.getCheckedRadioButtonId();
+        if (id == -1) return 1; // ✅ safety check
         String name = getResources().getResourceEntryName(id);
         if (name.endsWith("_low")) return 1;
         if (name.endsWith("_med")) return 2;

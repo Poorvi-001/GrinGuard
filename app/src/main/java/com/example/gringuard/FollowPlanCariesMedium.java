@@ -6,9 +6,17 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 
 public class FollowPlanCariesMedium extends AppCompatActivity {
 
@@ -16,66 +24,148 @@ public class FollowPlanCariesMedium extends AppCompatActivity {
     Button savePlanBtn;
 
     SharedPreferences sharedPreferences;
+    DatabaseReference db;
+    String uid, diseaseKey, today;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.follow_plan_caries_medium);
 
-        // Link UI
-        checkPain = findViewById(R.id.checkPain);
-        checkSensitive = findViewById(R.id.checkSensitive);
+        checkPain       = findViewById(R.id.checkPain);
+        checkSensitive  = findViewById(R.id.checkSensitive);
         checkToothpaste = findViewById(R.id.checkToothpaste);
-        checkMouthwash = findViewById(R.id.checkMouthwash);
-        checkDentist = findViewById(R.id.checkDentist);
-        savePlanBtn = findViewById(R.id.savePlanBtn);
+        checkMouthwash  = findViewById(R.id.checkMouthwash);
+        checkDentist    = findViewById(R.id.checkDentist);
+        savePlanBtn     = findViewById(R.id.savePlanBtn);
 
-        // SharedPreferences initialization
-        sharedPreferences = getSharedPreferences("FollowPlanMedium", MODE_PRIVATE);
+        uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        db  = FirebaseDatabase.getInstance().getReference();
 
-        // Load saved states
-        loadProgress();
+        sharedPreferences = getSharedPreferences("GringuardPrefs_" + uid, MODE_PRIVATE);
+        diseaseKey = sharedPreferences.getString("activeDiseaseKey", "");
 
-        // Save button action
+        today = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
+
+        checkAndResetIfNewDay();
+        loadProgressFromFirebase();
+
         savePlanBtn.setOnClickListener(v -> saveProgress());
     }
 
-    private void saveProgress() {
-
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-
-        editor.putBoolean("pain", checkPain.isChecked());
-        editor.putBoolean("sensitive", checkSensitive.isChecked());
-        editor.putBoolean("toothpaste", checkToothpaste.isChecked());
-        editor.putBoolean("mouthwash", checkMouthwash.isChecked());
-        editor.putBoolean("dentist", checkDentist.isChecked());
-
-        editor.apply();
-
-        int completed = 0;
-
-        if (checkPain.isChecked()) completed++;
-        if (checkSensitive.isChecked()) completed++;
-        if (checkToothpaste.isChecked()) completed++;
-        if (checkMouthwash.isChecked()) completed++;
-        if (checkDentist.isChecked()) completed++;
-
-        int percentage = (completed * 100) / 5;
-
-        // Save to central CalendarProgress
-        String today = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
-        SharedPreferences calPrefs = getSharedPreferences("CalendarProgress", MODE_PRIVATE);
-        calPrefs.edit().putInt(today, percentage).apply();
-
-        Toast.makeText(this, "Progress saved! " + percentage + "% completed today.", Toast.LENGTH_SHORT).show();
+    // ─── Enable or disable all inputs ────────────────────────────────────────
+    private void setInputsEnabled(boolean enabled) {
+        checkPain.setEnabled(enabled);
+        checkSensitive.setEnabled(enabled);
+        checkToothpaste.setEnabled(enabled);
+        checkMouthwash.setEnabled(enabled);
+        checkDentist.setEnabled(enabled);
+        savePlanBtn.setEnabled(enabled);
+        savePlanBtn.setAlpha(enabled ? 1.0f : 0.5f);
+        savePlanBtn.setText(enabled ? "Save Progress" : "Already saved today ✓");
     }
 
-    private void loadProgress() {
+    // ─── Reset checkboxes if it's a new day, else disable ────────────────────
+    private void checkAndResetIfNewDay() {
+        String lastSavedDate = sharedPreferences.getString("lastSavedDate_caries_medium", "");
+        if (!today.equals(lastSavedDate)) {
+            checkPain.setChecked(false);
+            checkSensitive.setChecked(false);
+            checkToothpaste.setChecked(false);
+            checkMouthwash.setChecked(false);
+            checkDentist.setChecked(false);
+            setInputsEnabled(true);
+        } else {
+            setInputsEnabled(false);
+        }
+    }
 
-        checkPain.setChecked(sharedPreferences.getBoolean("pain", false));
-        checkSensitive.setChecked(sharedPreferences.getBoolean("sensitive", false));
-        checkToothpaste.setChecked(sharedPreferences.getBoolean("toothpaste", false));
-        checkMouthwash.setChecked(sharedPreferences.getBoolean("mouthwash", false));
-        checkDentist.setChecked(sharedPreferences.getBoolean("dentist", false));
+    // ─── Load today's progress from Firebase ─────────────────────────────────
+    private void loadProgressFromFirebase() {
+        if (diseaseKey.isEmpty()) return;
+
+        String dayKey = "day_" + today;
+        db.child("Users").child(uid)
+                .child("FollowPlan").child(diseaseKey)
+                .child(dayKey)
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot snapshot) {
+                        if (snapshot.exists()) {
+                            String savedDate = snapshot.child("date").getValue(String.class);
+                            if (today.equals(savedDate)) {
+                                Boolean b1 = snapshot.child("cb1").getValue(Boolean.class);
+                                Boolean b2 = snapshot.child("cb2").getValue(Boolean.class);
+                                Boolean b3 = snapshot.child("cb3").getValue(Boolean.class);
+                                Boolean b4 = snapshot.child("cb4").getValue(Boolean.class);
+                                Boolean b5 = snapshot.child("cb5").getValue(Boolean.class);
+                                checkPain.setChecked(b1 != null && b1);
+                                checkSensitive.setChecked(b2 != null && b2);
+                                checkToothpaste.setChecked(b3 != null && b3);
+                                checkMouthwash.setChecked(b4 != null && b4);
+                                checkDentist.setChecked(b5 != null && b5);
+                                setInputsEnabled(false);
+                            }
+                        }
+                    }
+                    @Override
+                    public void onCancelled(DatabaseError error) {}
+                });
+    }
+
+    // ─── Save progress to Firebase ───────────────────────────────────────────
+    private void saveProgress() {
+        if (diseaseKey.isEmpty()) {
+            Toast.makeText(this, "No active disease found. Please scan first.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        boolean cb1 = checkPain.isChecked();
+        boolean cb2 = checkSensitive.isChecked();
+        boolean cb3 = checkToothpaste.isChecked();
+        boolean cb4 = checkMouthwash.isChecked();
+        boolean cb5 = checkDentist.isChecked();
+
+        int completed = 0;
+        if (cb1) completed++;
+        if (cb2) completed++;
+        if (cb3) completed++;
+        if (cb4) completed++;
+        if (cb5) completed++;
+        int percentage = (completed * 100) / 5;
+
+        Map<String, Object> dayData = new HashMap<>();
+        dayData.put("date", today);
+        dayData.put("cb1", cb1);
+        dayData.put("cb2", cb2);
+        dayData.put("cb3", cb3);
+        dayData.put("cb4", cb4);
+        dayData.put("cb5", cb5);
+        dayData.put("percentage", percentage);
+        dayData.put("planType", "caries_medium");
+
+        String dayKey = "day_" + today;
+
+        db.child("Users").child(uid)
+                .child("FollowPlan").child(diseaseKey)
+                .child(dayKey).setValue(dayData)
+                .addOnSuccessListener(unused -> {
+
+                    getSharedPreferences("CalendarProgress_" + uid, MODE_PRIVATE)
+                            .edit().putInt(today, percentage).apply();
+
+                    sharedPreferences.edit()
+                            .putString("lastSavedDate_caries_medium", today)
+                            .apply();
+
+                    setInputsEnabled(false);
+
+                    Toast.makeText(this,
+                            "Progress saved! " + percentage + "% completed today.",
+                            Toast.LENGTH_SHORT).show();
+                })
+                .addOnFailureListener(e ->
+                        Toast.makeText(this, "Failed to save: " + e.getMessage(),
+                                Toast.LENGTH_SHORT).show());
     }
 }

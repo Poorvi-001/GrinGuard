@@ -167,6 +167,10 @@
             android:name=".ReportActivity"
             android:exported="false" />
 
+        <activity
+            android:name=".plan_fo_21_days"
+            android:exported="false" />
+
     </application>
 
 </manifest>

@@ -1,81 +1,153 @@
-package com.example.gringuard; // Ensure this matches your package name
+package com.example.gringuard;
 
-import android.app.Dialog;
 import android.content.Intent;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
-import android.view.View;
+import android.util.Log;
 import android.widget.Button;
+import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
-
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Locale;
 
 public class plan_fo_21_days extends AppCompatActivity {
+
+    private String finalDisease;
+    private String finalSeverity;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.popup_21_day_plan); // Replace with your current layout name
+        setContentView(R.layout.popup_21_day_plan);
 
-        // Trigger the popup automatically (or attach to a button click)
-        showPlanDialog();
-    }
+        finalDisease  = getIntent().getStringExtra("DISEASE_KEY");
+        finalSeverity = getIntent().getStringExtra("SEVERITY_KEY");
 
-    private void showPlanDialog() {
-        // 1. Create the dialog instance
-        final Dialog dialog = new Dialog(this);
+        Log.d("DEBUG_DATA", "Disease: " + finalDisease + " | Severity: " + finalSeverity);
 
-        // 2. Set the custom layout we created earlier
-        dialog.setContentView(R.layout.popup_21_day_plan); // Replace with your actual XML filename
-
-        // 3. Make background transparent to show custom shape
-        if (dialog.getWindow() != null) {
-            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        if (finalDisease == null || finalSeverity == null) {
+            Log.e("DEBUG_DATA", "❌ Disease or Severity is NULL — going back");
+            Toast.makeText(this, "Error: missing data", Toast.LENGTH_SHORT).show();
+            finish();
+            return;
         }
 
-        // 4. Initialize buttons from your XML
-        Button btnYes = dialog.findViewById(R.id.btnYes);
-        Button btnNo = dialog.findViewById(R.id.btnNo);
+        Button btnYes = findViewById(R.id.btnYes);
+        Button btnNo  = findViewById(R.id.btnNo);
 
-        // 5. YES Click: Go to Health Tracker
-        // Inside your showPlanDialog() method, modify the btnYes listener:
+        if (btnYes == null) {
+            Log.e("DEBUG_DATA", "❌ btnYes is NULL — check your layout ID");
+            return;
+        }
 
-        btnYes.setOnClickListener(v -> {
-            // 1. Get your data (Assuming you have these available from previous steps)
-            String detectedDisease = "Gingivitis"; // Replace with your variable
-            int severityScore = 75;               // Replace with your variable
+        btnYes.setOnClickListener(v -> saveToFirebase(finalDisease, finalSeverity));
 
-            // 2. Save to Firebase
-            String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
-            DatabaseReference planRef = FirebaseDatabase.getInstance()
-                    .getReference("Users").child(uid).child("ActiveTask");
-
-            // Using the Treatment class we created
-            Treatment newTreatment = new Treatment(detectedDisease);
-            newTreatment.maxSeverity = severityScore; // Ensure Treatment class has this field
-
-            planRef.setValue(newTreatment).addOnSuccessListener(aVoid -> {
-                // 3. Now redirect to Health Tracker
-                Intent intent = new Intent(getApplicationContext(), HealthActivity.class);
-                startActivity(intent);
-                dialog.dismiss();
-                finish();
-            });
-        });
-
-        // 6. NO Click: Go to Dashboard
         btnNo.setOnClickListener(v -> {
             Intent intent = new Intent(plan_fo_21_days.this, DashBoardActivity.class);
-            // Clear back stack to make Dashboard the home screen
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(intent);
-            dialog.dismiss();
-            finish(); // Close this activity
+            finish();
         });
+    }
 
-        dialog.show();
+    private void saveToFirebase(String disease, String severity) {
+
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user == null) {
+            Toast.makeText(this, "Not logged in!", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        String uid       = user.getUid();
+        String todayDate = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
+        long timestamp   = System.currentTimeMillis();
+
+        DatabaseReference userRef = FirebaseDatabase.getInstance()
+                .getReference("Users").child(uid);
+
+        // SAVE 1: CurrentTreatment
+        HashMap<String, Object> treatmentData = new HashMap<>();
+        treatmentData.put("disease", disease);
+        treatmentData.put("severity", severity);
+        treatmentData.put("timestamp", timestamp);
+
+        userRef.child("CurrentTreatment").updateChildren(treatmentData)
+                .addOnSuccessListener(aVoid -> {
+                    Log.d("DEBUG", "✅ CurrentTreatment saved");
+
+                    // SAVE 2: DetectedDiseases
+                    DatabaseReference diseasesRef = userRef.child("DetectedDiseases");
+                    String diseaseId = diseasesRef.push().getKey();
+
+                    HashMap<String, Object> diseaseData = new HashMap<>();
+                    diseaseData.put("diseaseName", disease);
+                    diseaseData.put("severity", severity);
+                    diseaseData.put("detectedDate", todayDate);
+                    diseaseData.put("timestamp", timestamp);
+
+                    diseasesRef.child(diseaseId).setValue(diseaseData)
+                            .addOnSuccessListener(aVoid2 -> {
+                                Log.d("DEBUG", "✅ DetectedDiseases saved | ID: " + diseaseId);
+
+                                // SAVE 3: SeverityHistory week_1
+                                HashMap<String, Object> severityData = new HashMap<>();
+                                severityData.put("severity", severity);
+                                severityData.put("checkedDate", todayDate);
+                                severityData.put("weekNumber", 1);
+                                severityData.put("timestamp", timestamp);
+
+                                userRef.child("SeverityHistory")
+                                        .child(diseaseId)
+                                        .child("week_1")
+                                        .setValue(severityData)
+                                        .addOnSuccessListener(aVoid3 -> {
+                                            Log.d("DEBUG", "✅ SeverityHistory week_1 saved");
+
+                                            // ✅ Save diseaseId to SharedPrefs (UID-scoped)
+                                            getSharedPreferences("GringuardPrefs_" + uid, MODE_PRIVATE)
+                                                    .edit()
+                                                    .putString("activeDiseaseKey", diseaseId)
+                                                    .putString("activeDiseaseName", disease)
+                                                    .putString("activeSeverity", severity)
+                                                    .apply();
+
+                                            navigateToHealth(diseaseId, disease);
+                                        })
+                                        .addOnFailureListener(e -> {
+                                            Log.e("DEBUG", "❌ SeverityHistory failed: " + e.getMessage());
+
+                                            // ✅ Save even if SeverityHistory fails
+                                            getSharedPreferences("GringuardPrefs_" + uid, MODE_PRIVATE)
+                                                    .edit()
+                                                    .putString("activeDiseaseKey", diseaseId)
+                                                    .putString("activeDiseaseName", disease)
+                                                    .putString("activeSeverity", severity)
+                                                    .apply();
+
+                                            navigateToHealth(diseaseId, disease);
+                                        });
+                            })
+                            .addOnFailureListener(e -> {
+                                Log.e("DEBUG", "❌ DetectedDiseases failed: " + e.getMessage());
+                                Toast.makeText(this, "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                            });
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("DEBUG", "❌ CurrentTreatment failed: " + e.getMessage());
+                    Toast.makeText(this, "Save Failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                });
+    }
+
+    private void navigateToHealth(String diseaseId, String disease) {
+        Intent intent = new Intent(plan_fo_21_days.this, HealthActivity.class);
+        intent.putExtra("DISEASE_ID_KEY", diseaseId);
+        intent.putExtra("DISEASE_NAME_KEY", disease);
+        startActivity(intent);
+        finish();
     }
 }

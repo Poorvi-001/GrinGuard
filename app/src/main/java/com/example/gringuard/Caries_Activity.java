@@ -2,6 +2,7 @@ package com.example.gringuard;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -41,59 +42,72 @@ public class Caries_Activity extends AppCompatActivity {
                     getScore(rgNight), getScore(rgFood), getScore(rgGums)};
 
             int maxSeverity = 0;
-            for(int s : scores) if (s > maxSeverity) maxSeverity = s;
+            for (int s : scores) if (s > maxSeverity) maxSeverity = s;
 
             String message;
-            int color;
-            String severity = "high";
+            String severity;
 
             if (maxSeverity == 3 || scores[2] == 3) {
                 message = "HIGH SEVERITY: Nerve Involvement\nPain to heat or night pain indicates the caries has reached the nerve. Root canal likely needed.";
-                color = 0xFFD81B60;
                 severity = "high";
             } else if (maxSeverity == 2) {
                 message = "MEDIUM SEVERITY: Dentin Decay\nThe decay has reached the sensitive layer. Needs a filling immediately to avoid a root canal.";
-                color = 0xFFF4511E;
                 severity = "medium";
             } else {
                 message = "LOW SEVERITY: Enamel Decay\nEarly stage decay. May be reversible with fluoride treatment or a simple filling.";
-                color = 0xFF2E7D32;
                 severity = "low";
             }
 
-            tvResult.setText(message);
-            tvResult.setTextColor(color);
-
-            // Store the severity and disease type for HealthTracker
             SharedPreferences prefs = getSharedPreferences("DentalData", MODE_PRIVATE);
-            SharedPreferences.Editor editor = prefs.edit();
-            editor.putString("detectedDisease", "Cavity");
-            editor.putString("severity", severity);
-            editor.apply();
+            prefs.edit().putString("detectedDisease", "Cavity").putString("severity", severity).apply();
 
-            // Initialize 21-day program state for HealthActivity
             SharedPreferences sevPrefs = getSharedPreferences("SeverityPrefs", MODE_PRIVATE);
             long startTime = sevPrefs.getLong("startTime", 0);
             long currentTime = System.currentTimeMillis();
-            if (startTime == 0) {
-                sevPrefs.edit().putLong("startTime", currentTime).apply();
-                startTime = currentTime;
-            }
-            int currentDay = (int) ((currentTime - startTime) / (24 * 60 * 60 * 1000)) + 1;
+            if (startTime == 0) sevPrefs.edit().putLong("startTime", currentTime).apply();
+            int currentDay = (int) ((currentTime - (startTime == 0 ? currentTime : startTime)) / (24 * 60 * 60 * 1000)) + 1;
             sevPrefs.edit().putInt("lastCheckDay", currentDay).apply();
 
+            showSeverityPopup(message, severity);
+        });
+    }
+
+    private void showSeverityPopup(String resultMessage, String severity) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        View dialogView = getLayoutInflater().inflate(R.layout.severity_popup, null);
+        builder.setView(dialogView);
+
+        AlertDialog severityDialog = builder.create();
+        severityDialog.setCancelable(false);
+
+        TextView tvSeverityValue = dialogView.findViewById(R.id.tvSeverityValue);
+        Button btnOkResult = dialogView.findViewById(R.id.btnOkResult);
+
+        tvSeverityValue.setText(resultMessage);
+
+        if (severity.equals("low")) {
+            tvSeverityValue.setTextColor(Color.parseColor("#4CAF50"));
+        } else if (severity.equals("medium")) {
+            tvSeverityValue.setTextColor(Color.parseColor("#FFEB3B"));
+        } else if (severity.equals("high")) {
+            tvSeverityValue.setTextColor(Color.parseColor("#F44336"));
+        }
+
+        btnOkResult.setOnClickListener(v -> {
+            severityDialog.dismiss();
             if (severity.equals("high")) {
                 showHighSeverityPopup();
             } else {
-                show21DayPlanPopup();
+                show21DayPlanPopup(severity); // ✅ pass severity
             }
         });
+
+        severityDialog.show();
     }
 
     private void showHighSeverityPopup() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        LayoutInflater inflater = getLayoutInflater();
-        View dialogView = inflater.inflate(R.layout.popup_high_severity, null);
+        View dialogView = getLayoutInflater().inflate(R.layout.popup_high_severity, null);
         builder.setView(dialogView);
 
         AlertDialog dialog = builder.create();
@@ -111,10 +125,9 @@ public class Caries_Activity extends AppCompatActivity {
         dialog.show();
     }
 
-    private void show21DayPlanPopup() {
+    private void show21DayPlanPopup(String severity) { // ✅ accepts severity
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        LayoutInflater inflater = getLayoutInflater();
-        View dialogView = inflater.inflate(R.layout.popup_21_day_plan, null);
+        View dialogView = getLayoutInflater().inflate(R.layout.popup_21_day_plan, null);
         builder.setView(dialogView);
 
         AlertDialog dialog = builder.create();
@@ -125,7 +138,9 @@ public class Caries_Activity extends AppCompatActivity {
 
         btnYes.setOnClickListener(v -> {
             dialog.dismiss();
-            Intent intent = new Intent(Caries_Activity.this, HealthActivity.class);
+            Intent intent = new Intent(Caries_Activity.this, plan_fo_21_days.class); // ✅ goes to plan_fo_21_days
+            intent.putExtra("DISEASE_KEY", "Caries");                                 // ✅ disease name
+            intent.putExtra("SEVERITY_KEY", severity);                                // ✅ severity
             startActivity(intent);
             finish();
         });
@@ -143,6 +158,7 @@ public class Caries_Activity extends AppCompatActivity {
 
     private int getScore(RadioGroup rg) {
         int id = rg.getCheckedRadioButtonId();
+        if (id == -1) return 1;
         String name = getResources().getResourceEntryName(id);
         if (name.endsWith("_low")) return 1;
         if (name.endsWith("_med")) return 2;
