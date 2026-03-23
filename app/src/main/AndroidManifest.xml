@@ -169,7 +169,8 @@
 
         <activity
             android:name=".plan_fo_21_days"
-            android:exported="false" />
+            android:exported="false"
+            android:theme="@style/CustomPopupTheme" />
 
     </application>
 

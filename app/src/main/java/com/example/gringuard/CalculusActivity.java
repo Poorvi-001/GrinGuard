@@ -122,7 +122,12 @@ public class CalculusActivity extends AppCompatActivity {
                     startActivity(intent);
                     finish();
                 } else {
-                    show21DayPlanPopup(severity);
+                    // Start plan_fo_21_days activity directly to avoid double dialog
+                    Intent intent = new Intent(CalculusActivity.this, plan_fo_21_days.class); 
+                    intent.putExtra("DISEASE_KEY", "Calculus");                                
+                    intent.putExtra("SEVERITY_KEY", severity);                                 
+                    startActivity(intent);
+                    finish();
                 }
             }
         });
@@ -140,37 +145,6 @@ public class CalculusActivity extends AppCompatActivity {
 
         Button okBtn = dialogView.findViewById(R.id.okBtn);
         okBtn.setOnClickListener(v -> {
-            dialog.dismiss();
-            Intent intent = new Intent(CalculusActivity.this, DashBoardActivity.class);
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-            startActivity(intent);
-            finish();
-        });
-
-        dialog.show();
-    }
-
-    private void show21DayPlanPopup(String severity) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        View dialogView = getLayoutInflater().inflate(R.layout.popup_21_day_plan, null);
-        builder.setView(dialogView);
-
-        AlertDialog dialog = builder.create();
-        dialog.setCancelable(false);
-
-        Button btnYes = dialogView.findViewById(R.id.btnYes);
-        Button btnNo = dialogView.findViewById(R.id.btnNo);
-
-        btnYes.setOnClickListener(v -> {
-            dialog.dismiss();
-            Intent intent = new Intent(CalculusActivity.this, plan_fo_21_days.class); 
-            intent.putExtra("DISEASE_KEY", "Calculus");                                
-            intent.putExtra("SEVERITY_KEY", severity);                                 
-            startActivity(intent);
-            finish();
-        });
-
-        btnNo.setOnClickListener(v -> {
             dialog.dismiss();
             Intent intent = new Intent(CalculusActivity.this, DashBoardActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
