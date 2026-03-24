@@ -9,13 +9,16 @@ import android.widget.Toast;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.firebase.auth.FirebaseAuth;
+
 public class HealthActivity extends AppCompatActivity {
 
     Button btnTips, btnFollowPlan, btnGoals, btnSeverity;
     SharedPreferences preferences;
 
-    private static final String PREF_NAME = "DentalData";
-    private static final String SEV_PREF_NAME = "SeverityPrefs";
+
+
+    SharedPreferences sevPrefs;
     private static final String KEY_START_TIME = "startTime";
     private static final String KEY_LAST_CHECK_DAY = "lastCheckDay";
 
@@ -24,12 +27,16 @@ public class HealthActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_health);
 
+        String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+
+        preferences = getSharedPreferences("DentalData_" + uid, MODE_PRIVATE);
+        sevPrefs    = getSharedPreferences("SeverityPrefs_" + uid, MODE_PRIVATE);
         btnTips = findViewById(R.id.btnTips);
         btnFollowPlan = findViewById(R.id.btnFollowPlan);
         btnGoals = findViewById(R.id.btnGoals);
         btnSeverity = findViewById(R.id.btnSeverity);
 
-        preferences = getSharedPreferences(PREF_NAME, MODE_PRIVATE);
+
 
         updateSeverityButtonStatus();
 
@@ -102,7 +109,7 @@ public class HealthActivity extends AppCompatActivity {
         });
 
         btnSeverity.setOnClickListener(v -> {
-            SharedPreferences sevPrefs = getSharedPreferences(SEV_PREF_NAME, MODE_PRIVATE);
+            //SharedPreferences sevPrefs = getSharedPreferences(SEV_PREF_NAME, MODE_PRIVATE);
             long startTime = sevPrefs.getLong(KEY_START_TIME, 0);
             long currentTime = System.currentTimeMillis();
 
@@ -142,7 +149,7 @@ public class HealthActivity extends AppCompatActivity {
     }
 
     private void updateSeverityButtonStatus() {
-        SharedPreferences sevPrefs = getSharedPreferences(SEV_PREF_NAME, MODE_PRIVATE);
+        //SharedPreferences sevPrefs = getSharedPreferences(SEV_PREF_NAME, MODE_PRIVATE);
         long startTime = sevPrefs.getLong(KEY_START_TIME, 0);
         
         if (startTime == 0) {

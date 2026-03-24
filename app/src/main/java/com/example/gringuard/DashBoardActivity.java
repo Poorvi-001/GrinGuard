@@ -171,7 +171,8 @@ public class DashBoardActivity extends AppCompatActivity {
             @Override
             public void onDataChange(DataSnapshot snapshot) {
                 if (!snapshot.exists()) {
-                    getSharedPreferences("DentalData", MODE_PRIVATE).edit().clear().apply();
+                    String uidLocal = FirebaseAuth.getInstance().getCurrentUser().getUid();
+                    getSharedPreferences("DentalData_" + uidLocal, MODE_PRIVATE).edit().clear().apply();
                 }
             }
 
@@ -194,11 +195,12 @@ public class DashBoardActivity extends AppCompatActivity {
 
     private void resetAllData() {
         // 1. Clear ALL local SharedPreferences
-        getSharedPreferences("DentalData",       MODE_PRIVATE).edit().clear().apply();
+        String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        getSharedPreferences("DentalData_" + uid, MODE_PRIVATE).edit().clear().apply();
         getSharedPreferences("SeverityPrefs",    MODE_PRIVATE).edit().clear().apply();
         getSharedPreferences("SeverityHistory",  MODE_PRIVATE).edit().clear().apply();
 
-        String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+
         getSharedPreferences("GringuardPrefs_" + uid,    MODE_PRIVATE).edit().clear().apply();
         getSharedPreferences("CalendarProgress_" + uid,  MODE_PRIVATE).edit().clear().apply();
 
@@ -255,7 +257,9 @@ public class DashBoardActivity extends AppCompatActivity {
             String detectedDisease = labelList.get(maxIdx);
 
             // Save for Health Tracker tips
-            SharedPreferences prefs = getSharedPreferences("DentalData", MODE_PRIVATE);
+            String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+
+            SharedPreferences prefs = getSharedPreferences("DentalData_" + uid, MODE_PRIVATE);
             prefs.edit().putString("detectedDisease", detectedDisease).apply();
 
             // Open ResultActivity with the data

@@ -80,7 +80,10 @@ public class plan_fo_21_days extends AppCompatActivity {
         int currentDay = (int) ((timestamp - startTime) / (24 * 60 * 60 * 1000)) + 1;
 
         // ── FIX #1: Always keep "DentalData" in sync so HealthActivity can read it ──
-        getSharedPreferences("DentalData", MODE_PRIVATE)
+        // 🔥 FIXED SAFE VERSION
+        String uidPref = user.getUid();
+
+        getSharedPreferences("DentalData_" + uidPref, MODE_PRIVATE)
                 .edit()
                 .putString("detectedDisease", disease)
                 .putString("severity", severity)
@@ -156,7 +159,7 @@ public class plan_fo_21_days extends AppCompatActivity {
                                                     .putString("activeDiseaseName", disease)
                                                     .putString("activeSeverity",    severity)
                                                     .apply();
-                                            String uidPref = FirebaseAuth.getInstance().getCurrentUser().getUid();
+                                             //uidPref = user.getUid();
 
                                             getSharedPreferences("DentalData_" + uidPref, MODE_PRIVATE)
                                                     .edit()
