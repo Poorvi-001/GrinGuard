@@ -9,16 +9,13 @@ import android.widget.Toast;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.google.firebase.auth.FirebaseAuth;
-
 public class HealthActivity extends AppCompatActivity {
 
     Button btnTips, btnFollowPlan, btnGoals, btnSeverity;
     SharedPreferences preferences;
 
-
-
-    SharedPreferences sevPrefs;
+    private static final String PREF_NAME = "DentalData";
+    private static final String SEV_PREF_NAME = "SeverityPrefs";
     private static final String KEY_START_TIME = "startTime";
     private static final String KEY_LAST_CHECK_DAY = "lastCheckDay";
 
@@ -27,16 +24,12 @@ public class HealthActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_health);
 
-        String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
-
-        preferences = getSharedPreferences("DentalData_" + uid, MODE_PRIVATE);
-        sevPrefs    = getSharedPreferences("SeverityPrefs_" + uid, MODE_PRIVATE);
         btnTips = findViewById(R.id.btnTips);
         btnFollowPlan = findViewById(R.id.btnFollowPlan);
         btnGoals = findViewById(R.id.btnGoals);
         btnSeverity = findViewById(R.id.btnSeverity);
 
-
+        preferences = getSharedPreferences(PREF_NAME, MODE_PRIVATE);
 
         updateSeverityButtonStatus();
 
@@ -50,17 +43,18 @@ public class HealthActivity extends AppCompatActivity {
             }
 
             Intent intent = null;
+            String d = disease.toLowerCase();
 
-            if (disease.equalsIgnoreCase("Gingivitis")) {
+            if (d.contains("gingivitis")) {
                 if (severity.equals("low")) intent = new Intent(this, GingitivitisLowActivity.class);
                 else if (severity.equals("medium")) intent = new Intent(this, GingivitisActivityMedium.class);
-            } else if (disease.equalsIgnoreCase("Cavity") || disease.equalsIgnoreCase("Caries")) {
+            } else if (d.contains("cavity") || d.contains("caries") || d.contains("decay")) {
                 if (severity.equals("low")) intent = new Intent(this, CariesLowActivity.class);
                 else if (severity.equals("medium")) intent = new Intent(this, CariesMediumactivity.class);
-            } else if (disease.equalsIgnoreCase("Fractured")) {
+            } else if (d.contains("fractured")) {
                 if (severity.equals("low")) intent = new Intent(this, FracturedLowActivity.class);
                 else if (severity.equals("medium")) intent = new Intent(this, FracturedMediumActivity.class);
-            } else if (disease.equalsIgnoreCase("Calculus")) {
+            } else if (d.contains("calculus")) {
                 if (severity.equals("low")) intent = new Intent(this, CalculusActivityLow.class);
                 else if (severity.equals("medium")) intent = new Intent(this, CalculusActivityMedium.class);
             }
@@ -82,17 +76,18 @@ public class HealthActivity extends AppCompatActivity {
             }
 
             Intent intent = null;
+            String d = disease.toLowerCase();
 
-            if (disease.equalsIgnoreCase("Gingivitis")) {
+            if (d.contains("gingivitis")) {
                 if (severity.equals("low")) intent = new Intent(this, FollowPlanGingivitisLow.class);
                 else if (severity.equals("medium")) intent = new Intent(this, FollowPlanGingivitisMedium.class);
-            } else if (disease.equalsIgnoreCase("Cavity") || disease.equalsIgnoreCase("Caries")) {
+            } else if (d.contains("cavity") || d.contains("caries") || d.contains("decay")) {
                 if (severity.equals("low")) intent = new Intent(this, FollowPlanCariesLow.class);
                 else if (severity.equals("medium")) intent = new Intent(this, FollowPlanCariesMedium.class);
-            } else if (disease.equalsIgnoreCase("Fractured")) {
+            } else if (d.contains("fractured")) {
                 if (severity.equals("low")) intent = new Intent(this, FollowPlanFracturedLow.class);
                 else if (severity.equals("medium")) intent = new Intent(this, FollowPlanFracturedMedium.class);
-            } else if (disease.equalsIgnoreCase("Calculus")) {
+            } else if (d.contains("calculus")) {
                 if (severity.equals("low")) intent = new Intent(this, FollowPlanCalculusLow.class);
                 else if (severity.equals("medium")) intent = new Intent(this, FollowPlanCalulusMedium.class);
             }
@@ -109,7 +104,7 @@ public class HealthActivity extends AppCompatActivity {
         });
 
         btnSeverity.setOnClickListener(v -> {
-            //SharedPreferences sevPrefs = getSharedPreferences(SEV_PREF_NAME, MODE_PRIVATE);
+            SharedPreferences sevPrefs = getSharedPreferences(SEV_PREF_NAME, MODE_PRIVATE);
             long startTime = sevPrefs.getLong(KEY_START_TIME, 0);
             long currentTime = System.currentTimeMillis();
 
@@ -129,11 +124,12 @@ public class HealthActivity extends AppCompatActivity {
 
                 String disease = preferences.getString("detectedDisease", "");
                 Intent intent;
-                if (disease.equalsIgnoreCase("Gingivitis")) {
+                String d = disease.toLowerCase();
+                if (d.contains("gingivitis")) {
                     intent = new Intent(this, Gingivitis_Activity.class);
-                } else if (disease.equalsIgnoreCase("Fractured")) {
+                } else if (d.contains("fractured")) {
                     intent = new Intent(this, Fractured_Teeth_Activity.class);
-                } else if (disease.equalsIgnoreCase("Calculus")) {
+                } else if (d.contains("calculus")) {
                     intent = new Intent(this, CalculusActivity.class);
                 } else {
                     intent = new Intent(this, Caries_Activity.class);
@@ -149,7 +145,7 @@ public class HealthActivity extends AppCompatActivity {
     }
 
     private void updateSeverityButtonStatus() {
-        //SharedPreferences sevPrefs = getSharedPreferences(SEV_PREF_NAME, MODE_PRIVATE);
+        SharedPreferences sevPrefs = getSharedPreferences(SEV_PREF_NAME, MODE_PRIVATE);
         long startTime = sevPrefs.getLong(KEY_START_TIME, 0);
         
         if (startTime == 0) {
