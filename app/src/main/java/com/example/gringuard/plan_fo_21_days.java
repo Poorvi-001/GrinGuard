@@ -5,11 +5,14 @@ import android.os.Bundle;
 import android.util.Log;
 import android.widget.Button;
 import android.widget.Toast;
+
 import androidx.appcompat.app.AppCompatActivity;
+
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
@@ -25,7 +28,7 @@ public class plan_fo_21_days extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.popup_21_day_plan);
 
-        finalDisease  = getIntent().getStringExtra("DISEASE_KEY");
+        finalDisease = getIntent().getStringExtra("DISEASE_KEY");
         finalSeverity = getIntent().getStringExtra("SEVERITY_KEY");
 
         Log.d("DEBUG_DATA", "Disease: " + finalDisease + " | Severity: " + finalSeverity);
@@ -63,43 +66,60 @@ public class plan_fo_21_days extends AppCompatActivity {
             return;
         }
 
-        String uid       = user.getUid();
+        String uid = user.getUid();
         String todayDate = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
         long timestamp   = System.currentTimeMillis();
 
-        DatabaseReference userRef = FirebaseDatabase.getInstance()
-                .getReference("Users").child(uid);
+        // ── Day number for severity graph ──
+        long startTime = getSharedPreferences("SeverityPrefs", MODE_PRIVATE).getLong("startTime", 0);
+        if (startTime == 0) {
+            startTime = timestamp;
+            getSharedPreferences("SeverityPrefs", MODE_PRIVATE)
+                    .edit().putLong("startTime", startTime).apply();
+        }
+        int currentDay = (int) ((timestamp - startTime) / (24 * 60 * 60 * 1000)) + 1;
 
-        // SAVE 1: CurrentTreatment
+        // ── FIX #1: Always keep "DentalData" in sync so HealthActivity can read it ──
+        getSharedPreferences("DentalData", MODE_PRIVATE)
+                .edit()
+                .putString("detectedDisease", disease)
+                .putString("severity", severity)
+                .apply();
+
+        DatabaseReference userRef = FirebaseDatabase.getInstance()
+                .getReference("Users")
+                .child(uid);
+
+        // SAVE 1 — CurrentTreatment
         HashMap<String, Object> treatmentData = new HashMap<>();
-        treatmentData.put("disease", disease);
-        treatmentData.put("severity", severity);
+        treatmentData.put("disease",   disease);
+        treatmentData.put("severity",  severity);
         treatmentData.put("timestamp", timestamp);
 
         userRef.child("CurrentTreatment").updateChildren(treatmentData)
                 .addOnSuccessListener(aVoid -> {
                     Log.d("DEBUG", "✅ CurrentTreatment saved");
 
-                    // SAVE 2: DetectedDiseases
+                    // SAVE 2 — DetectedDiseases
                     DatabaseReference diseasesRef = userRef.child("DetectedDiseases");
                     String diseaseId = diseasesRef.push().getKey();
 
                     HashMap<String, Object> diseaseData = new HashMap<>();
-                    diseaseData.put("diseaseName", disease);
-                    diseaseData.put("severity", severity);
-                    diseaseData.put("detectedDate", todayDate);
-                    diseaseData.put("timestamp", timestamp);
+                    diseaseData.put("diseaseName",   disease);
+                    diseaseData.put("severity",      severity);
+                    diseaseData.put("detectedDate",  todayDate);
+                    diseaseData.put("timestamp",     timestamp);
 
                     diseasesRef.child(diseaseId).setValue(diseaseData)
                             .addOnSuccessListener(aVoid2 -> {
                                 Log.d("DEBUG", "✅ DetectedDiseases saved | ID: " + diseaseId);
 
-                                // SAVE 3: SeverityHistory week_1
+                                // SAVE 3 — SeverityHistory week_1
                                 HashMap<String, Object> severityData = new HashMap<>();
-                                severityData.put("severity", severity);
+                                severityData.put("severity",    severity);
                                 severityData.put("checkedDate", todayDate);
-                                severityData.put("weekNumber", 1);
-                                severityData.put("timestamp", timestamp);
+                                severityData.put("weekNumber",  1);
+                                severityData.put("timestamp",   timestamp);
 
                                 userRef.child("SeverityHistory")
                                         .child(diseaseId)
@@ -108,12 +128,40 @@ public class plan_fo_21_days extends AppCompatActivity {
                                         .addOnSuccessListener(aVoid3 -> {
                                             Log.d("DEBUG", "✅ SeverityHistory week_1 saved");
 
-                                            // ✅ Save diseaseId to SharedPrefs (UID-scoped)
+                                            // SAVE 4 — SeverityGraph (FIX #2: restored)
+                                            HashMap<String, Object> graphData = new HashMap<>();
+                                            graphData.put("day",      currentDay);
+                                            graphData.put("severity", severity);
+                                            graphData.put("date",     todayDate);
+
+                                            userRef.child("SeverityGraph")
+                                                    .child(String.valueOf(currentDay))
+                                                    .setValue(graphData)
+                                                    .addOnSuccessListener(aVoid4 ->
+                                                            Log.d("DEBUG", "✅ SeverityGraph saved for day " + currentDay))
+                                                    .addOnFailureListener(e ->
+                                                            Log.e("DEBUG", "❌ SeverityGraph failed: " + e.getMessage()));
+
+                                            // FIX #3: also mirror to local SeverityHistory SharedPrefs
+                                            // so TrackGoalsActivity graph works without extra Firebase call
+                                            getSharedPreferences("SeverityHistory", MODE_PRIVATE)
+                                                    .edit()
+                                                    .putString(String.valueOf(currentDay), severity)
+                                                    .apply();
+
+                                            // Save diseaseId to SharedPrefs (UID-scoped)
                                             getSharedPreferences("GringuardPrefs_" + uid, MODE_PRIVATE)
                                                     .edit()
-                                                    .putString("activeDiseaseKey", diseaseId)
+                                                    .putString("activeDiseaseKey",  diseaseId)
                                                     .putString("activeDiseaseName", disease)
-                                                    .putString("activeSeverity", severity)
+                                                    .putString("activeSeverity",    severity)
+                                                    .apply();
+                                            String uidPref = FirebaseAuth.getInstance().getCurrentUser().getUid();
+
+                                            getSharedPreferences("DentalData_" + uidPref, MODE_PRIVATE)
+                                                    .edit()
+                                                    .putString("detectedDisease", disease)
+                                                    .putString("severity", severity)
                                                     .apply();
 
                                             navigateToHealth(diseaseId, disease);
@@ -121,12 +169,11 @@ public class plan_fo_21_days extends AppCompatActivity {
                                         .addOnFailureListener(e -> {
                                             Log.e("DEBUG", "❌ SeverityHistory failed: " + e.getMessage());
 
-                                            // ✅ Save even if SeverityHistory fails
                                             getSharedPreferences("GringuardPrefs_" + uid, MODE_PRIVATE)
                                                     .edit()
-                                                    .putString("activeDiseaseKey", diseaseId)
+                                                    .putString("activeDiseaseKey",  diseaseId)
                                                     .putString("activeDiseaseName", disease)
-                                                    .putString("activeSeverity", severity)
+                                                    .putString("activeSeverity",    severity)
                                                     .apply();
 
                                             navigateToHealth(diseaseId, disease);
@@ -145,7 +192,7 @@ public class plan_fo_21_days extends AppCompatActivity {
 
     private void navigateToHealth(String diseaseId, String disease) {
         Intent intent = new Intent(plan_fo_21_days.this, HealthActivity.class);
-        intent.putExtra("DISEASE_ID_KEY", diseaseId);
+        intent.putExtra("DISEASE_ID_KEY",   diseaseId);
         intent.putExtra("DISEASE_NAME_KEY", disease);
         startActivity(intent);
         finish();

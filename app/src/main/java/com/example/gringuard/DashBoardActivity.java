@@ -17,8 +17,12 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
 import org.tensorflow.lite.Interpreter;
 import java.io.BufferedReader;
 import java.io.FileInputStream;
@@ -45,6 +49,7 @@ public class DashBoardActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.homepage1);
 
         // --- MODEL INITIALIZATION ---
@@ -65,15 +70,38 @@ public class DashBoardActivity extends AppCompatActivity {
 
         // Health Tracker Card
         CardView healthTrackerCard = findViewById(R.id.healthTrackerCard);
-        healthTrackerCard.setOnClickListener(v -> {
-            SharedPreferences prefs = getSharedPreferences("DentalData", MODE_PRIVATE);
-            String severity = prefs.getString("severity", "");
 
-            if ("high".equalsIgnoreCase(severity)) {
-                showHighSeverityPopup();
-            } else {
-                startActivity(new Intent(DashBoardActivity.this, HealthActivity.class));
-            }
+        healthTrackerCard.setOnClickListener(v -> {
+
+            String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+
+            DatabaseReference ref = FirebaseDatabase.getInstance()
+                    .getReference("Users")
+                    .child(uid)
+                    .child("CurrentTreatment");
+
+            ref.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot snapshot) {
+
+                    if (snapshot.exists()) {
+
+                        String severity = snapshot.child("severity").getValue(String.class);
+
+                        if ("high".equalsIgnoreCase(severity)) {
+                            showHighSeverityPopup();
+                        } else {
+                            startActivity(new Intent(DashBoardActivity.this, HealthActivity.class));
+                        }
+
+                    } else {
+                        Toast.makeText(DashBoardActivity.this, "No data found. Please scan first.", Toast.LENGTH_SHORT).show();
+                    }
+                }
+
+                @Override
+                public void onCancelled(DatabaseError error) {}
+            });
         });
 
         // Export Report Card
@@ -106,15 +134,49 @@ public class DashBoardActivity extends AppCompatActivity {
                 });
 
         heroCard.setOnClickListener(v -> {
-            SharedPreferences prefs = getSharedPreferences("DentalData", MODE_PRIVATE);
-            String severity = prefs.getString("severity", "");
-            
-            // Check if there's an existing active plan (severity exists and not high)
-            if (!severity.isEmpty()) {
-                showResetWarningDialog();
-            } else {
-                getContent.launch("image/*");
+
+            String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+
+            DatabaseReference ref = FirebaseDatabase.getInstance()
+                    .getReference("Users")
+                    .child(uid)
+                    .child("CurrentTreatment");
+
+            ref.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot snapshot) {
+
+                    if (snapshot.exists()) {
+                        showResetWarningDialog();
+                    } else {
+                        getContent.launch("image/*");
+                    }
+                }
+
+                @Override
+                public void onCancelled(DatabaseError error) {
+                    getContent.launch("image/*");
+                }
+            });
+        });
+
+        String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+
+        DatabaseReference ref = FirebaseDatabase.getInstance()
+                .getReference("Users")
+                .child(uid)
+                .child("CurrentTreatment");
+
+        ref.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot snapshot) {
+                if (!snapshot.exists()) {
+                    getSharedPreferences("DentalData", MODE_PRIVATE).edit().clear().apply();
+                }
             }
+
+            @Override
+            public void onCancelled(DatabaseError error) {}
         });
     }
 
@@ -131,19 +193,28 @@ public class DashBoardActivity extends AppCompatActivity {
     }
 
     private void resetAllData() {
-        // 1. Clear Local SharedPreferences
-        getSharedPreferences("DentalData", MODE_PRIVATE).edit().clear().apply();
-        getSharedPreferences("SeverityPrefs", MODE_PRIVATE).edit().clear().apply();
-        getSharedPreferences("SeverityHistory", MODE_PRIVATE).edit().clear().apply();
-        
-        String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        getSharedPreferences("GringuardPrefs_" + uid, MODE_PRIVATE).edit().clear().apply();
-        getSharedPreferences("CalendarProgress_" + uid, MODE_PRIVATE).edit().clear().apply();
+        // 1. Clear ALL local SharedPreferences
+        getSharedPreferences("DentalData",       MODE_PRIVATE).edit().clear().apply();
+        getSharedPreferences("SeverityPrefs",    MODE_PRIVATE).edit().clear().apply();
+        getSharedPreferences("SeverityHistory",  MODE_PRIVATE).edit().clear().apply();
 
-        // 2. Clear Firebase FollowPlan Data
-        DatabaseReference db = FirebaseDatabase.getInstance().getReference();
-        db.child("Users").child(uid).child("FollowPlan").removeValue()
-                .addOnSuccessListener(aVoid -> Toast.makeText(this, "Previous data reset successful", Toast.LENGTH_SHORT).show());
+        String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        getSharedPreferences("GringuardPrefs_" + uid,    MODE_PRIVATE).edit().clear().apply();
+        getSharedPreferences("CalendarProgress_" + uid,  MODE_PRIVATE).edit().clear().apply();
+
+        // 2. Clear ALL relevant Firebase nodes (not just FollowPlan)
+        DatabaseReference userRef = FirebaseDatabase.getInstance()
+                .getReference("Users").child(uid);
+
+        userRef.child("FollowPlan").removeValue();
+        userRef.child("CurrentTreatment").removeValue();
+        userRef.child("DetectedDiseases").removeValue();
+        userRef.child("SeverityHistory").removeValue();
+        userRef.child("SeverityGraph").removeValue()
+                .addOnSuccessListener(aVoid ->
+                        Toast.makeText(this, "Previous data reset successful", Toast.LENGTH_SHORT).show())
+                .addOnFailureListener(e ->
+                        Toast.makeText(this, "Reset failed: " + e.getMessage(), Toast.LENGTH_SHORT).show());
     }
 
     private void showHighSeverityPopup() {
