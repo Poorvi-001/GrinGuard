@@ -14,6 +14,8 @@ import androidx.appcompat.app.AppCompatActivity;
 
 public class Gingivitis_Activity extends AppCompatActivity {
 
+    private boolean hasShownPlanPopup = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -81,7 +83,11 @@ public class Gingivitis_Activity extends AppCompatActivity {
             showSeverityPopup(resultText, severity);
         });
     }
-
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        hasShownPlanPopup = false;
+    }
     private void showSeverityPopup(String resultMessage, String severity) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         View dialogView = getLayoutInflater().inflate(R.layout.severity_popup, null);
@@ -104,11 +110,13 @@ public class Gingivitis_Activity extends AppCompatActivity {
         }
 
         btnOkResult.setOnClickListener(v -> {
+            btnOkResult.setEnabled(false);  // 🔥 BLOCK DOUBLE CLICK
             severityDialog.dismiss();
+
             if (severity.equals("high")) {
                 showHighSeverityPopup();
             } else {
-                show21DayPlanPopup(severity); // ✅ pass severity
+                show21DayPlanPopup(severity);
             }
         });
 
@@ -135,7 +143,11 @@ public class Gingivitis_Activity extends AppCompatActivity {
         dialog.show();
     }
 
-    private void show21DayPlanPopup(String severity) { // ✅ accepts severity
+    private void show21DayPlanPopup(String severity) {
+
+        if (hasShownPlanPopup) return;  // 🚨 BLOCK SECOND CALL
+        hasShownPlanPopup = true;
+
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         View dialogView = getLayoutInflater().inflate(R.layout.popup_21_day_plan, null);
         builder.setView(dialogView);
@@ -148,19 +160,19 @@ public class Gingivitis_Activity extends AppCompatActivity {
 
         btnYes.setOnClickListener(v -> {
             dialog.dismiss();
-            Intent intent = new Intent(Gingivitis_Activity.this, plan_fo_21_days.class); // ✅
-            intent.putExtra("DISEASE_KEY", "Gingivitis");                                 // ✅
-            intent.putExtra("SEVERITY_KEY", severity);                                    // ✅
+
+            Intent intent = new Intent(Gingivitis_Activity.this, plan_fo_21_days.class);
+            intent.putExtra("DISEASE_KEY", "Gingivitis");
+            intent.putExtra("SEVERITY_KEY", severity);
             startActivity(intent);
-            finish();
         });
 
         btnNo.setOnClickListener(v -> {
             dialog.dismiss();
+
             Intent intent = new Intent(Gingivitis_Activity.this, DashBoardActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(intent);
-            finish();
         });
 
         dialog.show();

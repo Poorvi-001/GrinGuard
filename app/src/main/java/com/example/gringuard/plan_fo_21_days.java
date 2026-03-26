@@ -20,18 +20,25 @@ public class plan_fo_21_days extends AppCompatActivity {
     private String finalDisease;
     private String finalSeverity;
 
+    // ✅ FIX: prevent double execution
+    private boolean isProcessed = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // ✅ FIX: prevent activity opening twice
+        if (savedInstanceState != null) {
+            finish();
+            return;
+        }
+
         setContentView(R.layout.popup_21_day_plan);
 
         finalDisease  = getIntent().getStringExtra("DISEASE_KEY");
         finalSeverity = getIntent().getStringExtra("SEVERITY_KEY");
 
-        Log.d("DEBUG_DATA", "Disease: " + finalDisease + " | Severity: " + finalSeverity);
-
         if (finalDisease == null || finalSeverity == null) {
-            Log.e("DEBUG_DATA", "❌ Disease or Severity is NULL — going back");
             Toast.makeText(this, "Error: missing data", Toast.LENGTH_SHORT).show();
             finish();
             return;
@@ -40,12 +47,16 @@ public class plan_fo_21_days extends AppCompatActivity {
         Button btnYes = findViewById(R.id.btnYes);
         Button btnNo  = findViewById(R.id.btnNo);
 
-        if (btnYes == null) {
-            Log.e("DEBUG_DATA", "❌ btnYes is NULL — check your layout ID");
-            return;
-        }
+        btnYes.setOnClickListener(v -> {
 
-        btnYes.setOnClickListener(v -> saveToFirebase(finalDisease, finalSeverity));
+            // 🚨 STOP double click
+            if (isProcessed) return;
+            isProcessed = true;
+
+            v.setEnabled(false);
+
+            saveToFirebase(finalDisease, finalSeverity);
+        });
 
         btnNo.setOnClickListener(v -> {
             Intent intent = new Intent(plan_fo_21_days.this, DashBoardActivity.class);
@@ -70,7 +81,6 @@ public class plan_fo_21_days extends AppCompatActivity {
         DatabaseReference userRef = FirebaseDatabase.getInstance()
                 .getReference("Users").child(uid);
 
-        // SAVE 1: CurrentTreatment
         HashMap<String, Object> treatmentData = new HashMap<>();
         treatmentData.put("disease", disease);
         treatmentData.put("severity", severity);
@@ -78,9 +88,7 @@ public class plan_fo_21_days extends AppCompatActivity {
 
         userRef.child("CurrentTreatment").updateChildren(treatmentData)
                 .addOnSuccessListener(aVoid -> {
-                    Log.d("DEBUG", "✅ CurrentTreatment saved");
 
-                    // SAVE 2: DetectedDiseases
                     DatabaseReference diseasesRef = userRef.child("DetectedDiseases");
                     String diseaseId = diseasesRef.push().getKey();
 
@@ -92,9 +100,7 @@ public class plan_fo_21_days extends AppCompatActivity {
 
                     diseasesRef.child(diseaseId).setValue(diseaseData)
                             .addOnSuccessListener(aVoid2 -> {
-                                Log.d("DEBUG", "✅ DetectedDiseases saved | ID: " + diseaseId);
 
-                                // SAVE 3: SeverityHistory week_1
                                 HashMap<String, Object> severityData = new HashMap<>();
                                 severityData.put("severity", severity);
                                 severityData.put("checkedDate", todayDate);
@@ -106,22 +112,7 @@ public class plan_fo_21_days extends AppCompatActivity {
                                         .child("week_1")
                                         .setValue(severityData)
                                         .addOnSuccessListener(aVoid3 -> {
-                                            Log.d("DEBUG", "✅ SeverityHistory week_1 saved");
 
-                                            // ✅ Save diseaseId to SharedPrefs (UID-scoped)
-                                            getSharedPreferences("GringuardPrefs_" + uid, MODE_PRIVATE)
-                                                    .edit()
-                                                    .putString("activeDiseaseKey", diseaseId)
-                                                    .putString("activeDiseaseName", disease)
-                                                    .putString("activeSeverity", severity)
-                                                    .apply();
-
-                                            navigateToHealth(diseaseId, disease);
-                                        })
-                                        .addOnFailureListener(e -> {
-                                            Log.e("DEBUG", "❌ SeverityHistory failed: " + e.getMessage());
-
-                                            // ✅ Save even if SeverityHistory fails
                                             getSharedPreferences("GringuardPrefs_" + uid, MODE_PRIVATE)
                                                     .edit()
                                                     .putString("activeDiseaseKey", diseaseId)
@@ -131,15 +122,7 @@ public class plan_fo_21_days extends AppCompatActivity {
 
                                             navigateToHealth(diseaseId, disease);
                                         });
-                            })
-                            .addOnFailureListener(e -> {
-                                Log.e("DEBUG", "❌ DetectedDiseases failed: " + e.getMessage());
-                                Toast.makeText(this, "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                             });
-                })
-                .addOnFailureListener(e -> {
-                    Log.e("DEBUG", "❌ CurrentTreatment failed: " + e.getMessage());
-                    Toast.makeText(this, "Save Failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                 });
     }
 
