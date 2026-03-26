@@ -4,6 +4,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 import androidx.appcompat.app.AlertDialog;
@@ -18,6 +20,7 @@ public class HealthActivity extends AppCompatActivity {
     private static final String SEV_PREF_NAME = "SeverityPrefs";
     private static final String KEY_START_TIME = "startTime";
     private static final String KEY_LAST_CHECK_DAY = "lastCheckDay";
+    private static final String KEY_COMPLETION_SHOWN = "completionShown";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,7 +35,9 @@ public class HealthActivity extends AppCompatActivity {
         preferences = getSharedPreferences(PREF_NAME, MODE_PRIVATE);
 
         updateSeverityButtonStatus();
+        checkAndShowCompletionPopup();
 
+        // 1. Logic for Tips
         btnTips.setOnClickListener(v -> {
             String disease = preferences.getString("detectedDisease", "");
             String severity = preferences.getString("severity", "");
@@ -66,6 +71,7 @@ public class HealthActivity extends AppCompatActivity {
             }
         });
 
+        // 2. Logic for 21-Day Follow Plan
         btnFollowPlan.setOnClickListener(v -> {
             String disease = preferences.getString("detectedDisease", "");
             String severity = preferences.getString("severity", "");
@@ -103,53 +109,79 @@ public class HealthActivity extends AppCompatActivity {
             startActivity(new Intent(this, TrackGoalsActivity.class));
         });
 
+        // 3. Logic for Weekly Re-Check (Navigates to your NEW files)
         btnSeverity.setOnClickListener(v -> {
             SharedPreferences sevPrefs = getSharedPreferences(SEV_PREF_NAME, MODE_PRIVATE);
             long startTime = sevPrefs.getLong(KEY_START_TIME, 0);
             long currentTime = System.currentTimeMillis();
 
-            if (startTime == 0) {
-                startTime = currentTime;
-                sevPrefs.edit().putLong(KEY_START_TIME, startTime).apply();
-            }
-
             int currentDay = (int) ((currentTime - startTime) / (24 * 60 * 60 * 1000)) + 1;
             int lastCheckDay = sevPrefs.getInt(KEY_LAST_CHECK_DAY, 0);
-            
-            // Enabled only on day 7, 14, and 21
+
             boolean isCheckDay = (currentDay == 7 || currentDay == 14 || currentDay == 21);
 
             if (isCheckDay && lastCheckDay != currentDay) {
-                sevPrefs.edit().putInt(KEY_LAST_CHECK_DAY, currentDay).apply();
-
                 String disease = preferences.getString("detectedDisease", "");
                 Intent intent;
                 String d = disease.toLowerCase();
+
+                // Routing to your NEW file names
                 if (d.contains("gingivitis")) {
-                    intent = new Intent(this, Gingivitis_Activity.class);
-                } else if (d.contains("fractured")) {
-                    intent = new Intent(this, Fractured_Teeth_Activity.class);
+                    intent = new Intent(this, Gingivitis1_Activity.class);
+                } else if (d.contains("fractured") || d.contains("fracture")) {
+                    intent = new Intent(this, Fractured_Teeth_Activity1.class);
                 } else if (d.contains("calculus")) {
-                    intent = new Intent(this, CalculusActivity.class);
+                    intent = new Intent(this, CalculusActivity1.class);
                 } else {
                     intent = new Intent(this, Caries_Activity.class);
                 }
-                
-                // Add flag to indicate this is a re-check from health tracker
+
                 intent.putExtra("FROM_HEALTH_TRACKER", true);
                 startActivity(intent);
             } else {
-                showDisabledPopup();
+                showDisabledPopup(currentDay);
             }
         });
+    }
+
+    private void checkAndShowCompletionPopup() {
+        SharedPreferences sevPrefs = getSharedPreferences(SEV_PREF_NAME, MODE_PRIVATE);
+        long startTime = sevPrefs.getLong(KEY_START_TIME, 0);
+        if (startTime == 0) return;
+
+        long currentTime = System.currentTimeMillis();
+        int currentDay = (int) ((currentTime - startTime) / (24 * 60 * 60 * 1000)) + 1;
+        boolean alreadyShown = sevPrefs.getBoolean(KEY_COMPLETION_SHOWN, false);
+
+        if (currentDay >= 21 && !alreadyShown) {
+            showCelebrationPopup(sevPrefs);
+        }
+    }
+
+    private void showCelebrationPopup(SharedPreferences sevPrefs) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        LayoutInflater inflater = getLayoutInflater();
+        View dialogView = inflater.inflate(R.layout.popup_completion, null);
+        builder.setView(dialogView);
+
+        AlertDialog dialog = builder.create();
+        dialog.setCancelable(false);
+        dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+
+        Button btnFinish = dialogView.findViewById(R.id.btnFinishCelebration);
+        btnFinish.setOnClickListener(v -> {
+            sevPrefs.edit().putBoolean(KEY_COMPLETION_SHOWN, true).apply();
+            dialog.dismiss();
+        });
+
+        dialog.show();
     }
 
     private void updateSeverityButtonStatus() {
         SharedPreferences sevPrefs = getSharedPreferences(SEV_PREF_NAME, MODE_PRIVATE);
         long startTime = sevPrefs.getLong(KEY_START_TIME, 0);
-        
+
         if (startTime == 0) {
-            // If tracking hasn't started, disable it until day 7
             disableSeverityButton();
             return;
         }
@@ -159,13 +191,13 @@ public class HealthActivity extends AppCompatActivity {
         int lastCheckDay = sevPrefs.getInt(KEY_LAST_CHECK_DAY, 0);
 
         if (currentDay > 21) {
+            btnSeverity.setText("Program Complete");
             disableSeverityButton();
             return;
         }
 
-        // Enabled only on day 7, 14, and 21
         boolean isCheckDay = (currentDay == 7 || currentDay == 14 || currentDay == 21);
-        
+
         if (isCheckDay && lastCheckDay != currentDay) {
             enableSeverityButton();
         } else {
@@ -175,18 +207,28 @@ public class HealthActivity extends AppCompatActivity {
 
     private void enableSeverityButton() {
         btnSeverity.setBackgroundColor(Color.parseColor("#EC407A"));
+        btnSeverity.setText("Check Weekly Severity");
         btnSeverity.setEnabled(true);
     }
 
     private void disableSeverityButton() {
         btnSeverity.setBackgroundColor(Color.parseColor("#9E9E9E"));
-        btnSeverity.setEnabled(true); // Enabled for click to show popup explanation
+        btnSeverity.setEnabled(true);
     }
 
-    private void showDisabledPopup() {
+    private void showDisabledPopup(int currentDay) {
+        String message;
+        if (currentDay < 7) {
+            message = "First re-check available on Day 7. Current Day: " + currentDay;
+        } else if (currentDay > 21) {
+            message = "The 21-day tracking period has ended.";
+        } else {
+            message = "Weekly re-checks are available on Day 7, 14, and 21. Current Day: " + currentDay;
+        }
+
         new AlertDialog.Builder(this)
-                .setTitle("Check Disabled")
-                .setMessage("Enabled at every 7th day (Day 7, 14, 21)")
+                .setTitle("Check Locked")
+                .setMessage(message)
                 .setPositiveButton("OK", null)
                 .show();
     }
@@ -195,5 +237,6 @@ public class HealthActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         updateSeverityButtonStatus();
+        checkAndShowCompletionPopup();
     }
 }

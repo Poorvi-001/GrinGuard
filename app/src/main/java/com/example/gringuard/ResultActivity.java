@@ -3,6 +3,7 @@ package com.example.gringuard;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -39,6 +40,11 @@ public class ResultActivity extends AppCompatActivity {
 
         // Set disease result
         resultText.setText("Result: " + disease);
+
+        // Hide severity button if result is healthy tooth
+        if (disease.equalsIgnoreCase("healthytooth")) {
+            severityBtn.setVisibility(View.GONE);
+        }
 
         // Show uploaded image
         if (imageUri != null) {
