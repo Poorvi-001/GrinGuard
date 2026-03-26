@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="320dp"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="30dp"
+    android:background="@drawable/popup_background"
+    android:layout_gravity="center"
+    android:gravity="center">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="⭐⭐⭐"
+        android:textSize="40sp"
+        android:layout_marginBottom="16dp"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Congratulations !!"
+        android:textSize="26sp"
+        android:textStyle="bold"
+        android:textColor="#E91E63"
+        android:gravity="center"
+        android:layout_marginBottom="12dp"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="You have completed your 21 days plan."
+        android:textSize="18sp"
+        android:textColor="#444444"
+        android:gravity="center"
+        android:lineSpacingExtra="4dp"
+        android:layout_marginBottom="24dp"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Your dedication to your dental health is inspiring! Keep smiling brightly."
+        android:textSize="14sp"
+        android:textColor="#666666"
+        android:gravity="center"
+        android:fontStyle="italic"
+        android:layout_marginBottom="24dp"/>
+
+    <Button
+        android:id="@+id/btnFinishCelebration"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="THANK YOU"
+        android:textColor="#FFFFFF"
+        android:textStyle="bold"
+        android:backgroundTint="#E91E63"
+        android:padding="12dp" />
+
+</LinearLayout>

@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
 import androidx.activity.result.ActivityResultLauncher;
@@ -46,6 +47,10 @@ public class DashBoardActivity extends AppCompatActivity {
 
     private ActivityResultLauncher<String> getContent;
 
+    private static final String SEV_PREF_NAME = "SeverityPrefs";
+    private static final String KEY_START_TIME = "startTime";
+    private static final String KEY_COMPLETION_SHOWN = "completionShown";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -72,9 +77,20 @@ public class DashBoardActivity extends AppCompatActivity {
         CardView healthTrackerCard = findViewById(R.id.healthTrackerCard);
 
         healthTrackerCard.setOnClickListener(v -> {
+            SharedPreferences sevPrefs = getSharedPreferences(SEV_PREF_NAME, MODE_PRIVATE);
+            long startTime = sevPrefs.getLong(KEY_START_TIME, 0);
+            
+            if (startTime != 0) {
+                long currentTime = System.currentTimeMillis();
+                int currentDay = (int) ((currentTime - startTime) / (24 * 60 * 60 * 1000)) + 1;
+                
+                if (currentDay >= 22) {
+                    showCompletionPopup(sevPrefs);
+                    return;
+                }
+            }
 
             String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
-
             DatabaseReference ref = FirebaseDatabase.getInstance()
                     .getReference("Users")
                     .child(uid)
@@ -83,17 +99,13 @@ public class DashBoardActivity extends AppCompatActivity {
             ref.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot snapshot) {
-
                     if (snapshot.exists()) {
-
                         String severity = snapshot.child("severity").getValue(String.class);
-
                         if ("high".equalsIgnoreCase(severity)) {
                             showHighSeverityPopup();
                         } else {
                             startActivity(new Intent(DashBoardActivity.this, HealthActivity.class));
                         }
-
                     } else {
                         Toast.makeText(DashBoardActivity.this, "No data found. Please scan first.", Toast.LENGTH_SHORT).show();
                     }
@@ -134,9 +146,7 @@ public class DashBoardActivity extends AppCompatActivity {
                 });
 
         heroCard.setOnClickListener(v -> {
-
             String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
-
             DatabaseReference ref = FirebaseDatabase.getInstance()
                     .getReference("Users")
                     .child(uid)
@@ -145,7 +155,6 @@ public class DashBoardActivity extends AppCompatActivity {
             ref.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot snapshot) {
-
                     if (snapshot.exists()) {
                         showResetWarningDialog();
                     } else {
@@ -160,25 +169,44 @@ public class DashBoardActivity extends AppCompatActivity {
             });
         });
 
-        String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        // Automatic completion check on Dashboard open
+        checkPlanCompletion();
+    }
 
-        DatabaseReference ref = FirebaseDatabase.getInstance()
-                .getReference("Users")
-                .child(uid)
-                .child("CurrentTreatment");
-
-        ref.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot snapshot) {
-                if (!snapshot.exists()) {
-                    String uidLocal = FirebaseAuth.getInstance().getCurrentUser().getUid();
-                    getSharedPreferences("DentalData_" + uidLocal, MODE_PRIVATE).edit().clear().apply();
-                }
+    private void checkPlanCompletion() {
+        SharedPreferences sevPrefs = getSharedPreferences(SEV_PREF_NAME, MODE_PRIVATE);
+        long startTime = sevPrefs.getLong(KEY_START_TIME, 0);
+        boolean alreadyShown = sevPrefs.getBoolean(KEY_COMPLETION_SHOWN, false);
+        
+        if (startTime != 0 && !alreadyShown) {
+            long currentTime = System.currentTimeMillis();
+            int currentDay = (int) ((currentTime - startTime) / (24 * 60 * 60 * 1000)) + 1;
+            
+            if (currentDay >= 22) {
+                showCompletionPopup(sevPrefs);
             }
+        }
+    }
 
-            @Override
-            public void onCancelled(DatabaseError error) {}
+    private void showCompletionPopup(SharedPreferences sevPrefs) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        LayoutInflater inflater = getLayoutInflater();
+        View dialogView = inflater.inflate(R.layout.popup_completion, null);
+        builder.setView(dialogView);
+
+        AlertDialog dialog = builder.create();
+        dialog.setCancelable(false);
+        dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+
+        Button btnFinish = dialogView.findViewById(R.id.btnFinishCelebration);
+        // Update the text to match the new behavior if needed, or keep it as THANK YOU
+        btnFinish.setOnClickListener(v -> {
+            sevPrefs.edit().putBoolean(KEY_COMPLETION_SHOWN, true).apply();
+            dialog.dismiss();
+            Toast.makeText(this, "Your 21 days plan is over", Toast.LENGTH_LONG).show();
         });
+
+        dialog.show();
     }
 
     private void showResetWarningDialog() {
@@ -194,17 +222,13 @@ public class DashBoardActivity extends AppCompatActivity {
     }
 
     private void resetAllData() {
-        // 1. Clear ALL local SharedPreferences
         String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
         getSharedPreferences("DentalData_" + uid, MODE_PRIVATE).edit().clear().apply();
-        getSharedPreferences("SeverityPrefs",    MODE_PRIVATE).edit().clear().apply();
+        getSharedPreferences(SEV_PREF_NAME,      MODE_PRIVATE).edit().clear().apply();
         getSharedPreferences("SeverityHistory",  MODE_PRIVATE).edit().clear().apply();
-
-
         getSharedPreferences("GringuardPrefs_" + uid,    MODE_PRIVATE).edit().clear().apply();
         getSharedPreferences("CalendarProgress_" + uid,  MODE_PRIVATE).edit().clear().apply();
 
-        // 2. Clear ALL relevant Firebase nodes (not just FollowPlan)
         DatabaseReference userRef = FirebaseDatabase.getInstance()
                 .getReference("Users").child(uid);
 
@@ -226,9 +250,7 @@ public class DashBoardActivity extends AppCompatActivity {
         builder.setView(dialogView);
 
         AlertDialog dialog = builder.create();
-        
         dialogView.setOnClickListener(v -> dialog.dismiss());
-        
         dialog.show();
     }
 
@@ -255,14 +277,10 @@ public class DashBoardActivity extends AppCompatActivity {
             for (int i = 1; i < output[0].length; i++) if (output[0][i] > output[0][maxIdx]) maxIdx = i;
 
             String detectedDisease = labelList.get(maxIdx);
-
-            // Save for Health Tracker tips
             String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
-
             SharedPreferences prefs = getSharedPreferences("DentalData_" + uid, MODE_PRIVATE);
             prefs.edit().putString("detectedDisease", detectedDisease).apply();
 
-            // Open ResultActivity with the data
             Intent intent = new Intent(DashBoardActivity.this, ResultActivity.class);
             intent.putExtra("disease", detectedDisease);
             intent.putExtra("imageUri", uri.toString());

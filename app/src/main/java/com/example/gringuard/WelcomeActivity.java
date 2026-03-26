@@ -6,6 +6,8 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import androidx.appcompat.app.AppCompatActivity;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import org.tensorflow.lite.Interpreter;
 import java.io.BufferedReader;
 import java.io.FileInputStream;
@@ -21,11 +23,14 @@ public class WelcomeActivity extends AppCompatActivity {
     private static final int SPLASH_TIME = 5000;
     private Interpreter tflite;
     private List<String> labelList;
+    private FirebaseAuth mAuth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.welcome);
+
+        mAuth = FirebaseAuth.getInstance();
 
         // 1. Initialize the TFLite model and labels immediately
         try {
@@ -35,11 +40,20 @@ public class WelcomeActivity extends AppCompatActivity {
             e.printStackTrace();
         }
 
-        // 2. Set up the Splash Screen timer to move to LoginActivity
+        // 2. Set up the Splash Screen timer
         new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
             @Override
             public void run() {
-                Intent intent = new Intent(WelcomeActivity.this, LoginActivity.class);
+                // Check if user is already signed in
+                FirebaseUser currentUser = mAuth.getCurrentUser();
+                Intent intent;
+                if (currentUser != null) {
+                    // User is signed in, go to Dashboard
+                    intent = new Intent(WelcomeActivity.this, DashBoardActivity.class);
+                } else {
+                    // No user signed in, go to Login
+                    intent = new Intent(WelcomeActivity.this, LoginActivity.class);
+                }
                 startActivity(intent);
                 finish();
             }
