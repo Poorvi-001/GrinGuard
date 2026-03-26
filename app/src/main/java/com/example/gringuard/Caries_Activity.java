@@ -15,10 +15,14 @@ import androidx.appcompat.app.AppCompatActivity;
 
 public class Caries_Activity extends AppCompatActivity {
 
+    private boolean fromHealthTracker = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.caries_severity);
+
+        fromHealthTracker = getIntent().getBooleanExtra("FROM_HEALTH_TRACKER", false);
 
         Button btnAnalyze = findViewById(R.id.btnAnalyze);
         TextView tvResult = findViewById(R.id.tvCariesResult);
@@ -64,9 +68,16 @@ public class Caries_Activity extends AppCompatActivity {
             SharedPreferences sevPrefs = getSharedPreferences("SeverityPrefs", MODE_PRIVATE);
             long startTime = sevPrefs.getLong("startTime", 0);
             long currentTime = System.currentTimeMillis();
-            if (startTime == 0) sevPrefs.edit().putLong("startTime", currentTime).apply();
-            int currentDay = (int) ((currentTime - (startTime == 0 ? currentTime : startTime)) / (24 * 60 * 60 * 1000)) + 1;
+            if (startTime == 0) {
+                startTime = currentTime;
+                sevPrefs.edit().putLong("startTime", startTime).apply();
+            }
+            int currentDay = (int) ((currentTime - startTime) / (24 * 60 * 60 * 1000)) + 1;
             sevPrefs.edit().putInt("lastCheckDay", currentDay).apply();
+
+            // Save history for Graphical Analysis
+            SharedPreferences historyPrefs = getSharedPreferences("SeverityHistory", MODE_PRIVATE);
+            historyPrefs.edit().putString(String.valueOf(currentDay), severity).apply();
 
             showSeverityPopup(message, severity);
         });
@@ -98,7 +109,19 @@ public class Caries_Activity extends AppCompatActivity {
             if (severity.equals("high")) {
                 showHighSeverityPopup();
             } else {
-                show21DayPlanPopup(severity); // ✅ pass severity
+                if (fromHealthTracker) {
+                    Intent intent = new Intent(Caries_Activity.this, HealthActivity.class);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                    startActivity(intent);
+                    finish();
+                } else {
+                    // Start plan_fo_21_days activity directly to avoid double dialog
+                    Intent intent = new Intent(Caries_Activity.this, plan_fo_21_days.class); 
+                    intent.putExtra("DISEASE_KEY", "Caries");                                 
+                    intent.putExtra("SEVERITY_KEY", severity);                                
+                    startActivity(intent);
+                    finish();
+                }
             }
         });
 
@@ -115,37 +138,6 @@ public class Caries_Activity extends AppCompatActivity {
 
         Button okBtn = dialogView.findViewById(R.id.okBtn);
         okBtn.setOnClickListener(v -> {
-            dialog.dismiss();
-            Intent intent = new Intent(Caries_Activity.this, DashBoardActivity.class);
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-            startActivity(intent);
-            finish();
-        });
-
-        dialog.show();
-    }
-
-    private void show21DayPlanPopup(String severity) { // ✅ accepts severity
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        View dialogView = getLayoutInflater().inflate(R.layout.popup_21_day_plan, null);
-        builder.setView(dialogView);
-
-        AlertDialog dialog = builder.create();
-        dialog.setCancelable(false);
-
-        Button btnYes = dialogView.findViewById(R.id.btnYes);
-        Button btnNo = dialogView.findViewById(R.id.btnNo);
-
-        btnYes.setOnClickListener(v -> {
-            dialog.dismiss();
-            Intent intent = new Intent(Caries_Activity.this, plan_fo_21_days.class); // ✅ goes to plan_fo_21_days
-            intent.putExtra("DISEASE_KEY", "Caries");                                 // ✅ disease name
-            intent.putExtra("SEVERITY_KEY", severity);                                // ✅ severity
-            startActivity(intent);
-            finish();
-        });
-
-        btnNo.setOnClickListener(v -> {
             dialog.dismiss();
             Intent intent = new Intent(Caries_Activity.this, DashBoardActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);

@@ -14,12 +14,14 @@ import androidx.appcompat.app.AppCompatActivity;
 
 public class Gingivitis_Activity extends AppCompatActivity {
 
-    private boolean hasShownPlanPopup = false;
+    private boolean fromHealthTracker = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.gingivitis);
+
+        fromHealthTracker = getIntent().getBooleanExtra("FROM_HEALTH_TRACKER", false);
 
         RadioGroup rgVisual = findViewById(R.id.rgVisual);
         RadioGroup rgColor = findViewById(R.id.rgColor);
@@ -76,18 +78,21 @@ public class Gingivitis_Activity extends AppCompatActivity {
             SharedPreferences sevPrefs = getSharedPreferences("SeverityPrefs", MODE_PRIVATE);
             long startTime = sevPrefs.getLong("startTime", 0);
             long currentTime = System.currentTimeMillis();
-            if (startTime == 0) sevPrefs.edit().putLong("startTime", currentTime).apply();
-            int currentDay = (int) ((currentTime - (startTime == 0 ? currentTime : startTime)) / (24 * 60 * 60 * 1000)) + 1;
+            if (startTime == 0) {
+                startTime = currentTime;
+                sevPrefs.edit().putLong("startTime", startTime).apply();
+            }
+            int currentDay = (int) ((currentTime - startTime) / (24 * 60 * 60 * 1000)) + 1;
             sevPrefs.edit().putInt("lastCheckDay", currentDay).apply();
+
+            // Save history for Graphical Analysis
+            SharedPreferences historyPrefs = getSharedPreferences("SeverityHistory", MODE_PRIVATE);
+            historyPrefs.edit().putString(String.valueOf(currentDay), severity).apply();
 
             showSeverityPopup(resultText, severity);
         });
     }
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        hasShownPlanPopup = false;
-    }
+
     private void showSeverityPopup(String resultMessage, String severity) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         View dialogView = getLayoutInflater().inflate(R.layout.severity_popup, null);
@@ -110,13 +115,23 @@ public class Gingivitis_Activity extends AppCompatActivity {
         }
 
         btnOkResult.setOnClickListener(v -> {
-            btnOkResult.setEnabled(false);  // 🔥 BLOCK DOUBLE CLICK
             severityDialog.dismiss();
-
             if (severity.equals("high")) {
                 showHighSeverityPopup();
             } else {
-                show21DayPlanPopup(severity);
+                if (fromHealthTracker) {
+                    Intent intent = new Intent(Gingivitis_Activity.this, HealthActivity.class);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                    startActivity(intent);
+                    finish();
+                } else {
+                    // Start plan_fo_21_days activity directly to avoid double dialog
+                    Intent intent = new Intent(Gingivitis_Activity.this, plan_fo_21_days.class);
+                    intent.putExtra("DISEASE_KEY", "Gingivitis");
+                    intent.putExtra("SEVERITY_KEY", severity);
+                    startActivity(intent);
+                    finish();
+                }
             }
         });
 
@@ -143,44 +158,9 @@ public class Gingivitis_Activity extends AppCompatActivity {
         dialog.show();
     }
 
-    private void show21DayPlanPopup(String severity) {
-
-        if (hasShownPlanPopup) return;  // 🚨 BLOCK SECOND CALL
-        hasShownPlanPopup = true;
-
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        View dialogView = getLayoutInflater().inflate(R.layout.popup_21_day_plan, null);
-        builder.setView(dialogView);
-
-        AlertDialog dialog = builder.create();
-        dialog.setCancelable(false);
-
-        Button btnYes = dialogView.findViewById(R.id.btnYes);
-        Button btnNo = dialogView.findViewById(R.id.btnNo);
-
-        btnYes.setOnClickListener(v -> {
-            dialog.dismiss();
-
-            Intent intent = new Intent(Gingivitis_Activity.this, plan_fo_21_days.class);
-            intent.putExtra("DISEASE_KEY", "Gingivitis");
-            intent.putExtra("SEVERITY_KEY", severity);
-            startActivity(intent);
-        });
-
-        btnNo.setOnClickListener(v -> {
-            dialog.dismiss();
-
-            Intent intent = new Intent(Gingivitis_Activity.this, DashBoardActivity.class);
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-            startActivity(intent);
-        });
-
-        dialog.show();
-    }
-
     private int getScore(RadioGroup rg) {
         int id = rg.getCheckedRadioButtonId();
-        if (id == -1) return 1; // ✅ safety check
+        if (id == -1) return 1; 
         String name = getResources().getResourceEntryName(id);
         if (name.endsWith("_low")) return 1;
         if (name.endsWith("_med")) return 2;

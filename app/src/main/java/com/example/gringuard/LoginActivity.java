@@ -1,6 +1,7 @@
 package com.example.gringuard;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.widget.Button;
@@ -46,6 +47,12 @@ public class LoginActivity extends AppCompatActivity {
                             btnLogin.setEnabled(true);
                             btnLogin.setText("SignIn");
                             if (task.isSuccessful()) {
+                                // Initialize startTime for tracking if it doesn't exist
+                                SharedPreferences sevPrefs = getSharedPreferences("SeverityPrefs", MODE_PRIVATE);
+                                if (sevPrefs.getLong("startTime", 0) == 0) {
+                                    sevPrefs.edit().putLong("startTime", System.currentTimeMillis()).apply();
+                                }
+
                                 startActivity(new Intent(LoginActivity.this, DashBoardActivity.class));
                                 finish();
                             } else {

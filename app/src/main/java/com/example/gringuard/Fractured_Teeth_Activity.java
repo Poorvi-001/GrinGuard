@@ -1,137 +1,173 @@
 package com.example.gringuard;
 
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.Bundle;
-import android.util.Log;
-import android.widget.*;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.Button;
+import android.widget.RadioGroup;
+import android.widget.TextView;
+import android.widget.Toast;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 public class Fractured_Teeth_Activity extends AppCompatActivity {
 
-    RadioGroup rgVisual, rgCold, rgBite, rgStability, rgSpontaneous, rgGums;
-    Button btnCalculate;
-    TextView tvResult;
-
-    boolean isPopupShowing = false; // 🔴 important fix
+    private boolean fromHealthTracker = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.fractured_teeth_severity);
 
-        // 🔹 Initialize views
-        rgVisual = findViewById(R.id.rgVisual);
-        rgCold = findViewById(R.id.rgCold);
-        rgBite = findViewById(R.id.rgBite);
-        rgStability = findViewById(R.id.rgStability);
-        rgSpontaneous = findViewById(R.id.rgSpontaneous);
-        rgGums = findViewById(R.id.rgGums);
+        fromHealthTracker = getIntent().getBooleanExtra("FROM_HEALTH_TRACKER", false);
 
-        btnCalculate = findViewById(R.id.btnCalculate);
-        tvResult = findViewById(R.id.tvResult);
+        RadioGroup rgVisual = findViewById(R.id.rgVisual);
+        RadioGroup rgCold = findViewById(R.id.rgCold);
+        RadioGroup rgBite = findViewById(R.id.rgBite);
+        RadioGroup rgStability = findViewById(R.id.rgStability);
+        RadioGroup rgSpontaneous = findViewById(R.id.rgSpontaneous);
+        RadioGroup rgGums = findViewById(R.id.rgGums);
 
-        // ✅ SINGLE CLICK LISTENER (NO DUPLICATION)
+        Button btnCalculate = findViewById(R.id.btnCalculate);
+        TextView tvResult = findViewById(R.id.tvResult);
+
         btnCalculate.setOnClickListener(v -> {
-
-            if (isPopupShowing) return;
-
-            int score = calculateScore();
-
-            String severity;
-            if (score <= 6) {
-                severity = "LOW";
-            } else if (score <= 12) {
-                severity = "MEDIUM";
-            } else {
-                severity = "HIGH";
+            if (rgVisual.getCheckedRadioButtonId() == -1 || rgCold.getCheckedRadioButtonId() == -1 ||
+                    rgBite.getCheckedRadioButtonId() == -1 || rgStability.getCheckedRadioButtonId() == -1 ||
+                    rgSpontaneous.getCheckedRadioButtonId() == -1 || rgGums.getCheckedRadioButtonId() == -1) {
+                Toast.makeText(this, "Please answer all 6 questions", Toast.LENGTH_SHORT).show();
+                return;
             }
 
-            tvResult.setText("Severity: " + severity);
+            int vScore = getScore(rgVisual);
+            int cScore = getScore(rgCold);
+            int bScore = getScore(rgBite);
+            int sScore = getScore(rgStability);
+            int spScore = getScore(rgSpontaneous);
+            int gScore = getScore(rgGums);
 
-            showSeverityPopup(severity);
+            int maxSeverity = Math.max(vScore, Math.max(cScore, Math.max(bScore,
+                    Math.max(sScore, Math.max(spScore, gScore)))));
+
+            String resultText;
+            String severity = "high";
+
+            if (maxSeverity == 3 || sScore == 3 || spScore == 3) {
+                resultText = "HIGH SEVERITY: Vertical Fracture\nVisible line extending below gum or mobility indicates a non-restorable crack. Emergency extraction likely.";
+                severity = "high";
+            }
+            else if (maxSeverity == 2) {
+                resultText = "MEDIUM SEVERITY: Cracked Tooth\nDeep enamel/dentin crack. Causes pain on release of bite. Requires a crown to prevent complete split.";
+                severity = "medium";
+            }
+            else {
+                resultText = "LOW SEVERITY: Craze Lines\nMicroscopic cracks in enamel only. Mostly aesthetic; no immediate danger. Avoid biting hard objects.";
+                severity = "low";
+            }
+
+            // Store the severity and disease type for HealthTracker
+            SharedPreferences prefs = getSharedPreferences("DentalData", MODE_PRIVATE);
+            SharedPreferences.Editor editor = prefs.edit();
+            editor.putString("detectedDisease", "Fractured");
+            editor.putString("severity", severity);
+            editor.apply();
+
+            // Initialize 21-day program state for HealthActivity
+            SharedPreferences sevPrefs = getSharedPreferences("SeverityPrefs", MODE_PRIVATE);
+            long startTime = sevPrefs.getLong("startTime", 0);
+            long currentTime = System.currentTimeMillis();
+            if (startTime == 0) {
+                startTime = currentTime;
+                sevPrefs.edit().putLong("startTime", startTime).apply();
+            }
+            int currentDay = (int) ((currentTime - startTime) / (24 * 60 * 60 * 1000)) + 1;
+            sevPrefs.edit().putInt("lastCheckDay", currentDay).apply();
+
+            // Save history for Graphical Analysis
+            SharedPreferences historyPrefs = getSharedPreferences("SeverityHistory", MODE_PRIVATE);
+            historyPrefs.edit().putString(String.valueOf(currentDay), severity).apply();
+
+            showSeverityPopup(resultText, severity);
         });
     }
 
-    // 🔹 Calculate score from all questions
-    private int calculateScore() {
-        int score = 0;
+    private void showSeverityPopup(String resultMessage, String severity) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        LayoutInflater inflater = getLayoutInflater();
+        View dialogView = inflater.inflate(R.layout.severity_popup, null);
+        builder.setView(dialogView);
 
-        score += getScore(rgVisual);
-        score += getScore(rgCold);
-        score += getScore(rgBite);
-        score += getScore(rgStability);
-        score += getScore(rgSpontaneous);
-        score += getScore(rgGums);
+        AlertDialog severityDialog = builder.create();
+        severityDialog.setCancelable(false);
 
-        return score;
+        TextView tvSeverityValue = dialogView.findViewById(R.id.tvSeverityValue);
+        Button btnOkResult = dialogView.findViewById(R.id.btnOkResult);
+
+        tvSeverityValue.setText(resultMessage);
+        
+        if (severity.equals("low")) {
+            tvSeverityValue.setTextColor(Color.parseColor("#4CAF50")); // Green
+        } else if (severity.equals("medium")) {
+            tvSeverityValue.setTextColor(Color.parseColor("#FBC02D")); // Dark Yellow
+        } else if (severity.equals("high")) {
+            tvSeverityValue.setTextColor(Color.parseColor("#F44336")); // Red
+        }
+
+        btnOkResult.setOnClickListener(v -> {
+            severityDialog.dismiss();
+            if (severity.equals("high")) {
+                showHighSeverityPopup();
+            } else {
+                if (fromHealthTracker) {
+                    Intent intent = new Intent(Fractured_Teeth_Activity.this, HealthActivity.class);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                    startActivity(intent);
+                    finish();
+                } else {
+                    // Start plan_fo_21_days activity directly to avoid double dialog
+                    Intent intent = new Intent(Fractured_Teeth_Activity.this, plan_fo_21_days.class);
+                    intent.putExtra("DISEASE_KEY", "Fractured Teeth");
+                    intent.putExtra("SEVERITY_KEY", severity);
+                    startActivity(intent);
+                    finish();
+                }
+            }
+        });
+
+        severityDialog.show();
     }
 
-    // 🔹 Assign score based on selected option
+    private void showHighSeverityPopup() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        LayoutInflater inflater = getLayoutInflater();
+        View dialogView = inflater.inflate(R.layout.popup_high_severity, null);
+        builder.setView(dialogView);
+
+        AlertDialog dialog = builder.create();
+        dialog.setCancelable(false);
+
+        Button okBtn = dialogView.findViewById(R.id.okBtn);
+        okBtn.setOnClickListener(v -> {
+            dialog.dismiss();
+            Intent intent = new Intent(Fractured_Teeth_Activity.this, DashBoardActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+            finish();
+        });
+
+        dialog.show();
+    }
+
     private int getScore(RadioGroup rg) {
-        int selectedId = rg.getCheckedRadioButtonId();
-
-        if (selectedId == -1) return 0;
-
-        if (selectedId == R.id.q1_low || selectedId == R.id.q2_low ||
-                selectedId == R.id.q3_low || selectedId == R.id.q4_low ||
-                selectedId == R.id.q5_low || selectedId == R.id.q6_low) {
-            return 1;
-        }
-
-        if (selectedId == R.id.q1_med || selectedId == R.id.q2_med ||
-                selectedId == R.id.q3_med || selectedId == R.id.q4_med ||
-                selectedId == R.id.q5_med || selectedId == R.id.q6_med) {
-            return 2;
-        }
-
-        return 3; // high
-    }
-
-    // 🔴 FIRST POPUP (Severity)
-    private void showSeverityPopup(String severity) {
-
-        if (isPopupShowing) return;
-        isPopupShowing = true;
-
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Severity Result");
-        builder.setMessage("Your severity is: " + severity);
-
-        builder.setCancelable(false);
-
-        builder.setPositiveButton("OK", (dialog, which) -> {
-            dialog.dismiss();
-
-            // ✅ ONLY ONE PLACE CALL
-            show21DayPlanPopup();
-        });
-
-        builder.show();
-    }
-
-    // 🔴 SECOND POPUP (21-day plan)
-    private void show21DayPlanPopup() {
-
-        Log.d("DEBUG", "21 DAY POPUP CALLED"); // debug check
-
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Follow Plan");
-        builder.setMessage("Do you want to follow a 21 days plan?");
-
-        builder.setCancelable(false);
-
-        builder.setPositiveButton("Yes", (dialog, which) -> {
-            dialog.dismiss();
-            isPopupShowing = false;
-            Toast.makeText(this, "Plan Started", Toast.LENGTH_SHORT).show();
-        });
-
-        builder.setNegativeButton("No", (dialog, which) -> {
-            dialog.dismiss();
-            isPopupShowing = false;
-            Toast.makeText(this, "Plan Skipped", Toast.LENGTH_SHORT).show();
-        });
-
-        builder.show();
+        int id = rg.getCheckedRadioButtonId();
+        if (id == -1) return 1;
+        String name = getResources().getResourceEntryName(id);
+        if (name.endsWith("_low")) return 1;
+        if (name.endsWith("_med")) return 2;
+        if (name.endsWith("_high")) return 3;
+        return 1;
     }
 }

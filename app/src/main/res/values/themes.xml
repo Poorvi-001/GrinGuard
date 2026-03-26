@@ -1,8 +1,13 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
 
     <style name="Base.Theme.Gringuard" parent="Theme.Material3.DayNight.NoActionBar">
-
     </style>
 
     <style name="Theme.Gringuard" parent="Base.Theme.Gringuard" />
+
+    <style name="CustomPopupTheme" parent="Theme.AppCompat.Light.Dialog">
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:backgroundDimEnabled">true</item>
+    </style>
 </resources>

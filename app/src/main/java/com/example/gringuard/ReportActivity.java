@@ -57,7 +57,7 @@ public class ReportActivity extends AppCompatActivity {
         }
 
         // 1. Fetch User Profile Info from Firebase Database
-        String uid = FirebaseAuth.getInstance().getUid();
+        String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
         if (uid != null) {
             dbRef = FirebaseDatabase.getInstance().getReference("Users").child(uid);
             dbRef.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -85,7 +85,9 @@ public class ReportActivity extends AppCompatActivity {
         }
 
         // 2. Fetch Dental Analysis Results from SharedPreferences
-        SharedPreferences prefs = getSharedPreferences("DentalData", MODE_PRIVATE);
+
+
+        SharedPreferences prefs = getSharedPreferences("DentalData_" + uid, MODE_PRIVATE);
         String disease = prefs.getString("detectedDisease", "No scan recorded");
         String severity = prefs.getString("severity", "N/A");
 
