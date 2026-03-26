@@ -172,6 +172,14 @@
             android:exported="false"
             android:theme="@style/CustomPopupTheme" />
 
+        <activity android:name=".Gingivitis1_Activity"
+            android:exported="false" />
+
+        <activity android:name=".CalculusActivity1"
+            android:exported="false" />
+
+        <activity android:name=".Fractured_Teeth_Activity1"
+            android:exported="false" />
     </application>
 
 </manifest>
