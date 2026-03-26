@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.RadioGroup;
@@ -12,14 +13,14 @@ import android.widget.Toast;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
-public class Gingivitis_Activity extends AppCompatActivity {
+public class CalculusActivity1 extends AppCompatActivity {
 
     private boolean fromHealthTracker = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.gingivitis);
+        setContentView(R.layout.calculus1);
 
         fromHealthTracker = getIntent().getBooleanExtra("FROM_HEALTH_TRACKER", false);
 
@@ -31,7 +32,6 @@ public class Gingivitis_Activity extends AppCompatActivity {
         RadioGroup rgBreath = findViewById(R.id.rgBreath);
 
         Button btnCalculate = findViewById(R.id.btnCalculate);
-        TextView tvResult = findViewById(R.id.tvResult);
 
         btnCalculate.setOnClickListener(v -> {
             if (rgVisual.getCheckedRadioButtonId() == -1 || rgColor.getCheckedRadioButtonId() == -1 ||
@@ -52,29 +52,36 @@ public class Gingivitis_Activity extends AppCompatActivity {
                     Math.max(swScore, Math.max(coScore, bScore)))));
 
             int mediumCount = 0;
+            int healthyCount = 0;
             int[] scores = {vScore, cScore, sScore, swScore, coScore, bScore};
-            for (int s : scores) if (s == 2) mediumCount++;
+            for (int s : scores) {
+                if (s == 2) mediumCount++;
+                if (s == 0) healthyCount++;
+            }
 
             String resultText;
             String severity;
 
-            if (vScore == 3 && sScore == 1) {
-                resultText = "HIGH SEVERITY: Chronic Infection\nSpontaneous bleeding without pain can indicate advanced gum disease (Periodontitis). Seek a professional deep cleaning.";
-                severity = "high";
+            // --- FIXED LOGIC ---
+            if (healthyCount == 6) {
+                resultText = "EXCELLENT: No Calculus Detected\nYour teeth are free of visible tartar. Maintain this with regular brushing and flossing!";
+                severity = "healthy";
             } else if (maxSeverity == 3 || (maxSeverity == 2 && mediumCount >= 3)) {
-                resultText = "HIGH SEVERITY: Severe Gingivitis\nSignificant inflammation and tissue distress. Requires professional dental intervention to prevent tooth loss.";
+                resultText = "HIGH SEVERITY: Severe Calculus\nExtensive buildup and gum distress. Requires professional scaling and root planing.";
                 severity = "high";
             } else if (maxSeverity == 2) {
-                resultText = "MEDIUM SEVERITY: Moderate\nGums are infected. Improved hygiene is needed along with a professional cleaning to reverse the damage.";
+                resultText = "MEDIUM SEVERITY: Moderate Calculus\nSignificant buildup present. Professional cleaning is necessary.";
                 severity = "medium";
             } else {
-                resultText = "LOW SEVERITY: Mild\nEarly stage inflammation. Increase flossing and use an antiseptic mouthwash to reverse symptoms at home.";
+                resultText = "LOW SEVERITY: Mild Calculus\nEarly stage buildup. A professional cleaning is recommended to remove existing tartar.";
                 severity = "low";
             }
 
+            // Save basic dental data
             SharedPreferences prefs = getSharedPreferences("DentalData", MODE_PRIVATE);
-            prefs.edit().putString("detectedDisease", "Gingivitis").putString("severity", severity).apply();
+            prefs.edit().putString("detectedDisease", "Calculus").putString("severity", severity).apply();
 
+            // Handle 21-day tracker logic
             SharedPreferences sevPrefs = getSharedPreferences("SeverityPrefs", MODE_PRIVATE);
             long startTime = sevPrefs.getLong("startTime", 0);
             long currentTime = System.currentTimeMillis();
@@ -85,7 +92,7 @@ public class Gingivitis_Activity extends AppCompatActivity {
             int currentDay = (int) ((currentTime - startTime) / (24 * 60 * 60 * 1000)) + 1;
             sevPrefs.edit().putInt("lastCheckDay", currentDay).apply();
 
-            // Save history for Graphical Analysis
+            // Save to history for the Graph (Very important for TrackGoalsActivity)
             SharedPreferences historyPrefs = getSharedPreferences("SeverityHistory", MODE_PRIVATE);
             historyPrefs.edit().putString(String.valueOf(currentDay), severity).apply();
 
@@ -106,12 +113,15 @@ public class Gingivitis_Activity extends AppCompatActivity {
 
         tvSeverityValue.setText(resultMessage);
 
-        if (severity.equals("low")) {
-            tvSeverityValue.setTextColor(Color.parseColor("#4CAF50"));
+        // UI Color Coding
+        if (severity.equals("healthy")) {
+            tvSeverityValue.setTextColor(Color.parseColor("#2E7D32")); // Dark Green
+        } else if (severity.equals("low")) {
+            tvSeverityValue.setTextColor(Color.parseColor("#4CAF50")); // Green
         } else if (severity.equals("medium")) {
-            tvSeverityValue.setTextColor(Color.parseColor("#FBC02D"));
+            tvSeverityValue.setTextColor(Color.parseColor("#FBC02D")); // Yellow
         } else if (severity.equals("high")) {
-            tvSeverityValue.setTextColor(Color.parseColor("#F44336"));
+            tvSeverityValue.setTextColor(Color.parseColor("#F44336")); // Red
         }
 
         btnOkResult.setOnClickListener(v -> {
@@ -120,14 +130,13 @@ public class Gingivitis_Activity extends AppCompatActivity {
                 showHighSeverityPopup();
             } else {
                 if (fromHealthTracker) {
-                    Intent intent = new Intent(Gingivitis_Activity.this, HealthActivity.class);
+                    Intent intent = new Intent(CalculusActivity1.this, HealthActivity.class);
                     intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                     startActivity(intent);
                     finish();
                 } else {
-                    // Start plan_fo_21_days activity directly to avoid double dialog
-                    Intent intent = new Intent(Gingivitis_Activity.this, plan_fo_21_days.class);
-                    intent.putExtra("DISEASE_KEY", "Gingivitis");
+                    Intent intent = new Intent(CalculusActivity1.this, plan_fo_21_days.class);
+                    intent.putExtra("DISEASE_KEY", "Calculus");
                     intent.putExtra("SEVERITY_KEY", severity);
                     startActivity(intent);
                     finish();
@@ -149,7 +158,7 @@ public class Gingivitis_Activity extends AppCompatActivity {
         Button okBtn = dialogView.findViewById(R.id.okBtn);
         okBtn.setOnClickListener(v -> {
             dialog.dismiss();
-            Intent intent = new Intent(Gingivitis_Activity.this, DashBoardActivity.class);
+            Intent intent = new Intent(CalculusActivity1.this, DashBoardActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(intent);
             finish();
@@ -162,6 +171,8 @@ public class Gingivitis_Activity extends AppCompatActivity {
         int id = rg.getCheckedRadioButtonId();
         if (id == -1) return 1;
         String name = getResources().getResourceEntryName(id);
+
+        if (name.endsWith("_healthy")) return 0;
         if (name.endsWith("_low")) return 1;
         if (name.endsWith("_med")) return 2;
         if (name.endsWith("_high")) return 3;
