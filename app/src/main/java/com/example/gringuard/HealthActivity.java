@@ -4,6 +4,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 import androidx.appcompat.app.AlertDialog;
@@ -18,6 +20,7 @@ public class HealthActivity extends AppCompatActivity {
     private static final String SEV_PREF_NAME = "SeverityPrefs";
     private static final String KEY_START_TIME = "startTime";
     private static final String KEY_LAST_CHECK_DAY = "lastCheckDay";
+    private static final String KEY_COMPLETION_SHOWN = "completionShown";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,6 +35,7 @@ public class HealthActivity extends AppCompatActivity {
         preferences = getSharedPreferences(PREF_NAME, MODE_PRIVATE);
 
         updateSeverityButtonStatus();
+        checkAndShowCompletionPopup();
 
         // 1. Logic for Tips
         btnTips.setOnClickListener(v -> {
@@ -140,6 +144,39 @@ public class HealthActivity extends AppCompatActivity {
         });
     }
 
+    private void checkAndShowCompletionPopup() {
+        SharedPreferences sevPrefs = getSharedPreferences(SEV_PREF_NAME, MODE_PRIVATE);
+        long startTime = sevPrefs.getLong(KEY_START_TIME, 0);
+        if (startTime == 0) return;
+
+        long currentTime = System.currentTimeMillis();
+        int currentDay = (int) ((currentTime - startTime) / (24 * 60 * 60 * 1000)) + 1;
+        boolean alreadyShown = sevPrefs.getBoolean(KEY_COMPLETION_SHOWN, false);
+
+        if (currentDay >= 21 && !alreadyShown) {
+            showCelebrationPopup(sevPrefs);
+        }
+    }
+
+    private void showCelebrationPopup(SharedPreferences sevPrefs) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        LayoutInflater inflater = getLayoutInflater();
+        View dialogView = inflater.inflate(R.layout.popup_completion, null);
+        builder.setView(dialogView);
+
+        AlertDialog dialog = builder.create();
+        dialog.setCancelable(false);
+        dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+
+        Button btnFinish = dialogView.findViewById(R.id.btnFinishCelebration);
+        btnFinish.setOnClickListener(v -> {
+            sevPrefs.edit().putBoolean(KEY_COMPLETION_SHOWN, true).apply();
+            dialog.dismiss();
+        });
+
+        dialog.show();
+    }
+
     private void updateSeverityButtonStatus() {
         SharedPreferences sevPrefs = getSharedPreferences(SEV_PREF_NAME, MODE_PRIVATE);
         long startTime = sevPrefs.getLong(KEY_START_TIME, 0);
@@ -200,5 +237,6 @@ public class HealthActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         updateSeverityButtonStatus();
+        checkAndShowCompletionPopup();
     }
 }
