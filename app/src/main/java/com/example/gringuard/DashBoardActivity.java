@@ -14,15 +14,23 @@ import android.widget.ImageView;
 import android.widget.Toast;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.mlkit.vision.common.InputImage;
+import com.google.mlkit.vision.label.ImageLabel;
+import com.google.mlkit.vision.label.ImageLabeler;
+import com.google.mlkit.vision.label.ImageLabeling;
+import com.google.mlkit.vision.label.defaults.ImageLabelerOptions;
 
 import org.tensorflow.lite.Interpreter;
 import java.io.BufferedReader;
@@ -51,11 +59,16 @@ public class DashBoardActivity extends AppCompatActivity {
     private static final String KEY_START_TIME = "startTime";
     private static final String KEY_COMPLETION_SHOWN = "completionShown";
 
+    private ImageLabeler labeler;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.homepage1);
+
+        // Initialize ML Kit Image Labeler
+        labeler = ImageLabeling.getClient(ImageLabelerOptions.DEFAULT_OPTIONS);
 
         // --- MODEL INITIALIZATION ---
         try {
@@ -90,6 +103,7 @@ public class DashBoardActivity extends AppCompatActivity {
                 }
             }
 
+            if (FirebaseAuth.getInstance().getCurrentUser() == null) return;
             String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
             DatabaseReference ref = FirebaseDatabase.getInstance()
                     .getReference("Users")
@@ -98,7 +112,7 @@ public class DashBoardActivity extends AppCompatActivity {
 
             ref.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
-                public void onDataChange(DataSnapshot snapshot) {
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
                     if (snapshot.exists()) {
                         String severity = snapshot.child("severity").getValue(String.class);
                         if ("high".equalsIgnoreCase(severity)) {
@@ -112,7 +126,7 @@ public class DashBoardActivity extends AppCompatActivity {
                 }
 
                 @Override
-                public void onCancelled(DatabaseError error) {}
+                public void onCancelled(@NonNull DatabaseError error) {}
             });
         });
 
@@ -141,11 +155,12 @@ public class DashBoardActivity extends AppCompatActivity {
                 new ActivityResultContracts.GetContent(),
                 uri -> {
                     if (uri != null) {
-                        runInferenceAndGoToResult(uri);
+                        validateAndProcessImage(uri);
                     }
                 });
 
         heroCard.setOnClickListener(v -> {
+            if (FirebaseAuth.getInstance().getCurrentUser() == null) return;
             String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
             DatabaseReference ref = FirebaseDatabase.getInstance()
                     .getReference("Users")
@@ -154,7 +169,7 @@ public class DashBoardActivity extends AppCompatActivity {
 
             ref.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
-                public void onDataChange(DataSnapshot snapshot) {
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
                     if (snapshot.exists()) {
                         showResetWarningDialog();
                     } else {
@@ -163,7 +178,7 @@ public class DashBoardActivity extends AppCompatActivity {
                 }
 
                 @Override
-                public void onCancelled(DatabaseError error) {
+                public void onCancelled(@NonNull DatabaseError error) {
                     getContent.launch("image/*");
                 }
             });
@@ -171,6 +186,41 @@ public class DashBoardActivity extends AppCompatActivity {
 
         // Automatic completion check on Dashboard open
         checkPlanCompletion();
+    }
+
+    private void validateAndProcessImage(Uri uri) {
+        try {
+            Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), uri);
+            InputImage image = InputImage.fromBitmap(bitmap, 0);
+
+            labeler.process(image)
+                    .addOnSuccessListener(labels -> {
+                        boolean isToothDetected = false;
+                        for (ImageLabel label : labels) {
+                            String text = label.getText().toLowerCase();
+                            float confidence = label.getConfidence();
+                            if ((text.contains("tooth") || text.contains("teeth") || text.contains("mouth") || 
+                                 text.contains("dentistry") || text.contains("smile") || text.contains("lip")) 
+                                 && confidence > 0.5f) {
+                                isToothDetected = true;
+                                break;
+                            }
+                        }
+
+                        if (isToothDetected) {
+                            runInferenceAndGoToResult(bitmap, uri);
+                        } else {
+                            Toast.makeText(DashBoardActivity.this, "Please upload a clear image of your teeth.", Toast.LENGTH_LONG).show();
+                        }
+                    })
+                    .addOnFailureListener(e -> {
+                        runInferenceAndGoToResult(bitmap, uri);
+                    });
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            Toast.makeText(this, "Failed to load image.", Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void checkPlanCompletion() {
@@ -196,10 +246,11 @@ public class DashBoardActivity extends AppCompatActivity {
 
         AlertDialog dialog = builder.create();
         dialog.setCancelable(false);
-        dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+        }
 
         Button btnFinish = dialogView.findViewById(R.id.btnFinishCelebration);
-        // Update the text to match the new behavior if needed, or keep it as THANK YOU
         btnFinish.setOnClickListener(v -> {
             sevPrefs.edit().putBoolean(KEY_COMPLETION_SHOWN, true).apply();
             dialog.dismiss();
@@ -222,6 +273,7 @@ public class DashBoardActivity extends AppCompatActivity {
     }
 
     private void resetAllData() {
+        if (FirebaseAuth.getInstance().getCurrentUser() == null) return;
         String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
         getSharedPreferences("DentalData_" + uid, MODE_PRIVATE).edit().clear().apply();
         getSharedPreferences(SEV_PREF_NAME,      MODE_PRIVATE).edit().clear().apply();
@@ -254,12 +306,11 @@ public class DashBoardActivity extends AppCompatActivity {
         dialog.show();
     }
 
-    private void runInferenceAndGoToResult(Uri uri) {
+    private void runInferenceAndGoToResult(Bitmap bitmap, Uri uri) {
         try {
-            Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), uri);
             Bitmap resized = Bitmap.createScaledBitmap(bitmap, 224, 224, true);
 
-            ByteBuffer input = ByteBuffer.allocateDirect(1 * 224 * 224 * 3 * 4);
+            ByteBuffer input = ByteBuffer.allocateDirect(224 * 224 * 3 * 4);
             input.order(ByteOrder.nativeOrder());
             for (int y = 0; y < 224; y++) {
                 for (int x = 0; x < 224; x++) {
@@ -277,6 +328,7 @@ public class DashBoardActivity extends AppCompatActivity {
             for (int i = 1; i < output[0].length; i++) if (output[0][i] > output[0][maxIdx]) maxIdx = i;
 
             String detectedDisease = labelList.get(maxIdx);
+            if (FirebaseAuth.getInstance().getCurrentUser() == null) return;
             String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
             SharedPreferences prefs = getSharedPreferences("DentalData_" + uid, MODE_PRIVATE);
             prefs.edit().putString("detectedDisease", detectedDisease).apply();
@@ -286,13 +338,16 @@ public class DashBoardActivity extends AppCompatActivity {
             intent.putExtra("imageUri", uri.toString());
             startActivity(intent);
 
-        } catch (IOException e) { e.printStackTrace(); }
+        } catch (Exception e) { e.printStackTrace(); }
     }
 
     private MappedByteBuffer loadModelFile() throws IOException {
         AssetFileDescriptor fd = this.getAssets().openFd("best_float16.tflite");
         FileInputStream is = new FileInputStream(fd.getFileDescriptor());
-        return is.getChannel().map(FileChannel.MapMode.READ_ONLY, fd.getStartOffset(), fd.getDeclaredLength());
+        FileChannel fileChannel = is.getChannel();
+        long startOffset = fd.getStartOffset();
+        long declaredLength = fd.getDeclaredLength();
+        return fileChannel.map(FileChannel.MapMode.READ_ONLY, startOffset, declaredLength);
     }
 
     private List<String> loadLabelList() throws IOException {
