@@ -180,6 +180,9 @@
 
         <activity android:name=".Fractured_Teeth_Activity1"
             android:exported="false" />
+
+        <activity android:name=".CariesActivity1"
+            android:exported="false" />
     </application>
 
 </manifest>

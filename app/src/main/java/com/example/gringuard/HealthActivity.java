@@ -133,7 +133,7 @@ public class HealthActivity extends AppCompatActivity {
                 } else if (d.contains("calculus")) {
                     intent = new Intent(this, CalculusActivity1.class);
                 } else {
-                    intent = new Intent(this, Caries_Activity.class);
+                    intent = new Intent(this, CariesActivity1.class);
                 }
 
                 intent.putExtra("FROM_HEALTH_TRACKER", true);
