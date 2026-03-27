@@ -73,6 +73,17 @@ public class HealthActivity extends AppCompatActivity {
 
         // 2. Logic for 21-Day Follow Plan
         btnFollowPlan.setOnClickListener(v -> {
+            SharedPreferences sevPrefs = getSharedPreferences(SEV_PREF_NAME, MODE_PRIVATE);
+            long startTime = sevPrefs.getLong(KEY_START_TIME, 0);
+            if (startTime != 0) {
+                long currentTime = System.currentTimeMillis();
+                int currentDay = (int) ((currentTime - startTime) / (24 * 60 * 60 * 1000)) + 1;
+                if (currentDay >= 22) {
+                    showCelebrationPopup(sevPrefs);
+                    return;
+                }
+            }
+
             String disease = preferences.getString("detectedDisease", "");
             String severity = preferences.getString("severity", "");
 
@@ -109,7 +120,7 @@ public class HealthActivity extends AppCompatActivity {
             startActivity(new Intent(this, TrackGoalsActivity.class));
         });
 
-        // 3. Logic for Weekly Re-Check (Navigates to your NEW files)
+        // 3. Logic for Weekly Re-Check
         btnSeverity.setOnClickListener(v -> {
             SharedPreferences sevPrefs = getSharedPreferences(SEV_PREF_NAME, MODE_PRIVATE);
             long startTime = sevPrefs.getLong(KEY_START_TIME, 0);
@@ -125,7 +136,6 @@ public class HealthActivity extends AppCompatActivity {
                 Intent intent;
                 String d = disease.toLowerCase();
 
-                // Routing to your NEW file names
                 if (d.contains("gingivitis")) {
                     intent = new Intent(this, Gingivitis1_Activity.class);
                 } else if (d.contains("fractured") || d.contains("fracture")) {
@@ -153,7 +163,7 @@ public class HealthActivity extends AppCompatActivity {
         int currentDay = (int) ((currentTime - startTime) / (24 * 60 * 60 * 1000)) + 1;
         boolean alreadyShown = sevPrefs.getBoolean(KEY_COMPLETION_SHOWN, false);
 
-        if (currentDay >= 21 && !alreadyShown) {
+        if (currentDay >= 22 && !alreadyShown) {
             showCelebrationPopup(sevPrefs);
         }
     }
@@ -166,12 +176,15 @@ public class HealthActivity extends AppCompatActivity {
 
         AlertDialog dialog = builder.create();
         dialog.setCancelable(false);
-        dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+        }
 
         Button btnFinish = dialogView.findViewById(R.id.btnFinishCelebration);
         btnFinish.setOnClickListener(v -> {
             sevPrefs.edit().putBoolean(KEY_COMPLETION_SHOWN, true).apply();
             dialog.dismiss();
+            Toast.makeText(this, "Your 21 days plan is over", Toast.LENGTH_LONG).show();
         });
 
         dialog.show();

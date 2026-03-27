@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,6 +21,7 @@ import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
 import com.github.mikephil.charting.formatter.ValueFormatter;
+import com.google.firebase.auth.FirebaseAuth;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -39,6 +39,7 @@ public class TrackGoalsActivity extends AppCompatActivity {
     private GridView calendarGrid;
     private LineChart severityChart;
     private Calendar currentCalendar;
+    private CalendarAdapter adapter;
     private Map<String, Integer> firebaseProgressMap = new HashMap<>();
 
     @Override
@@ -64,38 +65,43 @@ public class TrackGoalsActivity extends AppCompatActivity {
         });
 
         setupChart();
+        updateCalendar();
         loadSeverityHistory();
     }
 
     private void setupChart() {
         severityChart.getDescription().setEnabled(false);
+        severityChart.setNoDataText("No severity data available yet.");
 
-        // X-Axis (Bottom: Days 1, 2, 3...)
+        // X-Axis
         XAxis xAxis = severityChart.getXAxis();
         xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
         xAxis.setGranularity(1f);
-        xAxis.setAxisMinimum(1f); // Start at Day 1
+        xAxis.setAxisMinimum(1f);
+        xAxis.setTextColor(Color.parseColor("#E91E63"));
 
-        // Y-Axis (Left side: The Labels)
+        // Y-Axis
         YAxis leftAxis = severityChart.getAxisLeft();
-        leftAxis.setAxisMinimum(0f); // Start exactly at 0
-        leftAxis.setAxisMaximum(3f); // End exactly at 3
-        leftAxis.setLabelCount(4, true); // Forces 4 labels: 0, 1, 2, 3
+        leftAxis.setAxisMinimum(0f);
+        leftAxis.setAxisMaximum(3f);
+        leftAxis.setLabelCount(4, true);
+        leftAxis.setTextColor(Color.parseColor("#E91E63"));
 
-        // This part turns the numbers into the words you want
         leftAxis.setValueFormatter(new ValueFormatter() {
             @Override
             public String getFormattedValue(float value) {
-                if (value == 0f) return "Healthy (0)";
-                if (value == 1f) return "Low (1)";
-                if (value == 2f) return "Medium (2)";
-                if (value == 3f) return "High (3)";
+                if (value == 0f) return "Healthy";
+                if (value == 1f) return "Low";
+                if (value == 2f) return "Medium";
+                if (value == 3f) return "High";
                 return "";
             }
         });
 
-        severityChart.getAxisRight().setEnabled(false); // Hide the right side numbers
+        severityChart.getAxisRight().setEnabled(false);
+        severityChart.getLegend().setEnabled(false);
     }
+
     private void loadSeverityHistory() {
         SharedPreferences historyPrefs = getSharedPreferences("SeverityHistory", MODE_PRIVATE);
         Map<String, ?> allEntries = historyPrefs.getAll();
@@ -105,7 +111,6 @@ public class TrackGoalsActivity extends AppCompatActivity {
             try {
                 int day = Integer.parseInt(entry.getKey());
                 float val = severityToFloat(entry.getValue().toString());
-                // We allow 0 (Healthy) now
                 if (val != -1f) sortedMap.put(day, val);
             } catch (Exception ignored) {}
         }
@@ -120,16 +125,13 @@ public class TrackGoalsActivity extends AppCompatActivity {
         }
     }
 
-    // FIXED: This maps the word "healthy" directly to 0.0
     private float severityToFloat(String sev) {
         if (sev == null) return -1f;
         String s = sev.toLowerCase().trim();
-
-        if (s.equals("healthy")) return 0f; // Plot on the 0 line
-        if (s.equals("low"))     return 1f; // Plot on the 1 line
-        if (s.equals("medium"))  return 2f; // Plot on the 2 line
-        if (s.equals("high"))    return 3f; // Plot on the 3 line
-
+        if (s.equals("healthy") || s.equals("healthytooth")) return 0f;
+        if (s.equals("low"))     return 1f;
+        if (s.equals("medium"))  return 2f;
+        if (s.equals("high"))    return 3f;
         return -1f;
     }
 
@@ -139,7 +141,7 @@ public class TrackGoalsActivity extends AppCompatActivity {
         dataSet.setCircleColor(Color.parseColor("#E91E63"));
         dataSet.setLineWidth(2.5f);
         dataSet.setCircleRadius(5f);
-        dataSet.setDrawValues(false); // FIXED: Removes that "1.00" text from the dot
+        dataSet.setDrawValues(false);
         dataSet.setMode(LineDataSet.Mode.CUBIC_BEZIER);
 
         severityChart.setData(new LineData(dataSet));
@@ -149,6 +151,85 @@ public class TrackGoalsActivity extends AppCompatActivity {
     private void updateCalendar() {
         SimpleDateFormat sdf = new SimpleDateFormat("MMMM yyyy", Locale.getDefault());
         tvMonthYear.setText(sdf.format(currentCalendar.getTime()));
-        // (Calendar Adapter logic remains the same...)
+
+        List<Date> dayList = new ArrayList<>();
+        Calendar calendar = (Calendar) currentCalendar.clone();
+        calendar.set(Calendar.DAY_OF_MONTH, 1);
+        int monthBeginningCell = calendar.get(Calendar.DAY_OF_WEEK) - 1;
+        calendar.add(Calendar.DAY_OF_MONTH, -monthBeginningCell);
+
+        while (dayList.size() < 42) {
+            dayList.add(calendar.getTime());
+            calendar.add(Calendar.DAY_OF_MONTH, 1);
+        }
+
+        adapter = new CalendarAdapter(this, dayList, currentCalendar, firebaseProgressMap);
+        calendarGrid.setAdapter(adapter);
+    }
+
+    private class CalendarAdapter extends BaseAdapter {
+        private Context context;
+        private List<Date> days;
+        private Calendar displayMonth;
+        private Map<String, Integer> progressMap;
+
+        public CalendarAdapter(Context context, List<Date> days,
+                               Calendar displayMonth, Map<String, Integer> progressMap) {
+            this.context      = context;
+            this.days         = days;
+            this.displayMonth = displayMonth;
+            this.progressMap  = progressMap;
+        }
+
+        @Override public int getCount() { return days.size(); }
+        @Override public Object getItem(int position) { return days.get(position); }
+        @Override public long getItemId(int position) { return position; }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            Date date = days.get(position);
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(date);
+
+            if (convertView == null) {
+                convertView = LayoutInflater.from(context)
+                        .inflate(R.layout.item_calendar_day, parent, false);
+            }
+
+            TextView tvDay = convertView.findViewById(R.id.tvDay);
+            tvDay.setText(String.valueOf(calendar.get(Calendar.DAY_OF_MONTH)));
+
+            if (calendar.get(Calendar.MONTH) != displayMonth.get(Calendar.MONTH)) {
+                tvDay.setTextColor(Color.LTGRAY);
+                tvDay.setBackgroundColor(Color.TRANSPARENT);
+            } else {
+                tvDay.setTextColor(Color.BLACK);
+
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+                String dateKey = sdf.format(date);
+
+                Integer progress = progressMap.get(dateKey);
+                if (progress == null) {
+                    String uid = FirebaseAuth.getInstance().getCurrentUser() != null ? 
+                                 FirebaseAuth.getInstance().getCurrentUser().getUid() : "default";
+                    SharedPreferences calPrefs = context.getSharedPreferences(
+                            "CalendarProgress_" + uid,
+                            MODE_PRIVATE);
+                    int local = calPrefs.getInt(dateKey, -1);
+                    progress = (local == -1) ? null : local;
+                }
+
+                if (progress == null) {
+                    tvDay.setBackgroundColor(Color.parseColor("#E0E0E0"));
+                } else if (progress == 0) {
+                    tvDay.setBackgroundColor(Color.parseColor("#FF5252"));
+                } else if (progress == 100) {
+                    tvDay.setBackgroundColor(Color.parseColor("#4CAF50"));
+                } else {
+                    tvDay.setBackgroundColor(Color.parseColor("#FFEB3B"));
+                }
+            }
+            return convertView;
+        }
     }
 }
