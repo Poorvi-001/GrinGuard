@@ -55,7 +55,7 @@ public class DashBoardActivity extends AppCompatActivity {
 
     private ActivityResultLauncher<String> getContent;
 
-    private static final String SEV_PREF_NAME = "SeverityPrefs";
+    private static final String SEV_PREF_PREFIX = "SeverityPrefs_";
     private static final String KEY_START_TIME = "startTime";
     private static final String KEY_COMPLETION_SHOWN = "completionShown";
 
@@ -90,7 +90,10 @@ public class DashBoardActivity extends AppCompatActivity {
         CardView healthTrackerCard = findViewById(R.id.healthTrackerCard);
 
         healthTrackerCard.setOnClickListener(v -> {
-            SharedPreferences sevPrefs = getSharedPreferences(SEV_PREF_NAME, MODE_PRIVATE);
+            if (FirebaseAuth.getInstance().getCurrentUser() == null) return;
+            String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+            
+            SharedPreferences sevPrefs = getSharedPreferences(SEV_PREF_PREFIX + uid, MODE_PRIVATE);
             long startTime = sevPrefs.getLong(KEY_START_TIME, 0);
             
             if (startTime != 0) {
@@ -103,8 +106,6 @@ public class DashBoardActivity extends AppCompatActivity {
                 }
             }
 
-            if (FirebaseAuth.getInstance().getCurrentUser() == null) return;
-            String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
             DatabaseReference ref = FirebaseDatabase.getInstance()
                     .getReference("Users")
                     .child(uid)
@@ -224,7 +225,9 @@ public class DashBoardActivity extends AppCompatActivity {
     }
 
     private void checkPlanCompletion() {
-        SharedPreferences sevPrefs = getSharedPreferences(SEV_PREF_NAME, MODE_PRIVATE);
+        if (FirebaseAuth.getInstance().getCurrentUser() == null) return;
+        String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        SharedPreferences sevPrefs = getSharedPreferences(SEV_PREF_PREFIX + uid, MODE_PRIVATE);
         long startTime = sevPrefs.getLong(KEY_START_TIME, 0);
         boolean alreadyShown = sevPrefs.getBoolean(KEY_COMPLETION_SHOWN, false);
         
@@ -276,8 +279,8 @@ public class DashBoardActivity extends AppCompatActivity {
         if (FirebaseAuth.getInstance().getCurrentUser() == null) return;
         String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
         getSharedPreferences("DentalData_" + uid, MODE_PRIVATE).edit().clear().apply();
-        getSharedPreferences(SEV_PREF_NAME,      MODE_PRIVATE).edit().clear().apply();
-        getSharedPreferences("SeverityHistory",  MODE_PRIVATE).edit().clear().apply();
+        getSharedPreferences(SEV_PREF_PREFIX + uid,      MODE_PRIVATE).edit().clear().apply();
+        getSharedPreferences("SeverityHistory_" + uid,  MODE_PRIVATE).edit().clear().apply();
         getSharedPreferences("GringuardPrefs_" + uid,    MODE_PRIVATE).edit().clear().apply();
         getSharedPreferences("CalendarProgress_" + uid,  MODE_PRIVATE).edit().clear().apply();
 
@@ -357,5 +360,14 @@ public class DashBoardActivity extends AppCompatActivity {
         while ((line = reader.readLine()) != null) labels.add(line);
         reader.close();
         return labels;
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (tflite != null) {
+            tflite.close();
+            tflite = null;
+        }
     }
 }

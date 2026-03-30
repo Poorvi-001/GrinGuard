@@ -41,11 +41,18 @@ public class TrackGoalsActivity extends AppCompatActivity {
     private Calendar currentCalendar;
     private CalendarAdapter adapter;
     private Map<String, Integer> firebaseProgressMap = new HashMap<>();
+    private String uid;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_track_goals);
+
+        if (FirebaseAuth.getInstance().getCurrentUser() == null) {
+            finish();
+            return;
+        }
+        uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
         tvMonthYear   = findViewById(R.id.tvMonthYear);
         calendarGrid  = findViewById(R.id.calendarGrid);
@@ -103,7 +110,7 @@ public class TrackGoalsActivity extends AppCompatActivity {
     }
 
     private void loadSeverityHistory() {
-        SharedPreferences historyPrefs = getSharedPreferences("SeverityHistory", MODE_PRIVATE);
+        SharedPreferences historyPrefs = getSharedPreferences("SeverityHistory_" + uid, MODE_PRIVATE);
         Map<String, ?> allEntries = historyPrefs.getAll();
 
         TreeMap<Integer, Float> sortedMap = new TreeMap<>();
@@ -210,8 +217,6 @@ public class TrackGoalsActivity extends AppCompatActivity {
 
                 Integer progress = progressMap.get(dateKey);
                 if (progress == null) {
-                    String uid = FirebaseAuth.getInstance().getCurrentUser() != null ? 
-                                 FirebaseAuth.getInstance().getCurrentUser().getUid() : "default";
                     SharedPreferences calPrefs = context.getSharedPreferences(
                             "CalendarProgress_" + uid,
                             MODE_PRIVATE);
