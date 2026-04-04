@@ -53,7 +53,7 @@ dependencies {
     // Google Services
     implementation("com.google.android.gms:play-services-auth:21.0.0")
 
-    // Gemini AI (Kept for ChatActivity)
+    // Gemini AI (for ChatActivity)
     implementation("com.google.ai.client.generativeai:generativeai:0.9.0")
     implementation("io.noties.markwon:core:4.6.2")
     implementation("com.google.guava:guava:33.0.0-android")
@@ -65,6 +65,6 @@ dependencies {
     // Charting
     implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
 
-    // ML Kit Image Labeling (For free, local Tooth validation)
+    // ML Kit Image Labeling (Tooth validation)
     implementation("com.google.mlkit:image-labeling:17.0.9")
 }
