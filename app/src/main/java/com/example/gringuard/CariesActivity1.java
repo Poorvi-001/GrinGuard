@@ -44,7 +44,7 @@ public class CariesActivity1 extends AppCompatActivity {
         RadioGroup rgTexture = findViewById(R.id.rgTexture); 
 
         btnAnalyze.setOnClickListener(v -> {
-            // Validation: Ensure all 7 questions are answered
+            // Ensure all 7 questions are answered
             if (rgVisual.getCheckedRadioButtonId() == -1 || rgSweets.getCheckedRadioButtonId() == -1 ||
                     rgTemp.getCheckedRadioButtonId() == -1 || rgNight.getCheckedRadioButtonId() == -1 ||
                     rgFood.getCheckedRadioButtonId() == -1 || rgGums.getCheckedRadioButtonId() == -1 ||
@@ -73,7 +73,7 @@ public class CariesActivity1 extends AppCompatActivity {
             String message;
             String severity;
 
-            // --- SEVERITY LOGIC ---
+
             if (healthyCount == 7) {
                 message = "EXCELLENT: Healthy Teeth\nNo signs of decay. Keep up the great hygiene and limit sugar intake!";
                 severity = "healthy";
@@ -88,7 +88,7 @@ public class CariesActivity1 extends AppCompatActivity {
                 severity = "low";
             }
 
-            // --- STORAGE LOGIC (UID scoped) ---
+            //STORAGE LOGIC (UID scoped)
 
             // 1. Calculate the tracking day
             SharedPreferences sevPrefs = getSharedPreferences("SeverityPrefs_" + uid, MODE_PRIVATE);

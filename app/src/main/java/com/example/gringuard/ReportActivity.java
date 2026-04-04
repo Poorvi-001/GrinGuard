@@ -85,8 +85,6 @@ public class ReportActivity extends AppCompatActivity {
         }
 
         // 2. Fetch Dental Analysis Results from SharedPreferences
-
-
         SharedPreferences prefs = getSharedPreferences("DentalData_" + uid, MODE_PRIVATE);
         String disease = prefs.getString("detectedDisease", "No scan recorded");
         String severity = prefs.getString("severity", "N/A");
@@ -157,7 +155,7 @@ public class ReportActivity extends AppCompatActivity {
                     Toast.makeText(this, "PDF saved to Downloads", Toast.LENGTH_LONG).show();
                 }
             } else {
-                // For older versions (simplified for this context)
+
                 java.io.File file = new java.io.File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), fileName);
                 document.writeTo(new java.io.FileOutputStream(file));
                 Toast.makeText(this, "PDF saved to Downloads", Toast.LENGTH_LONG).show();

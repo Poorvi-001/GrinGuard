@@ -60,7 +60,7 @@ public class WelcomeActivity extends AppCompatActivity {
         }, SPLASH_TIME);
     }
 
-    // --- Helper Methods ---
+    // Helper Methods
 
     private MappedByteBuffer loadModelFile() throws IOException {
         AssetFileDescriptor fileDescriptor = this.getAssets().openFd("best_float16.tflite");

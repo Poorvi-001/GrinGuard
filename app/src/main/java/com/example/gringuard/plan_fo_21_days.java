@@ -118,7 +118,7 @@ public class plan_fo_21_days extends AppCompatActivity {
                                             SharedPreferences historyPrefs = getSharedPreferences("SeverityHistory_" + uid, MODE_PRIVATE);
                                             historyPrefs.edit().putString("1", severity).apply();
 
-                                            // ✅ Save diseaseId to SharedPrefs (UID-scoped)
+                                            //Save diseaseId to SharedPrefs (UID-scoped)
                                             getSharedPreferences("GringuardPrefs_" + uid, MODE_PRIVATE)
                                                     .edit()
                                                     .putString("activeDiseaseKey", diseaseId)

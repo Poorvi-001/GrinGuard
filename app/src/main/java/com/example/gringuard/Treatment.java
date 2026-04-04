@@ -1,12 +1,12 @@
 package com.example.gringuard;
 
 public class Treatment {
-    // These must be public for Firebase to read them
+    // public for Firebase to read them
     public String disease;
     public String severity;
     public long startDate;
 
-    // Firebase needs an empty constructor
+    // empty constructor for firebase
     public Treatment() {}
 
     public Treatment(String disease, String severity, long startDate) {

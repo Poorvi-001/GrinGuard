@@ -1,7 +1,7 @@
 package com.example.gringuard;
 public class User {
     public String fName, lName, age, gender, email;
-    // Add this to prevent null pointer exceptions if you download the whole user object
+    // to prevent null pointer exceptions
     public java.util.Map<String, Object> CurrentTreatment;
 
     public User() {}

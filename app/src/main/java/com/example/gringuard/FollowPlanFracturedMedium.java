@@ -53,7 +53,7 @@ public class FollowPlanFracturedMedium extends AppCompatActivity {
         savePlanBtn.setOnClickListener(v -> saveProgress());
     }
 
-    // ─── Enable or disable all inputs ────────────────────────────────────────
+    // Enable or disable all inputs
     private void setInputsEnabled(boolean enabled) {
         checkHardFood.setEnabled(enabled);
         checkBrush.setEnabled(enabled);
@@ -65,7 +65,7 @@ public class FollowPlanFracturedMedium extends AppCompatActivity {
         savePlanBtn.setText(enabled ? "Save Progress" : "Already saved today ✓");
     }
 
-    // ─── Reset checkboxes if it's a new day, else disable ────────────────────
+    //Reset checkboxes if it's a new day, else disable
     private void checkAndResetIfNewDay() {
         String lastSavedDate = sharedPreferences.getString("lastSavedDate_fractured_medium", "");
         if (!today.equals(lastSavedDate)) {
@@ -80,7 +80,7 @@ public class FollowPlanFracturedMedium extends AppCompatActivity {
         }
     }
 
-    // ─── Load today's progress from Firebase ─────────────────────────────────
+    // Load today's progress from Firebase
     private void loadProgressFromFirebase() {
         if (diseaseKey.isEmpty()) return;
 
@@ -113,7 +113,7 @@ public class FollowPlanFracturedMedium extends AppCompatActivity {
                 });
     }
 
-    // ─── Save progress to Firebase ───────────────────────────────────────────
+    //  Save progress to Firebase
     private void saveProgress() {
         if (diseaseKey.isEmpty()) {
             Toast.makeText(this, "No active disease found. Please scan first.", Toast.LENGTH_SHORT).show();

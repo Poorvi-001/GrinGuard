@@ -46,7 +46,7 @@ public class ChatActivity extends AppCompatActivity {
         GenerationConfig config = new GenerationConfig.Builder().build();
         GenerativeModel gm = new GenerativeModel(
                 "gemini-2.5-flash",
-                "AIzaSyCk723_WERy5irBPoGGc2nAxM1Rm6grylk",
+                "AIzaSyBGQK_NwUCNqKZhuqzZWWIVbyBY0DTBlT4",
                 config
         );
         model = GenerativeModelFutures.from(gm);

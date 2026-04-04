@@ -113,7 +113,7 @@ public class FollowPlanCalulusMedium extends AppCompatActivity {
                 });
     }
 
-    // ─── Save progress to Firebase ───────────────────────────────────────────
+    //Save progress to Firebase
     private void saveProgress() {
         if (diseaseKey.isEmpty()) {
             Toast.makeText(this, "No active disease found. Please scan first.", Toast.LENGTH_SHORT).show();
