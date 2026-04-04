@@ -11,7 +11,7 @@
         android:orientation="vertical"
         android:padding="24dp">
 
-        <!-- Title -->
+
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -22,7 +22,7 @@
             android:gravity="center"
             android:layout_marginBottom="10dp"/>
 
-        <!-- Disease -->
+
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -32,7 +32,7 @@
             android:textStyle="bold"
             android:layout_marginBottom="20dp"/>
 
-        <!-- Card -->
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -91,7 +91,7 @@
                 android:buttonTint="#E91E63"
                 android:layout_marginBottom="20dp"/>
 
-            <!-- Save Button -->
+
             <Button
                 android:id="@+id/savePlanBtn"
                 android:layout_width="match_parent"

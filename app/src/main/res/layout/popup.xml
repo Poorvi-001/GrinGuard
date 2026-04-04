@@ -7,7 +7,7 @@
     android:background="#D32F2F"
     android:padding="20dp">
 
-    <!-- Title -->
+
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -18,7 +18,7 @@
         android:gravity="center"
         android:layout_marginBottom="12dp"/>
 
-    <!-- Message -->
+
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
