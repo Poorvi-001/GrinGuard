@@ -7,7 +7,7 @@
     android:orientation="vertical"
     android:background="#FFF5F8">
 
-    <!-- Header -->
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="64dp"
@@ -27,7 +27,7 @@
 
     </LinearLayout>
 
-    <!-- Chat messages -->
+
     <ScrollView
         android:id="@+id/scrollView"
         android:layout_width="match_parent"
@@ -45,7 +45,7 @@
 
     </ScrollView>
 
-    <!-- Input area -->
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

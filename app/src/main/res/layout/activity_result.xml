@@ -13,7 +13,6 @@
         android:padding="24dp"
         android:gravity="center">
 
-        <!-- Title -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -23,7 +22,7 @@
             android:textColor="#E91E63"
             android:layout_marginBottom="20dp"/>
 
-        <!-- Uploaded Image -->
+
         <ImageView
             android:id="@+id/resultImage"
             android:layout_width="match_parent"
@@ -32,7 +31,7 @@
             android:background="#FFFFFF"
             android:layout_marginBottom="20dp"/>
 
-        <!-- Result Text -->
+
         <TextView
             android:id="@+id/resultText"
             android:layout_width="wrap_content"
@@ -43,7 +42,7 @@
             android:textColor="#333333"
             android:layout_marginBottom="30dp"/>
 
-        <!-- Check Severity Button -->
+
         <Button
             android:id="@+id/severityBtn"
             android:layout_width="match_parent"

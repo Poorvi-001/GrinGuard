@@ -10,7 +10,7 @@
         android:orientation="vertical"
         android:padding="20dp">
 
-        <!-- Title -->
+
         <TextView
             android:id="@+id/title"
             android:layout_width="match_parent"
@@ -22,7 +22,7 @@
             android:textColor="#E91E63"
             android:layout_marginBottom="8dp"/>
 
-        <!-- Severity -->
+
         <TextView
             android:id="@+id/severity"
             android:layout_width="match_parent"
@@ -34,7 +34,6 @@
             android:textColor="#880E4F"
             android:layout_marginBottom="24dp"/>
 
-        <!-- Tip 1 -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -51,7 +50,7 @@
                 android:textColor="#333"/>
         </LinearLayout>
 
-        <!-- Tip 2 -->
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -68,7 +67,7 @@
                 android:textColor="#333"/>
         </LinearLayout>
 
-        <!-- Tip 3 -->
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -85,7 +84,7 @@
                 android:textColor="#333"/>
         </LinearLayout>
 
-        <!-- Tip 4 -->
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -102,7 +101,7 @@
                 android:textColor="#333"/>
         </LinearLayout>
 
-        <!-- Tip 5 -->
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
