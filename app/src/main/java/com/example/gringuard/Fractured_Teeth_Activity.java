@@ -12,15 +12,23 @@ import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import com.google.firebase.auth.FirebaseAuth;
 
 public class Fractured_Teeth_Activity extends AppCompatActivity {
 
     private boolean fromHealthTracker = false;
+    private String uid;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.fractured_teeth_severity);
+
+        if (FirebaseAuth.getInstance().getCurrentUser() == null) {
+            finish();
+            return;
+        }
+        uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
         fromHealthTracker = getIntent().getBooleanExtra("FROM_HEALTH_TRACKER", false);
 
@@ -32,7 +40,6 @@ public class Fractured_Teeth_Activity extends AppCompatActivity {
         RadioGroup rgGums = findViewById(R.id.rgGums);
 
         Button btnCalculate = findViewById(R.id.btnCalculate);
-        TextView tvResult = findViewById(R.id.tvResult);
 
         btnCalculate.setOnClickListener(v -> {
             if (rgVisual.getCheckedRadioButtonId() == -1 || rgCold.getCheckedRadioButtonId() == -1 ||
@@ -53,7 +60,7 @@ public class Fractured_Teeth_Activity extends AppCompatActivity {
                     Math.max(sScore, Math.max(spScore, gScore)))));
 
             String resultText;
-            String severity = "high";
+            String severity;
 
             if (maxSeverity == 3 || sScore == 3 || spScore == 3) {
                 resultText = "HIGH SEVERITY: Vertical Fracture\nVisible line extending below gum or mobility indicates a non-restorable crack. Emergency extraction likely.";
@@ -68,15 +75,15 @@ public class Fractured_Teeth_Activity extends AppCompatActivity {
                 severity = "low";
             }
 
-            // Store the severity and disease type for HealthTracker
-            SharedPreferences prefs = getSharedPreferences("DentalData", MODE_PRIVATE);
+            // Store the severity and disease type for HealthTracker (UID Scoped)
+            SharedPreferences prefs = getSharedPreferences("DentalData_" + uid, MODE_PRIVATE);
             SharedPreferences.Editor editor = prefs.edit();
             editor.putString("detectedDisease", "Fractured");
             editor.putString("severity", severity);
             editor.apply();
 
-            // Initialize 21-day program state for HealthActivity
-            SharedPreferences sevPrefs = getSharedPreferences("SeverityPrefs", MODE_PRIVATE);
+            // Initialize 21-day program state for HealthActivity (UID Scoped)
+            SharedPreferences sevPrefs = getSharedPreferences("SeverityPrefs_" + uid, MODE_PRIVATE);
             long startTime = sevPrefs.getLong("startTime", 0);
             long currentTime = System.currentTimeMillis();
             if (startTime == 0) {
@@ -86,8 +93,8 @@ public class Fractured_Teeth_Activity extends AppCompatActivity {
             int currentDay = (int) ((currentTime - startTime) / (24 * 60 * 60 * 1000)) + 1;
             sevPrefs.edit().putInt("lastCheckDay", currentDay).apply();
 
-            // Save history for Graphical Analysis
-            SharedPreferences historyPrefs = getSharedPreferences("SeverityHistory", MODE_PRIVATE);
+            // Save history for Graphical Analysis (UID Scoped)
+            SharedPreferences historyPrefs = getSharedPreferences("SeverityHistory_" + uid, MODE_PRIVATE);
             historyPrefs.edit().putString(String.valueOf(currentDay), severity).apply();
 
             showSeverityPopup(resultText, severity);
@@ -108,12 +115,16 @@ public class Fractured_Teeth_Activity extends AppCompatActivity {
 
         tvSeverityValue.setText(resultMessage);
         
-        if (severity.equals("low")) {
-            tvSeverityValue.setTextColor(Color.parseColor("#4CAF50")); // Green
-        } else if (severity.equals("medium")) {
-            tvSeverityValue.setTextColor(Color.parseColor("#FBC02D")); // Dark Yellow
-        } else if (severity.equals("high")) {
-            tvSeverityValue.setTextColor(Color.parseColor("#F44336")); // Red
+        switch (severity) {
+            case "low":
+                tvSeverityValue.setTextColor(Color.parseColor("#4CAF50")); // Green
+                break;
+            case "medium":
+                tvSeverityValue.setTextColor(Color.parseColor("#FBC02D")); // Dark Yellow
+                break;
+            case "high":
+                tvSeverityValue.setTextColor(Color.parseColor("#F44336")); // Red
+                break;
         }
 
         btnOkResult.setOnClickListener(v -> {
@@ -127,7 +138,6 @@ public class Fractured_Teeth_Activity extends AppCompatActivity {
                     startActivity(intent);
                     finish();
                 } else {
-                    // Start plan_fo_21_days activity directly to avoid double dialog
                     Intent intent = new Intent(Fractured_Teeth_Activity.this, plan_fo_21_days.class);
                     intent.putExtra("DISEASE_KEY", "Fractured Teeth");
                     intent.putExtra("SEVERITY_KEY", severity);
@@ -142,8 +152,7 @@ public class Fractured_Teeth_Activity extends AppCompatActivity {
 
     private void showHighSeverityPopup() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        LayoutInflater inflater = getLayoutInflater();
-        View dialogView = inflater.inflate(R.layout.popup_high_severity, null);
+        View dialogView = getLayoutInflater().inflate(R.layout.popup_high_severity, null);
         builder.setView(dialogView);
 
         AlertDialog dialog = builder.create();

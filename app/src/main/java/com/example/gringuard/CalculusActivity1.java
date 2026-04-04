@@ -12,15 +12,23 @@ import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import com.google.firebase.auth.FirebaseAuth;
 
 public class CalculusActivity1 extends AppCompatActivity {
 
     private boolean fromHealthTracker = false;
+    private String uid;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.calculus1);
+
+        if (FirebaseAuth.getInstance().getCurrentUser() == null) {
+            finish();
+            return;
+        }
+        uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
         fromHealthTracker = getIntent().getBooleanExtra("FROM_HEALTH_TRACKER", false);
 
@@ -62,7 +70,6 @@ public class CalculusActivity1 extends AppCompatActivity {
             String resultText;
             String severity;
 
-            // --- FIXED LOGIC ---
             if (healthyCount == 6) {
                 resultText = "EXCELLENT: No Calculus Detected\nYour teeth are free of visible tartar. Maintain this with regular brushing and flossing!";
                 severity = "healthy";
@@ -77,12 +84,12 @@ public class CalculusActivity1 extends AppCompatActivity {
                 severity = "low";
             }
 
-            // Save basic dental data
-            SharedPreferences prefs = getSharedPreferences("DentalData", MODE_PRIVATE);
+            // Save basic dental data (UID scoped)
+            SharedPreferences prefs = getSharedPreferences("DentalData_" + uid, MODE_PRIVATE);
             prefs.edit().putString("detectedDisease", "Calculus").putString("severity", severity).apply();
 
-            // Handle 21-day tracker logic
-            SharedPreferences sevPrefs = getSharedPreferences("SeverityPrefs", MODE_PRIVATE);
+            // Handle 21-day tracker logic (UID scoped)
+            SharedPreferences sevPrefs = getSharedPreferences("SeverityPrefs_" + uid, MODE_PRIVATE);
             long startTime = sevPrefs.getLong("startTime", 0);
             long currentTime = System.currentTimeMillis();
             if (startTime == 0) {
@@ -92,8 +99,8 @@ public class CalculusActivity1 extends AppCompatActivity {
             int currentDay = (int) ((currentTime - startTime) / (24 * 60 * 60 * 1000)) + 1;
             sevPrefs.edit().putInt("lastCheckDay", currentDay).apply();
 
-            // Save to history for the Graph (Very important for TrackGoalsActivity)
-            SharedPreferences historyPrefs = getSharedPreferences("SeverityHistory", MODE_PRIVATE);
+            // Save to history for the Graph (UID scoped)
+            SharedPreferences historyPrefs = getSharedPreferences("SeverityHistory_" + uid, MODE_PRIVATE);
             historyPrefs.edit().putString(String.valueOf(currentDay), severity).apply();
 
             showSeverityPopup(resultText, severity);

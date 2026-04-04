@@ -10,14 +10,16 @@ import android.widget.Button;
 import android.widget.Toast;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import com.google.firebase.auth.FirebaseAuth;
 
 public class HealthActivity extends AppCompatActivity {
 
     Button btnTips, btnFollowPlan, btnGoals, btnSeverity;
     SharedPreferences preferences;
+    private String uid;
 
-    private static final String PREF_NAME = "DentalData";
-    private static final String SEV_PREF_NAME = "SeverityPrefs";
+    private static final String PREF_PREFIX = "DentalData_";
+    private static final String SEV_PREF_PREFIX = "SeverityPrefs_";
     private static final String KEY_START_TIME = "startTime";
     private static final String KEY_LAST_CHECK_DAY = "lastCheckDay";
     private static final String KEY_COMPLETION_SHOWN = "completionShown";
@@ -27,12 +29,18 @@ public class HealthActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_health);
 
+        if (FirebaseAuth.getInstance().getCurrentUser() == null) {
+            finish();
+            return;
+        }
+        uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+
         btnTips = findViewById(R.id.btnTips);
         btnFollowPlan = findViewById(R.id.btnFollowPlan);
         btnGoals = findViewById(R.id.btnGoals);
         btnSeverity = findViewById(R.id.btnSeverity);
 
-        preferences = getSharedPreferences(PREF_NAME, MODE_PRIVATE);
+        preferences = getSharedPreferences(PREF_PREFIX + uid, MODE_PRIVATE);
 
         updateSeverityButtonStatus();
         checkAndShowCompletionPopup();
@@ -44,6 +52,11 @@ public class HealthActivity extends AppCompatActivity {
 
             if (disease.isEmpty() || severity.isEmpty()) {
                 Toast.makeText(this, "Please check severity first!", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            if (severity.equalsIgnoreCase("healthy")) {
+                Toast.makeText(this, "You do not require tips for healthy teeth.", Toast.LENGTH_LONG).show();
                 return;
             }
 
@@ -73,7 +86,7 @@ public class HealthActivity extends AppCompatActivity {
 
         // 2. Logic for 21-Day Follow Plan
         btnFollowPlan.setOnClickListener(v -> {
-            SharedPreferences sevPrefs = getSharedPreferences(SEV_PREF_NAME, MODE_PRIVATE);
+            SharedPreferences sevPrefs = getSharedPreferences(SEV_PREF_PREFIX + uid, MODE_PRIVATE);
             long startTime = sevPrefs.getLong(KEY_START_TIME, 0);
             if (startTime != 0) {
                 long currentTime = System.currentTimeMillis();
@@ -89,6 +102,11 @@ public class HealthActivity extends AppCompatActivity {
 
             if (disease.isEmpty() || severity.isEmpty()) {
                 Toast.makeText(this, "Please check severity first!", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            if (severity.equalsIgnoreCase("healthy")) {
+                Toast.makeText(this, "You do not require a follow plan for healthy teeth.", Toast.LENGTH_LONG).show();
                 return;
             }
 
@@ -122,7 +140,7 @@ public class HealthActivity extends AppCompatActivity {
 
         // 3. Logic for Weekly Re-Check
         btnSeverity.setOnClickListener(v -> {
-            SharedPreferences sevPrefs = getSharedPreferences(SEV_PREF_NAME, MODE_PRIVATE);
+            SharedPreferences sevPrefs = getSharedPreferences(SEV_PREF_PREFIX + uid, MODE_PRIVATE);
             long startTime = sevPrefs.getLong(KEY_START_TIME, 0);
             long currentTime = System.currentTimeMillis();
 
@@ -155,7 +173,7 @@ public class HealthActivity extends AppCompatActivity {
     }
 
     private void checkAndShowCompletionPopup() {
-        SharedPreferences sevPrefs = getSharedPreferences(SEV_PREF_NAME, MODE_PRIVATE);
+        SharedPreferences sevPrefs = getSharedPreferences(SEV_PREF_PREFIX + uid, MODE_PRIVATE);
         long startTime = sevPrefs.getLong(KEY_START_TIME, 0);
         if (startTime == 0) return;
 
@@ -191,7 +209,7 @@ public class HealthActivity extends AppCompatActivity {
     }
 
     private void updateSeverityButtonStatus() {
-        SharedPreferences sevPrefs = getSharedPreferences(SEV_PREF_NAME, MODE_PRIVATE);
+        SharedPreferences sevPrefs = getSharedPreferences(SEV_PREF_PREFIX + uid, MODE_PRIVATE);
         long startTime = sevPrefs.getLong(KEY_START_TIME, 0);
 
         if (startTime == 0) {
@@ -249,6 +267,10 @@ public class HealthActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        if (FirebaseAuth.getInstance().getCurrentUser() != null) {
+            uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+            preferences = getSharedPreferences(PREF_PREFIX + uid, MODE_PRIVATE);
+        }
         updateSeverityButtonStatus();
         checkAndShowCompletionPopup();
     }

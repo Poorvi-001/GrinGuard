@@ -12,15 +12,23 @@ import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import com.google.firebase.auth.FirebaseAuth;
 
 public class Caries_Activity extends AppCompatActivity {
 
     private boolean fromHealthTracker = false;
+    private String uid;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.caries_severity);
+
+        if (FirebaseAuth.getInstance().getCurrentUser() == null) {
+            finish();
+            return;
+        }
+        uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
         fromHealthTracker = getIntent().getBooleanExtra("FROM_HEALTH_TRACKER", false);
 
@@ -62,10 +70,10 @@ public class Caries_Activity extends AppCompatActivity {
                 severity = "low";
             }
 
-            SharedPreferences prefs = getSharedPreferences("DentalData", MODE_PRIVATE);
+            SharedPreferences prefs = getSharedPreferences("DentalData_" + uid, MODE_PRIVATE);
             prefs.edit().putString("detectedDisease", "Cavity").putString("severity", severity).apply();
 
-            SharedPreferences sevPrefs = getSharedPreferences("SeverityPrefs", MODE_PRIVATE);
+            SharedPreferences sevPrefs = getSharedPreferences("SeverityPrefs_" + uid, MODE_PRIVATE);
             long startTime = sevPrefs.getLong("startTime", 0);
             long currentTime = System.currentTimeMillis();
             if (startTime == 0) {
@@ -75,8 +83,8 @@ public class Caries_Activity extends AppCompatActivity {
             int currentDay = (int) ((currentTime - startTime) / (24 * 60 * 60 * 1000)) + 1;
             sevPrefs.edit().putInt("lastCheckDay", currentDay).apply();
 
-            // Save history for Graphical Analysis
-            SharedPreferences historyPrefs = getSharedPreferences("SeverityHistory", MODE_PRIVATE);
+            // Save history for Graphical Analysis (UID scoped)
+            SharedPreferences historyPrefs = getSharedPreferences("SeverityHistory_" + uid, MODE_PRIVATE);
             historyPrefs.edit().putString(String.valueOf(currentDay), severity).apply();
 
             showSeverityPopup(message, severity);
@@ -115,7 +123,6 @@ public class Caries_Activity extends AppCompatActivity {
                     startActivity(intent);
                     finish();
                 } else {
-                    // Start plan_fo_21_days activity directly to avoid double dialog
                     Intent intent = new Intent(Caries_Activity.this, plan_fo_21_days.class); 
                     intent.putExtra("DISEASE_KEY", "Caries");                                 
                     intent.putExtra("SEVERITY_KEY", severity);                                

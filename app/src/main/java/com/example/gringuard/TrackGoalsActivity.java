@@ -39,8 +39,7 @@ public class TrackGoalsActivity extends AppCompatActivity {
     private GridView calendarGrid;
     private LineChart severityChart;
     private Calendar currentCalendar;
-    private CalendarAdapter adapter;
-    private Map<String, Integer> firebaseProgressMap = new HashMap<>();
+    private final Map<String, Integer> firebaseProgressMap = new HashMap<>();
     private String uid;
 
     @Override
@@ -80,14 +79,12 @@ public class TrackGoalsActivity extends AppCompatActivity {
         severityChart.getDescription().setEnabled(false);
         severityChart.setNoDataText("No severity data available yet.");
 
-        // X-Axis
         XAxis xAxis = severityChart.getXAxis();
         xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
         xAxis.setGranularity(1f);
         xAxis.setAxisMinimum(1f);
         xAxis.setTextColor(Color.parseColor("#E91E63"));
 
-        // Y-Axis
         YAxis leftAxis = severityChart.getAxisLeft();
         leftAxis.setAxisMinimum(0f);
         leftAxis.setAxisMaximum(3f);
@@ -110,6 +107,7 @@ public class TrackGoalsActivity extends AppCompatActivity {
     }
 
     private void loadSeverityHistory() {
+        // UID Scoped History Loading
         SharedPreferences historyPrefs = getSharedPreferences("SeverityHistory_" + uid, MODE_PRIVATE);
         Map<String, ?> allEntries = historyPrefs.getAll();
 
@@ -135,11 +133,19 @@ public class TrackGoalsActivity extends AppCompatActivity {
     private float severityToFloat(String sev) {
         if (sev == null) return -1f;
         String s = sev.toLowerCase().trim();
-        if (s.equals("healthy") || s.equals("healthytooth")) return 0f;
-        if (s.equals("low"))     return 1f;
-        if (s.equals("medium"))  return 2f;
-        if (s.equals("high"))    return 3f;
-        return -1f;
+        switch (s) {
+            case "healthy":
+            case "healthytooth":
+                return 0f;
+            case "low":
+                return 1f;
+            case "medium":
+                return 2f;
+            case "high":
+                return 3f;
+            default:
+                return -1f;
+        }
     }
 
     private void renderChart(List<Entry> entries) {
@@ -170,15 +176,15 @@ public class TrackGoalsActivity extends AppCompatActivity {
             calendar.add(Calendar.DAY_OF_MONTH, 1);
         }
 
-        adapter = new CalendarAdapter(this, dayList, currentCalendar, firebaseProgressMap);
+        CalendarAdapter adapter = new CalendarAdapter(this, dayList, currentCalendar, firebaseProgressMap);
         calendarGrid.setAdapter(adapter);
     }
 
     private class CalendarAdapter extends BaseAdapter {
-        private Context context;
-        private List<Date> days;
-        private Calendar displayMonth;
-        private Map<String, Integer> progressMap;
+        private final Context context;
+        private final List<Date> days;
+        private final Calendar displayMonth;
+        private final Map<String, Integer> progressMap;
 
         public CalendarAdapter(Context context, List<Date> days,
                                Calendar displayMonth, Map<String, Integer> progressMap) {
@@ -199,8 +205,7 @@ public class TrackGoalsActivity extends AppCompatActivity {
             calendar.setTime(date);
 
             if (convertView == null) {
-                convertView = LayoutInflater.from(context)
-                        .inflate(R.layout.item_calendar_day, parent, false);
+                convertView = LayoutInflater.from(context).inflate(R.layout.item_calendar_day, parent, false);
             }
 
             TextView tvDay = convertView.findViewById(R.id.tvDay);
@@ -211,15 +216,12 @@ public class TrackGoalsActivity extends AppCompatActivity {
                 tvDay.setBackgroundColor(Color.TRANSPARENT);
             } else {
                 tvDay.setTextColor(Color.BLACK);
-
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
                 String dateKey = sdf.format(date);
 
                 Integer progress = progressMap.get(dateKey);
                 if (progress == null) {
-                    SharedPreferences calPrefs = context.getSharedPreferences(
-                            "CalendarProgress_" + uid,
-                            MODE_PRIVATE);
+                    SharedPreferences calPrefs = context.getSharedPreferences("CalendarProgress_" + uid, MODE_PRIVATE);
                     int local = calPrefs.getInt(dateKey, -1);
                     progress = (local == -1) ? null : local;
                 }
