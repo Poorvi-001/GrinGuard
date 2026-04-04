@@ -11,15 +11,23 @@ import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import com.google.firebase.auth.FirebaseAuth;
 
 public class Gingivitis1_Activity extends AppCompatActivity {
 
     private boolean fromHealthTracker = false;
+    private String uid;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.gingivitis1);
+
+        if (FirebaseAuth.getInstance().getCurrentUser() == null) {
+            finish();
+            return;
+        }
+        uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
         fromHealthTracker = getIntent().getBooleanExtra("FROM_HEALTH_TRACKER", false);
 
@@ -61,10 +69,9 @@ public class Gingivitis1_Activity extends AppCompatActivity {
             String resultText;
             String severity;
 
-            // --- UPDATED LOGIC FOR HEALTHY/EXCELLENT STATUS ---
             if (healthyCount == 6) {
                 resultText = "EXCELLENT: Healthy Gums\nYour gums and teeth appear to be in great shape! Continue your daily oral hygiene to maintain this.";
-                severity = "healthy"; // Changed from 'low' to 'healthy' for Graph sync
+                severity = "healthy";
             } else if (vScore == 3 ) {
                 resultText = "HIGH SEVERITY: Chronic Infection\nSpontaneous bleeding without pain can indicate advanced gum disease. Seek professional dental care.";
                 severity = "high";
@@ -76,12 +83,10 @@ public class Gingivitis1_Activity extends AppCompatActivity {
                 severity = "low";
             }
 
-            // Save to Database / Main Prefs
-            SharedPreferences prefs = getSharedPreferences("DentalData", MODE_PRIVATE);
+            SharedPreferences prefs = getSharedPreferences("DentalData_" + uid, MODE_PRIVATE);
             prefs.edit().putString("detectedDisease", "Gingivitis").putString("severity", severity).apply();
 
-            // Tracking logic
-            SharedPreferences sevPrefs = getSharedPreferences("SeverityPrefs", MODE_PRIVATE);
+            SharedPreferences sevPrefs = getSharedPreferences("SeverityPrefs_" + uid, MODE_PRIVATE);
             long startTime = sevPrefs.getLong("startTime", 0);
             long currentTime = System.currentTimeMillis();
             if (startTime == 0) {
@@ -91,8 +96,7 @@ public class Gingivitis1_Activity extends AppCompatActivity {
             int currentDay = (int) ((currentTime - startTime) / (24 * 60 * 60 * 1000)) + 1;
             sevPrefs.edit().putInt("lastCheckDay", currentDay).apply();
 
-            // Save to SeverityHistory for the Graph
-            SharedPreferences historyPrefs = getSharedPreferences("SeverityHistory", MODE_PRIVATE);
+            SharedPreferences historyPrefs = getSharedPreferences("SeverityHistory_" + uid, MODE_PRIVATE);
             historyPrefs.edit().putString(String.valueOf(currentDay), severity).apply();
 
             showSeverityPopup(resultText, severity);
@@ -112,15 +116,14 @@ public class Gingivitis1_Activity extends AppCompatActivity {
 
         tvSeverityValue.setText(resultMessage);
 
-        // Color coding based on severity
         if (severity.equals("healthy")) {
-            tvSeverityValue.setTextColor(Color.parseColor("#2E7D32")); // Deep Green
+            tvSeverityValue.setTextColor(Color.parseColor("#2E7D32"));
         } else if (severity.equals("low")) {
-            tvSeverityValue.setTextColor(Color.parseColor("#4CAF50")); // Standard Green
+            tvSeverityValue.setTextColor(Color.parseColor("#4CAF50"));
         } else if (severity.equals("medium")) {
-            tvSeverityValue.setTextColor(Color.parseColor("#FBC02D")); // Yellow/Amber
+            tvSeverityValue.setTextColor(Color.parseColor("#FBC02D"));
         } else if (severity.equals("high")) {
-            tvSeverityValue.setTextColor(Color.parseColor("#F44336")); // Red
+            tvSeverityValue.setTextColor(Color.parseColor("#F44336"));
         }
 
         btnOkResult.setOnClickListener(v -> {

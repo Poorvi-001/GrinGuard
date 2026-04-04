@@ -12,15 +12,23 @@ import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import com.google.firebase.auth.FirebaseAuth;
 
 public class CariesActivity1 extends AppCompatActivity {
 
     private boolean fromHealthTracker = false;
+    private String uid;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.caries_severity1);
+
+        if (FirebaseAuth.getInstance().getCurrentUser() == null) {
+            finish();
+            return;
+        }
+        uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
         fromHealthTracker = getIntent().getBooleanExtra("FROM_HEALTH_TRACKER", false);
 
@@ -33,7 +41,7 @@ public class CariesActivity1 extends AppCompatActivity {
         RadioGroup rgNight = findViewById(R.id.rgNight);
         RadioGroup rgFood = findViewById(R.id.rgFood);
         RadioGroup rgGums = findViewById(R.id.rgGums);
-        RadioGroup rgTexture = findViewById(R.id.rgTexture); // Added 7th Question
+        RadioGroup rgTexture = findViewById(R.id.rgTexture); 
 
         btnAnalyze.setOnClickListener(v -> {
             // Validation: Ensure all 7 questions are answered
@@ -65,10 +73,10 @@ public class CariesActivity1 extends AppCompatActivity {
             String message;
             String severity;
 
-            // --- SEVERITY LOGIC (Healthy is now 0) ---
+            // --- SEVERITY LOGIC ---
             if (healthyCount == 7) {
                 message = "EXCELLENT: Healthy Teeth\nNo signs of decay. Keep up the great hygiene and limit sugar intake!";
-                severity = "healthy"; // This will plot as 0 on your graph
+                severity = "healthy";
             } else if (maxSeverity == 3 || tScore == 3 || nScore == 3) {
                 message = "HIGH SEVERITY: Nerve Involvement\nPain to heat or night pain indicates the caries has reached the nerve. Root canal likely needed.";
                 severity = "high";
@@ -80,10 +88,10 @@ public class CariesActivity1 extends AppCompatActivity {
                 severity = "low";
             }
 
-            // --- STORAGE LOGIC (Fixed Sequence) ---
+            // --- STORAGE LOGIC (UID scoped) ---
 
             // 1. Calculate the tracking day
-            SharedPreferences sevPrefs = getSharedPreferences("SeverityPrefs", MODE_PRIVATE);
+            SharedPreferences sevPrefs = getSharedPreferences("SeverityPrefs_" + uid, MODE_PRIVATE);
             long startTime = sevPrefs.getLong("startTime", 0);
             long currentTime = System.currentTimeMillis();
             if (startTime == 0) {
@@ -93,12 +101,12 @@ public class CariesActivity1 extends AppCompatActivity {
             int currentDay = (int) ((currentTime - startTime) / (24 * 60 * 60 * 1000)) + 1;
             sevPrefs.edit().putInt("lastCheckDay", currentDay).apply();
 
-            // 2. Save history for Graph (Mapping word to 0 in TrackGoalsActivity)
-            SharedPreferences historyPrefs = getSharedPreferences("SeverityHistory", MODE_PRIVATE);
+            // 2. Save history for Graph (UID scoped)
+            SharedPreferences historyPrefs = getSharedPreferences("SeverityHistory_" + uid, MODE_PRIVATE);
             historyPrefs.edit().putString(String.valueOf(currentDay), severity).apply();
 
-            // 3. Save current result
-            SharedPreferences prefs = getSharedPreferences("DentalData", MODE_PRIVATE);
+            // 3. Save current result (UID scoped)
+            SharedPreferences prefs = getSharedPreferences("DentalData_" + uid, MODE_PRIVATE);
             prefs.edit().putString("detectedDisease", "Caries").putString("severity", severity).apply();
 
             showSeverityPopup(message, severity);

@@ -46,9 +46,10 @@ public class LoginActivity extends AppCompatActivity {
                         .addOnCompleteListener(task -> {
                             btnLogin.setEnabled(true);
                             btnLogin.setText("SignIn");
-                            if (task.isSuccessful()) {
-                                // Initialize startTime for tracking if it doesn't exist
-                                SharedPreferences sevPrefs = getSharedPreferences("SeverityPrefs", MODE_PRIVATE);
+                            if (task.isSuccessful() && mAuth.getCurrentUser() != null) {
+                                String uid = mAuth.getCurrentUser().getUid();
+                                // Initialize startTime for tracking if it doesn't exist (UID scoped)
+                                SharedPreferences sevPrefs = getSharedPreferences("SeverityPrefs_" + uid, MODE_PRIVATE);
                                 if (sevPrefs.getLong("startTime", 0) == 0) {
                                     sevPrefs.edit().putLong("startTime", System.currentTimeMillis()).apply();
                                 }
@@ -63,16 +64,14 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
 
-        // SIGN UP - Redirects to Profile page to fill details
-        btnSignup.setOnClickListener(v -> {
-            startActivity(new Intent(LoginActivity.this, Profile.class));
-        });
+        // SIGN UP
+        btnSignup.setOnClickListener(v -> startActivity(new Intent(LoginActivity.this, Profile.class)));
 
         // FORGOT PASSWORD
         btnForgotPass.setOnClickListener(v -> {
             String email = emailBox.getText().toString().trim();
             if (TextUtils.isEmpty(email)) {
-                showPopup("Forgot Password", "Please enter your email in the box first so we know where to send the link.");
+                showPopup("Forgot Password", "Please enter your email in the box first.");
             } else {
                 mAuth.sendPasswordResetEmail(email).addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
@@ -87,14 +86,8 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private boolean validateInputs(String email, String password) {
-        if (TextUtils.isEmpty(email)) {
-            emailBox.setError("Email required");
-            return false;
-        }
-        if (TextUtils.isEmpty(password)) {
-            passBox.setError("Password required");
-            return false;
-        }
+        if (TextUtils.isEmpty(email)) { emailBox.setError("Email required"); return false; }
+        if (TextUtils.isEmpty(password)) { passBox.setError("Password required"); return false; }
         return true;
     }
 
