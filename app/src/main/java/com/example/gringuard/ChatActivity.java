@@ -25,13 +25,13 @@ import java.util.List;
 
 public class ChatActivity extends AppCompatActivity {
 
-    // ── System prompt sent with every message (kept very short) ──
+    // System prompt sent with every message
     private static final String SYSTEM_PROMPT =
             "You are GrinGuard, a dental assistant. " +
                     "Answer ONLY dental/oral health questions. " +
                     "Reply in max 3 sentences. Be friendly and concise.";
 
-    // ── Max number of previous turns to keep in context ──
+    //Max number of previous turns to keep in context
     private static final int MAX_HISTORY_TURNS = 4; // 4 = last 4 user+bot pairs = 8 messages
 
     private GenerativeModelFutures model;
@@ -41,7 +41,7 @@ public class ChatActivity extends AppCompatActivity {
     private ScrollView scrollView;
     private Markwon markwon;
 
-    // ── Rolling conversation history (trimmed to MAX_HISTORY_TURNS) ──
+    //Rolling conversation history (trimmed to MAX_HISTORY_TURNS)
     private final List<Content> conversationHistory = new ArrayList<>();
 
     @Override
@@ -75,9 +75,7 @@ public class ChatActivity extends AppCompatActivity {
         });
     }
 
-    // ─────────────────────────────────────────────────────────────
-    // CORE FIX: one-shot call with trimmed rolling history
-    // ─────────────────────────────────────────────────────────────
+
 
     private void askGemini(String userText) {
         LinearLayout typingBubble = addTypingBubble();
@@ -86,7 +84,7 @@ public class ChatActivity extends AppCompatActivity {
                 ? SYSTEM_PROMPT + "\n\nUser: " + userText
                 : "User: " + userText;
 
-        // ── FIX for SDK 0.9.0: build Content this way ──
+
         Content userContent = new Content("user", java.util.Collections.singletonList(
                 new com.google.ai.client.generativeai.type.TextPart(fullUserText)
         ));
@@ -138,9 +136,6 @@ public class ChatActivity extends AppCompatActivity {
         }, androidx.core.content.ContextCompat.getMainExecutor(this));
     }
 
-    // ─────────────────────────────────────────────────────────────
-    // UI HELPERS (unchanged from your original)
-    // ─────────────────────────────────────────────────────────────
 
     private void addUserBubble(String message) {
         runOnUiThread(() -> {
