@@ -75,7 +75,7 @@ public class ChatActivity extends AppCompatActivity {
         });
     }
 
-    // ─── Send message to Gemini ───────────────────────────────────────────────
+
     private void askGemini(String userText) {
         LinearLayout typingBubble = addTypingBubble();
 
@@ -110,7 +110,7 @@ public class ChatActivity extends AppCompatActivity {
         }, androidx.core.content.ContextCompat.getMainExecutor(this));
     }
 
-    // ─── User bubble (pink) ───────────────────────────────────────────────────
+
     private void addUserBubble(String message) {
         runOnUiThread(() -> {
             LinearLayout row = new LinearLayout(this);
@@ -144,7 +144,7 @@ public class ChatActivity extends AppCompatActivity {
         });
     }
 
-    // ─── Bot bubble (white) ───────────────────────────────────────────────────
+
     private void addBotBubble(String message) {
         runOnUiThread(() -> {
             LinearLayout row = new LinearLayout(this);
@@ -187,7 +187,7 @@ public class ChatActivity extends AppCompatActivity {
         });
     }
 
-    // ─── Typing indicator ─────────────────────────────────────────────────────
+
     private LinearLayout addTypingBubble() {
         LinearLayout row = new LinearLayout(this);
         row.setOrientation(LinearLayout.HORIZONTAL);
