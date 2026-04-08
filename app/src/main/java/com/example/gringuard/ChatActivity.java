@@ -2,7 +2,6 @@ package com.example.gringuard;
 
 import android.graphics.Typeface;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.ViewGroup;
 import android.widget.EditText;
@@ -13,7 +12,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 import io.noties.markwon.Markwon;
 import com.google.ai.client.generativeai.GenerativeModel;
-import com.google.ai.client.generativeai.java.ChatFutures;
 import com.google.ai.client.generativeai.java.GenerativeModelFutures;
 import com.google.ai.client.generativeai.type.Content;
 import com.google.ai.client.generativeai.type.GenerateContentResponse;
@@ -22,23 +20,29 @@ import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class ChatActivity extends AppCompatActivity {
 
+    // System prompt sent with every message
     private static final String SYSTEM_PROMPT =
             "You are GrinGuard, a dental assistant. " +
-                    "Answer ONLY dental or oral health questions. " +
-                    "Reply in maximum 3 sentences. " +
-                    "Be friendly and concise. " +
-                    "If asked anything not related to dental health, " +
-                    "politely say you can only help with dental questions.";
+                    "Answer ONLY dental/oral health questions. " +
+                    "Reply in max 3 sentences. Be friendly and concise.";
+
+    //Max number of previous turns to keep in context
+    private static final int MAX_HISTORY_TURNS = 4; // 4 = last 4 user+bot pairs = 8 messages
 
     private GenerativeModelFutures model;
-    private ChatFutures chatSession;
     private androidx.appcompat.widget.AppCompatImageButton sendButton;
     private LinearLayout chatContainer;
     private EditText inputEditText;
     private ScrollView scrollView;
     private Markwon markwon;
+
+    //Rolling conversation history (trimmed to MAX_HISTORY_TURNS)
+    private final List<Content> conversationHistory = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,16 +56,12 @@ public class ChatActivity extends AppCompatActivity {
         sendButton    = findViewById(R.id.sendButton);
 
         GenerationConfig config = new GenerationConfig.Builder().build();
-
-        // ✅ Using gemini-1.5-flash — stable, free, reliable
-        // Replace YOUR_API_KEY_HERE with your key from aistudio.google.com
         GenerativeModel gm = new GenerativeModel(
                 "gemini-2.5-flash",
-                "AIzaSyAmdZXyaWAKOSYWCAwOBLBfsTQulZc15IQ",
+                "AIzaSyAy7GYlAZk9jkU0iT9538ga-4tMZhddoxc",
                 config
         );
         model = GenerativeModelFutures.from(gm);
-        chatSession = model.startChat();
 
         addBotBubble("👋 Hi! I'm GrinGuard, your dental assistant. How can I help you today?");
 
@@ -76,16 +76,26 @@ public class ChatActivity extends AppCompatActivity {
     }
 
 
+
     private void askGemini(String userText) {
         LinearLayout typingBubble = addTypingBubble();
 
-        // Remind model to stay on topic and be short with every message
-        String fullPrompt = userText + "\n\n(" + SYSTEM_PROMPT + ")";
+        String fullUserText = conversationHistory.isEmpty()
+                ? SYSTEM_PROMPT + "\n\nUser: " + userText
+                : "User: " + userText;
 
-        Content content = new Content.Builder().addText(fullPrompt).build();
+
+        Content userContent = new Content("user", java.util.Collections.singletonList(
+                new com.google.ai.client.generativeai.type.TextPart(fullUserText)
+        ));
+
+        List<Content> contextWindow = new ArrayList<>();
+        int start = Math.max(0, conversationHistory.size() - MAX_HISTORY_TURNS * 2);
+        contextWindow.addAll(conversationHistory.subList(start, conversationHistory.size()));
+        contextWindow.add(userContent);
 
         ListenableFuture<GenerateContentResponse> response =
-                chatSession.sendMessage(content);
+                model.generateContent(contextWindow.toArray(new Content[0]));
 
         Futures.addCallback(response, new FutureCallback<GenerateContentResponse>() {
             @Override
@@ -94,6 +104,23 @@ public class ChatActivity extends AppCompatActivity {
                 runOnUiThread(() -> {
                     chatContainer.removeView(typingBubble);
                     if (botReply != null && !botReply.isEmpty()) {
+
+                        Content savedUser = new Content("user", java.util.Collections.singletonList(
+                                new com.google.ai.client.generativeai.type.TextPart("User: " + userText)
+                        ));
+
+                        Content botContent = new Content("model", java.util.Collections.singletonList(
+                                new com.google.ai.client.generativeai.type.TextPart(botReply)
+                        ));
+
+                        conversationHistory.add(savedUser);
+                        conversationHistory.add(botContent);
+
+                        while (conversationHistory.size() > MAX_HISTORY_TURNS * 2) {
+                            conversationHistory.remove(0);
+                            conversationHistory.remove(0);
+                        }
+
                         addBotBubble(botReply);
                     }
                 });
@@ -101,10 +128,9 @@ public class ChatActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Throwable t) {
-                Log.e("CHAT_ERROR", "Gemini error: " + t.getMessage(), t);
                 runOnUiThread(() -> {
                     chatContainer.removeView(typingBubble);
-                    addBotBubble("Sorry, something went wrong. Please try again in a moment.");
+                    addBotBubble("Sorry, I couldn't connect. Please check your internet and try again.");
                 });
             }
         }, androidx.core.content.ContextCompat.getMainExecutor(this));
@@ -143,7 +169,6 @@ public class ChatActivity extends AppCompatActivity {
             scrollToBottom();
         });
     }
-
 
     private void addBotBubble(String message) {
         runOnUiThread(() -> {
@@ -186,7 +211,6 @@ public class ChatActivity extends AppCompatActivity {
             scrollToBottom();
         });
     }
-
 
     private LinearLayout addTypingBubble() {
         LinearLayout row = new LinearLayout(this);
