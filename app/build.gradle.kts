@@ -1,3 +1,8 @@
+import java.util.Properties
+
+val localProperties = Properties()
+localProperties.load(rootProject.file("local.properties").inputStream())
+
 plugins {
     id("com.android.application")
     id("com.google.gms.google-services")
@@ -15,6 +20,8 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        buildConfigField("String", "GEMINI_API_KEY", "\"${localProperties["GEMINI_API_KEY"]}\"")
     }
 
     buildTypes {
@@ -30,6 +37,10 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
+    }
+
+    buildFeatures {
+        buildConfig = true
     }
 
     aaptOptions {

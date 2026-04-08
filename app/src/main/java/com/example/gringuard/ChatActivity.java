@@ -25,14 +25,13 @@ import java.util.List;
 
 public class ChatActivity extends AppCompatActivity {
 
-    // System prompt sent with every message
     private static final String SYSTEM_PROMPT =
-            "You are GrinGuard, a dental assistant. " +
-                    "Answer ONLY dental/oral health questions. " +
-                    "Reply in max 3 sentences. Be friendly and concise.";
+            "You are GrinGuard, a strict dental assistant chatbot. " +
+                    "You ONLY answer questions about oral health, teeth, gums, dental hygiene, dental procedures, and related topics. " +
+                    "If the user asks ANYTHING not related to oral/dental health, respond ONLY with: 'I can only help with dental and oral health questions! 😊' and nothing else. " +
+                    "Keep all answers under 10 lines maximum. No long paragraphs. Be friendly and concise.";
 
-    //Max number of previous turns to keep in context
-    private static final int MAX_HISTORY_TURNS = 4; // 4 = last 4 user+bot pairs = 8 messages
+    private static final int MAX_HISTORY_TURNS = 4;
 
     private GenerativeModelFutures model;
     private androidx.appcompat.widget.AppCompatImageButton sendButton;
@@ -41,7 +40,6 @@ public class ChatActivity extends AppCompatActivity {
     private ScrollView scrollView;
     private Markwon markwon;
 
-    //Rolling conversation history (trimmed to MAX_HISTORY_TURNS)
     private final List<Content> conversationHistory = new ArrayList<>();
 
     @Override
@@ -57,8 +55,8 @@ public class ChatActivity extends AppCompatActivity {
 
         GenerationConfig config = new GenerationConfig.Builder().build();
         GenerativeModel gm = new GenerativeModel(
-                "gemini-2.5-flash",
-                "AIzaSyAy7GYlAZk9jkU0iT9538ga-4tMZhddoxc",
+                "gemini-2.5-flash-lite",
+                BuildConfig.GEMINI_API_KEY,
                 config
         );
         model = GenerativeModelFutures.from(gm);
@@ -68,6 +66,12 @@ public class ChatActivity extends AppCompatActivity {
         sendButton.setOnClickListener(v -> {
             String text = inputEditText.getText().toString().trim();
             if (!text.isEmpty()) {
+                if (!isDentalQuestion(text)) {
+                    addUserBubble(text);
+                    addBotBubble("I can only help with dental and oral health questions! 😊 Try asking me about toothache, cavities, gum care, or brushing tips.");
+                    inputEditText.setText("");
+                    return;
+                }
                 addUserBubble(text);
                 askGemini(text);
                 inputEditText.setText("");
@@ -75,7 +79,22 @@ public class ChatActivity extends AppCompatActivity {
         });
     }
 
-
+    private boolean isDentalQuestion(String text) {
+        String lower = text.toLowerCase();
+        String[] dentalKeywords = {
+                "tooth", "teeth", "gum", "mouth", "dental", "dentist", "cavity", "cavities",
+                "braces", "brush", "floss", "toothache", "ache", "pain", "swollen", "bleed",
+                "whitening", "crown", "filling", "root canal", "plaque", "tartar", "tongue",
+                "jaw", "bite", "wisdom", "molar", "incisor", "enamel", "saliva", "breath",
+                "retainer", "aligner", "implant", "extraction", "sore", "infection", "abscess",
+                "sensitive", "sensitivity", "orthodon", "periodont", "oral", "hygiene", "rinse",
+                "mouthwash", "toothpaste", "toothbrush", "chew", "swallow", "lip", "cheek"
+        };
+        for (String keyword : dentalKeywords) {
+            if (lower.contains(keyword)) return true;
+        }
+        return false;
+    }
 
     private void askGemini(String userText) {
         LinearLayout typingBubble = addTypingBubble();
@@ -83,7 +102,6 @@ public class ChatActivity extends AppCompatActivity {
         String fullUserText = conversationHistory.isEmpty()
                 ? SYSTEM_PROMPT + "\n\nUser: " + userText
                 : "User: " + userText;
-
 
         Content userContent = new Content("user", java.util.Collections.singletonList(
                 new com.google.ai.client.generativeai.type.TextPart(fullUserText)
@@ -135,7 +153,6 @@ public class ChatActivity extends AppCompatActivity {
             }
         }, androidx.core.content.ContextCompat.getMainExecutor(this));
     }
-
 
     private void addUserBubble(String message) {
         runOnUiThread(() -> {
