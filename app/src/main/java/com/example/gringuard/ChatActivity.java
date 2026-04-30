@@ -48,7 +48,7 @@ public class ChatActivity extends AppCompatActivity {
     private ScrollView scrollView;
     private Markwon markwon;
 
-    // Store last message for retry after key switch
+
     private String lastUserText = "";
 
     @Override
