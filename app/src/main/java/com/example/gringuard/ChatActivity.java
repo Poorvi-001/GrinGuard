@@ -12,6 +12,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 import io.noties.markwon.Markwon;
 import com.google.ai.client.generativeai.GenerativeModel;
+import com.google.ai.client.generativeai.java.ChatFutures;
 import com.google.ai.client.generativeai.java.GenerativeModelFutures;
 import com.google.ai.client.generativeai.type.Content;
 import com.google.ai.client.generativeai.type.GenerateContentResponse;
@@ -20,27 +21,35 @@ import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class ChatActivity extends AppCompatActivity {
 
     private static final String SYSTEM_PROMPT =
-            "You are GrinGuard, a strict dental assistant chatbot. " +
-                    "You ONLY answer questions about oral health, teeth, gums, dental hygiene, dental procedures, and related topics. " +
-                    "If the user asks ANYTHING not related to oral/dental health, respond ONLY with: 'I can only help with dental and oral health questions! 😊' and nothing else. " +
-                    "Keep all answers under 10 lines maximum. No long paragraphs. Be friendly and concise.";
+            "You are GrinGuard, a dental assistant. " +
+                    "ONLY answer dental/oral health questions. " +
+                    "If not dental-related, say only: 'I can only help with dental questions! 😊' " +
+                    "Rules: Max 2-3 short sentences. No bullet points. No lists. No headings. " +
+                    "Plain simple text only. Be friendly and very concise.";
 
-    private static final int MAX_HISTORY_TURNS = 4;
+
+    private static final String[] API_KEYS = {
+            "AIzaSyDq67WwzI2Hg7XWh3Tsw-bGvLHVH_BUkdc",
+            "AIzaSyD9kq9kfdo2RPNFEQHb_3sjlO7Is5Ic5YU",
+            "AIzaSyC_30JqwWCatKbeqs_XsBJ1rVBi6m395eM",
+    };
+    private int currentKeyIndex = 0;
+    private int retryCount = 0;
+    private static final int MAX_RETRIES = 3; // max = number of keys
 
     private GenerativeModelFutures model;
+    private ChatFutures chatSession;
     private androidx.appcompat.widget.AppCompatImageButton sendButton;
     private LinearLayout chatContainer;
     private EditText inputEditText;
     private ScrollView scrollView;
     private Markwon markwon;
 
-    private final List<Content> conversationHistory = new ArrayList<>();
+    // Store last message for retry after key switch
+    private String lastUserText = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,13 +62,7 @@ public class ChatActivity extends AppCompatActivity {
         inputEditText = findViewById(R.id.inputEditText);
         sendButton    = findViewById(R.id.sendButton);
 
-        GenerationConfig config = new GenerationConfig.Builder().build();
-        GenerativeModel gm = new GenerativeModel(
-                "gemini-2.5-flash-lite",
-                BuildConfig.GEMINI_API_KEY,
-                config
-        );
-        model = GenerativeModelFutures.from(gm);
+        initModel(currentKeyIndex);
 
         addBotBubble("👋 Hi! I'm GrinGuard, your dental assistant. How can I help you today?");
 
@@ -73,47 +76,34 @@ public class ChatActivity extends AppCompatActivity {
                     return;
                 }
                 addUserBubble(text);
+                sendButton.setEnabled(false);
+                retryCount = 0; // reset retry count for each new message
                 askGemini(text);
                 inputEditText.setText("");
             }
         });
     }
 
-    private boolean isDentalQuestion(String text) {
-        String lower = text.toLowerCase();
-        String[] dentalKeywords = {
-                "tooth", "teeth", "gum", "mouth", "dental", "dentist", "cavity", "cavities",
-                "braces", "brush", "floss", "toothache", "ache", "pain", "swollen", "bleed",
-                "whitening", "crown", "filling", "root canal", "plaque", "tartar", "tongue",
-                "jaw", "bite", "wisdom", "molar", "incisor", "enamel", "saliva", "breath",
-                "retainer", "aligner", "implant", "extraction", "sore", "infection", "abscess",
-                "sensitive", "sensitivity", "orthodon", "periodont", "oral", "hygiene", "rinse",
-                "mouthwash", "toothpaste", "toothbrush", "chew", "swallow", "lip", "cheek"
-        };
-        for (String keyword : dentalKeywords) {
-            if (lower.contains(keyword)) return true;
-        }
-        return false;
+    private void initModel(int keyIndex) {
+        GenerationConfig config = new GenerationConfig.Builder().build();
+        GenerativeModel gm = new GenerativeModel(
+                "gemini-2.5-flash",
+                API_KEYS[keyIndex],
+                config
+        );
+        model = GenerativeModelFutures.from(gm);
+        chatSession = model.startChat();
     }
 
     private void askGemini(String userText) {
+        lastUserText = userText;
         LinearLayout typingBubble = addTypingBubble();
 
-        String fullUserText = conversationHistory.isEmpty()
-                ? SYSTEM_PROMPT + "\n\nUser: " + userText
-                : "User: " + userText;
-
-        Content userContent = new Content("user", java.util.Collections.singletonList(
-                new com.google.ai.client.generativeai.type.TextPart(fullUserText)
-        ));
-
-        List<Content> contextWindow = new ArrayList<>();
-        int start = Math.max(0, conversationHistory.size() - MAX_HISTORY_TURNS * 2);
-        contextWindow.addAll(conversationHistory.subList(start, conversationHistory.size()));
-        contextWindow.add(userContent);
+        String fullPrompt = userText + "\n\n[" + SYSTEM_PROMPT + "]";
+        Content content = new Content.Builder().addText(fullPrompt).build();
 
         ListenableFuture<GenerateContentResponse> response =
-                model.generateContent(contextWindow.toArray(new Content[0]));
+                chatSession.sendMessage(content);
 
         Futures.addCallback(response, new FutureCallback<GenerateContentResponse>() {
             @Override
@@ -122,25 +112,9 @@ public class ChatActivity extends AppCompatActivity {
                 runOnUiThread(() -> {
                     chatContainer.removeView(typingBubble);
                     if (botReply != null && !botReply.isEmpty()) {
-
-                        Content savedUser = new Content("user", java.util.Collections.singletonList(
-                                new com.google.ai.client.generativeai.type.TextPart("User: " + userText)
-                        ));
-
-                        Content botContent = new Content("model", java.util.Collections.singletonList(
-                                new com.google.ai.client.generativeai.type.TextPart(botReply)
-                        ));
-
-                        conversationHistory.add(savedUser);
-                        conversationHistory.add(botContent);
-
-                        while (conversationHistory.size() > MAX_HISTORY_TURNS * 2) {
-                            conversationHistory.remove(0);
-                            conversationHistory.remove(0);
-                        }
-
                         addBotBubble(botReply);
                     }
+                    sendButton.setEnabled(true);
                 });
             }
 
@@ -148,7 +122,25 @@ public class ChatActivity extends AppCompatActivity {
             public void onFailure(Throwable t) {
                 runOnUiThread(() -> {
                     chatContainer.removeView(typingBubble);
-                    addBotBubble("Sorry, I couldn't connect. Please check your internet and try again.");
+                    String error = t.getMessage() != null ? t.getMessage() : "";
+
+                    if ((error.contains("429") || error.contains("quota") ||
+                            error.contains("exhausted") || error.contains("rate"))
+                            && retryCount < MAX_RETRIES) {
+
+                        // ✅ Switch to next key silently and retry automatically
+                        retryCount++;
+                        currentKeyIndex = (currentKeyIndex + 1) % API_KEYS.length;
+                        initModel(currentKeyIndex);
+
+                        // ✅ Retry the same message on new key — user sees nothing
+                        askGemini(lastUserText);
+
+                    } else {
+                        // All keys exhausted or different error
+                        sendButton.setEnabled(true);
+                        addBotBubble("⏳ I'm a bit busy right now. Please wait a few seconds and try again!");
+                    }
                 });
             }
         }, androidx.core.content.ContextCompat.getMainExecutor(this));
@@ -186,6 +178,7 @@ public class ChatActivity extends AppCompatActivity {
             scrollToBottom();
         });
     }
+
 
     private void addBotBubble(String message) {
         runOnUiThread(() -> {
@@ -229,6 +222,7 @@ public class ChatActivity extends AppCompatActivity {
         });
     }
 
+
     private LinearLayout addTypingBubble() {
         LinearLayout row = new LinearLayout(this);
         row.setOrientation(LinearLayout.HORIZONTAL);
@@ -264,5 +258,24 @@ public class ChatActivity extends AppCompatActivity {
 
     private void scrollToBottom() {
         scrollView.post(() -> scrollView.fullScroll(ScrollView.FOCUS_DOWN));
+    }
+
+    private boolean isDentalQuestion(String text) {
+        String lower = text.toLowerCase();
+        String[] dentalKeywords = {
+                "tooth", "teeth", "gum", "mouth", "dental", "dentist", "cavity", "cavities",
+                "braces", "brush", "floss", "toothache", "ache", "pain", "swollen", "bleed",
+                "whitening", "crown", "filling", "root canal", "plaque", "tartar", "tongue",
+                "jaw", "bite", "wisdom", "molar", "incisor", "enamel", "saliva", "breath",
+                "retainer", "aligner", "implant", "extraction", "sore", "infection", "abscess",
+                "sensitive", "sensitivity", "orthodon", "periodont", "oral", "hygiene", "rinse",
+                "mouthwash", "toothpaste", "toothbrush", "chew", "swallow", "lip", "cheek",
+                "calculus", "gingivitis", "caries", "fractured", "gringuard", "disease",
+                "scan", "detect", "severity", "treatment", "heal", "cure", "prevent"
+        };
+        for (String keyword : dentalKeywords) {
+            if (lower.contains(keyword)) return true;
+        }
+        return false;
     }
 }
